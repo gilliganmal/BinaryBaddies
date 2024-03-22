@@ -37,9 +37,15 @@ __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
   char *cwd = (char *)core->malloc(bufferSize);
   if (cwd == NULL) {
     core->wprintf(L"Failed to allocate memory for CWD.\n");
-    return 1; // Error code for memory allocation failure
+    return (LPVOID)1; // Error code for memory allocation failure
   }
   // // your answer here
+  DWORD df = GetCurrentDirectory(bufferSize, cwd);
+  if (df == 0){
+    core->wprintf(L"Failure\n");
+    return (LPVOID)1;
+  }
+  core->wprintf(L"%s\n", cwd);
   return lpOut; // Success
 }
 

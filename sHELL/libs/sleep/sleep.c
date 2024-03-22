@@ -38,45 +38,11 @@ __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
     return NULL;
   }
 
-  int duration = StrToIntA(argv[1]); // Convert the argument to an integer
-  
-  if (duration <= 0) {
-    core->wprintf(L"Invalid duration specified.\n");
-    return NULL;
-  }
-
-  // Sleep for the specified duration
-  Sleep(duration);
+  // // your answer here
+  DWORD num = StrToIntA(argv[1]);
+  Sleep(num);
   return (LPVOID)1;
 }
-
-//need to parse sleep duration command string into integer
-//implemented sign changes for future possible requirments(not required)
-
-// int custom_parsing_atoi(const char *str) {
-//     int result = 0;
-//     int sign = 1;
-//     if (*str == '-') {
-//         sign = -1;
-//         str++;
-//     }
-//     while (*str != '\0') {
-//         if (*str >= '0' && *str <= '9') {
-//             result = result * 10 + (*str - '0');
-//         } else {
-//             // Handle invalid characters
-//             return 0;
-//         }
-//         str++;
-//     }
-//     return sign * result;
-// }
-  
-//   int duration = custom_parsing_atoi(argv[1]);
-//   if (duration <= 0) {
-//     core->wprintf(L"Invalid duration specified.\n");
-//     return NULL;
-//   }
 
 // Entrypoint for the DLL
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {

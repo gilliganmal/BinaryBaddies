@@ -1,3 +1,4 @@
+
 #include "../include/sHELL.h"
 #include "errhandlingapi.h"
 #include <windows.h>
@@ -20,9 +21,9 @@ __declspec(dllexport) VOID CommandCleanup() {
 }
 // initialization code
 __declspec(dllexport) BOOL CommandInit(InternalAPI *lpCore) { 
-  core = lpCore;
-  return TRUE; 
-  }
+    core = lpCore;
+    return TRUE; }
+
 
 // Exported function - Name
 __declspec(dllexport) const char *CommandNameA() { return Name; }
@@ -30,30 +31,27 @@ __declspec(dllexport) const char *CommandNameA() { return Name; }
 // Exported function - Help
 __declspec(dllexport) const char *CommandHelpA() { return Help; }
 
-
 // Exported function - Run
 __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
-    // Example implementation: print arguments and return count
-    if (argc != 3) {
-        core->wprintf(L"Invalid arguments.\n%S", CommandHelpA());
-        return (LPVOID)1; // Error code for invalid arguments
-    }
+  // Example implementation: print arguments and return count
+  if (argc != 3) {
+    core->wprintf(L"Invalid arguments.\n%s", CommandHelpA());
+    return (LPVOID)1; // Error code for invalid arguments
+  }
+  // // your answer here
+  const char* url = argv[1];
+  const char* filePath = argv[2];
+  core->wprintf(L"downloading %s to %s\n", url, filePath);
 
-    // Convert ANSI strings to wide character strings
-    wchar_t url[MAX_PATH];
-    wchar_t filePath[MAX_PATH];
-    MultiByteToWideChar(CP_UTF8, 0, argv[1], -1, url, MAX_PATH);
-    MultiByteToWideChar(CP_UTF8, 0, argv[2], -1, filePath, MAX_PATH);
 
-    // Download the file from URL to local path
-    HRESULT hr = URLDownloadToFile(NULL, url, filePath, 0, NULL);
-    if (hr != S_OK) {
-        core->wprintf(L"Failed to download file from URL: %S\n", url);
-        return (LPVOID)1; // Error 
-    }
-
-    core->wprintf(L"File downloaded from URL: %S to local path: %S\n", url, filePath);
-    return (LPVOID)0; //Success
+  HRESULT dl = URLDownloadToFileA(NULL, url, filePath, 0, NULL);
+  if(dl == S_OK) {
+    core->wprintf(L"Sucess\n");
+    return (LPVOID)1; // Success
+  } else {
+    core->wprintf(L"Error Downloading File.\n%s",dl);
+    return (LPVOID)0; // fail :( 
+  }
 }
 
 

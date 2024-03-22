@@ -34,8 +34,15 @@ __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
     core->wprintf(L"Invalid arguments.\n%s", CommandHelp());
     return NULL; // Error code for invalid arguments
   }
-  // // your answer here
-  return (LPVOID)1; // Success indicates directory change
+
+  BOOL flag = SetCurrentDirectory(argv);
+  if (flag != 0){
+    return (LPVOID)1; // Success indicates directory change
+  }
+  else {
+    printf("Error changing directory");
+    return (LPVOID)0;
+  }
 }
 
 // Entrypoint for the DLL

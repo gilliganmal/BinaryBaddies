@@ -9,19 +9,18 @@
 #include "twindefs.h"
 #include "utils.h"
 
-//initializes core functionality which returns true or false boolean value
 BOOL InitializeCore() {
   // set wprintf
-  HMODULE hKernelBase = GetModuleHandleA("kernelbase.dll"); //make a handle to the kernel dll so you can access it
-  core = (InternalAPI *)s_malloc(sizeof(InternalAPI)); //allocate space using s_malloc
-  memset(core, 0, sizeof(InternalAPI)); //initialize memory block
+  HMODULE hKernelBase = GetModuleHandleA("kernelbase.dll");
+  core = (InternalAPI *)s_malloc(sizeof(InternalAPI));
+  memset(core, 0, sizeof(InternalAPI));
 
-  //get the address of wprintf from within the dll and assign it to the variable
   core->wprintf = (t_wprintf *)GetProcAddress(hKernelBase, "wprintf");
-  wprintf = core->wprintf; 
+  wprintf = core->wprintf;
   if (wprintf == NULL) {
     return FALSE;
   }
+
 
   //repeat for other library functions
   HMODULE hNtDLL = GetModuleHandleA("ntdll.dll");
@@ -51,12 +50,12 @@ BOOL InitializeCore() {
   core->wstrlen = wstrlen;
 
   // WinAPI
-  core->hKernel32 = GetModuleHandleW(L"kernek32.dll");
+  core->hKernel32 = GetModuleHandleW(L"kernel32.dll");
   core->hGetProcAddress =
       (_GetProcAddress *)GetProcAddress(core->hKernel32, "GetProcAddress");
 
   // hash function
-  core->dbj2hash = dbj2Hash;
+  core->djb2hash = djb2Hash;
   core->gaCommandsA = gaCommandsA;
   core->gModuleCount = &gModuleCount;
   core->ResolveCommandDependnecies = ResolveCommandDependencies;
@@ -112,11 +111,11 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     argv = CommandLineToArgvA(buffer, &argc);
     for (int i = 0; i < argc; i++) {
       debug_wprintf(L"%d %S=%lu %d \n", i, argv[i],
-                    dbj2Hash((unsigned char *)argv[i]), strlen(argv[i]));
+                    djb2Hash((unsigned char *)argv[i]), strlen(argv[i]));
     }
     if (argc > 0) {
       stripnewline(argv[0]);
-      unsigned int hash = dbj2Hash((unsigned char *)argv[0]);
+      unsigned int hash = djb2Hash((unsigned char *)argv[0]);
       for (int i = 0; i < gModuleCount; i++) {
         if (gaCommandsA[i].hash == hash) {
           debug_wprintf(L"Running %S\n", gaCommandsA[i].fnName());

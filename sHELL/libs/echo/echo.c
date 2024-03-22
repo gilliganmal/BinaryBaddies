@@ -7,15 +7,6 @@ const char Help[] = "echo a string back to the terminal. Example:"
                     ">>>asdf";
 
 LPVOID lpOut = NULL;
-
-void lazy_print(char *szArg) {
-  HANDLE stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
-  DWORD written;
-  WriteFile(stdOut, szArg, lstrlenA(szArg), &written, NULL);
-}
-
-InternalAPI *core = NULL;
-
 __declspec(dllexport) VOID CommandCleanup() {
   if (lpOut) {
     core->free(lpOut);
@@ -23,6 +14,13 @@ __declspec(dllexport) VOID CommandCleanup() {
   }
 }
 
+void *lazy_print(char *szArg) {
+  HANDLE stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+
+  WriteFile(stdOut, szArg, lstrlenA(szArg), NULL, NULL);
+}
+
+InternalAPI *core = NULL;
 __declspec(dllexport) BOOL CommandInit(InternalAPI *lpCore) {
   core = lpCore;
   return TRUE;
@@ -37,21 +35,19 @@ __declspec(dllexport) const char *CommandHelpA() { return Help; }
 // Exported function - Run
 __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
   // Example implementation: print arguments and return count
-  for (int i = 0; i < argc; i++) {
-    core->wprintf(L"%S\n", argv[i]);
+  if (argc != 2) {
+    lazy_print("argc != 2.");
+    for (int i = 0; i < argc; i++) {
+      core->wprintf(L"%S\n", argv[i]);
+      /*
+       *///lazy_print(argv[i]);
+      // lazy_print("\n");
+    }
+    return NULL;
   }
-
-  // Print the second argument if there are exactly 2 arguments
-  if (argc == 2) {
-    HANDLE stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    DWORD written;
-    WriteFile(stdOut, argv[1], lstrlenA(argv[1]), &written, NULL);
-  }
-
-  return (LPVOID)argc;
+  lazy_print(argv[1]);
+  return (LPVOID)1;
 }
-
-
 
 // Optional: Entry point for DLL
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
