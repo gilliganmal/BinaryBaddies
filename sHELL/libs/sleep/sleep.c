@@ -37,6 +37,7 @@ __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
     core->wprintf(L"Invalid input:\n %S\n", Help);
     return NULL;
   }
+
   // // your answer here
   DWORD num = StrToIntA(argv[1]);
   Sleep(num);

@@ -21,6 +21,8 @@ BOOL InitializeCore() {
     return FALSE;
   }
 
+
+  //repeat for other library functions
   HMODULE hNtDLL = GetModuleHandleA("ntdll.dll");
   if (hNtDLL == NULL) {
     wprintf(L"Failed to find ntdll.dll %d\n", GetLastError());

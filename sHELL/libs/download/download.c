@@ -2,7 +2,7 @@
 #include "../include/sHELL.h"
 #include "errhandlingapi.h"
 #include <windows.h>
-//#include <wchar.h>
+
 
 const char Name[] = "download";
 const char Help[] =
@@ -23,6 +23,7 @@ __declspec(dllexport) VOID CommandCleanup() {
 __declspec(dllexport) BOOL CommandInit(InternalAPI *lpCore) { 
     core = lpCore;
     return TRUE; }
+
 
 // Exported function - Name
 __declspec(dllexport) const char *CommandNameA() { return Name; }
@@ -52,6 +53,7 @@ __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
     return (LPVOID)0; // fail :( 
   }
 }
+
 
 // Entrypoint for the DLL
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {

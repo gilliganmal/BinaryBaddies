@@ -21,7 +21,6 @@ typedef int t_strcmp(const char *s1, const char *s2);
 
 typedef char *t_strcpy(char *dest, const char *src);
 typedef unsigned long t_djb2Hash(unsigned char *str);
-
 typedef void t_stripnewline(char *x);
 
 typedef void *t_memset(void *_Dst, int _Val, size_t _Size);

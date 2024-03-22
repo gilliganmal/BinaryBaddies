@@ -77,6 +77,7 @@ BOOL WINAPI AddModuleA(char *lpszFilePath) {
   gaCommandsA[gModuleCount].fnInit(core);
 
   gaCommandsA[gModuleCount].hash =
+
       djb2Hash((unsigned char *)gaCommandsA[gModuleCount].fnName());
 
   wprintf(L"[!] Added New Module: %S: %lu\n",
@@ -94,6 +95,7 @@ cleanup:
 BOOL ResolveCommandDependencies(CommandDependency deps[]) {
   // deps is a null terminated array
   // O(n^2) dummy resolver
+
   debug_wprintf(L"[+] Resolving Dependencies...\n");
   for (int i = 0; deps[i].hash + deps[i].lpCmd != 0; i++) {
     // dumb linear search for cmd
