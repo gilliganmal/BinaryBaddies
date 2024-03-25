@@ -2,7 +2,7 @@
 #include "../include/sHELL.h"
 #include <windows.h>
 
-const char Name[] = "template";
+const char Name[] = "aesgcm";
 const char Help[] = "Starter template to demonstrate libraries. this just "
                     "prints a message Example:"
                     ">>>template "
