@@ -4,11 +4,9 @@ from flask_sqlalchemy import SQLAlchemy
 from dataclasses import dataclass
 import os # for random
 
-import implant_statuses
-
 db  = SQLAlchemy()
 
-# Implant Table
+# Implants Table
 @dataclass
 class Implant(db.Model):
     # Implant ID: Create an ID for the implant to distinguish is from others
@@ -36,14 +34,7 @@ class Implant(db.Model):
     # Expected Check in: When should you expect to see the agent again?
     expected_checkin = db.Column(db.String)
 
-
-# Generate a random task ID
-def generate_task_id():
-    return os.urandom(16).hex()
-
-# Commands : Keep track of which operators issued what command
-
-# Task Table: Keep track of jobs sent to implants that are in progress/finished
+# Tasks Table: Keep track of jobs sent to implants that are in progress/finished
 @dataclass 
 class Task(db.Model):
     id: int  =  db.Column(db.Integer, primary_key = True)
@@ -53,28 +44,53 @@ class Task(db.Model):
     task_opcode:str  = db.Column(db.String)
     task_args:str  = db.Column(db.String)
 
-
-# Clients: Keep track of operators connected to the C2 via the client
+# Clients Table: Keep track of operators connected to the C2 via the client
 @dataclass
 class Client(db.Model):
     id: int = db.Column(db.Integer, primary_key = True)
 
 
 # MAKE MODEL FUNCTIONS
-# TO DO FILL IN BLANKS
-def make_implant():
-    i = Implant()
+def make_implant(id, computer_name, username, computer_GUID, privileges, connecting_IP_addr, session_key, sleep_frq, checkin_frq, first_seen, last_seen, expected_checkin):
+    i = Implant(
+        id = id,
+        computer_name = computer_name, 
+        username = username,
+        computer_GUID = computer_GUID, 
+        privileges = privileges,
+        connecting_IP_addr = connecting_IP_addr,
+        session_key = session_key,
+        sleep_frq = sleep_frq,
+        checkin_frq = checkin_frq,
+        first_seen = first_seen,
+        last_seen = last_seen,
+        expected_checkin = expected_checkin
+    )
     return i
 
-def make_task():
+# Task Statuses
+STATUS_CREATED  = "implant created"
+STATUS_TASK_RECIEVED = "implant pulled down task"
+STATUS_TASK_COMPLETE = "implant successfully compeleted task"
+STATUS_TASK_FAILED = "implant failed ot complete task"
+
+# Generate a random task ID
+def generate_task_id():
+    return os.urandom(16).hex()
+
+def make_task(id, task_id, status, implant_id, task_opcode, task_args):
     t = Task(
-        task_id=make_task_id(), 
+        id = id,
+        task_id = generate_task_id(), 
         status = STATUS_CREATED,
         implant_id = implant_id,
+        task_opcode = task_opcode,
         task_args  = task_args
-        )
+    )
     return t
 
-def make_client():
-    c = Client()
+def make_client(id):
+    c = Client(
+        id = id
+    )
     return c
