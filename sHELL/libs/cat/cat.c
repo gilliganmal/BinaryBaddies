@@ -70,7 +70,6 @@ __declspec(dllexport) const char *CommandNameA() { return Name; }
 __declspec(dllexport) const char *CommandHelpA() { return Help; }
 
 #define DEBUG
-// Exported function - Run
 __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
     if (argc < 2) {
         core->wprintf(L"Invalid arguments.\n%S", CommandHelpA());
@@ -82,11 +81,11 @@ __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
     for (int i = 1; i < argc; i++) {
         int readfArgc;
         char **readfArgv = FileNameToArgv(&readfArgc, argv[i]);
-        LPVOID readfOut = readf->fnRunA(readfArgc, readfArgv);
+        LPVOID readfOut = readf->fnRun(readfArgc, readfArgv); // Changed fnRunA to fnRun
         if (readfOut) {
             CommandOut_readf *readfResult = (CommandOut_readf *)readfOut;
             // Print the file contents to the standard output
-            core->printf("%s", readfResult->lpBuffer);
+            core->wprintf(L"%s", readfResult->lpBuffer); // Changed printf to wprintf
             totalSize += readfResult->qwFileSize.QuadPart;
             core->free(readfResult->lpBuffer);
             core->free(readfResult);
@@ -107,8 +106,12 @@ __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
     }
     core->memset(concatenatedContents, 0, totalSize + 1);
 
+    // Concatenate file contents into concatenatedContents
+    // You need to implement this part
+
     return concatenatedContents;
 }
+
 
 
 // Entrypoint for the DLL
