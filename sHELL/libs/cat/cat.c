@@ -72,15 +72,44 @@ __declspec(dllexport) const char *CommandHelpA() { return Help; }
 #define DEBUG
 // Exported function - Run
 __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
-  if (argc < 2) {
-    core->wprintf(L"Invalid arguments.\n%S", CommandHelpA());
-    return NULL; // Error code for invalid arguments
-  }
+    if (argc < 2) {
+        core->wprintf(L"Invalid arguments.\n%S", CommandHelpA());
+        return NULL; // Error code for invalid arguments
+    }
 
-  LPVOID readfOut = NULL;
-  // // your answer here
-  return readfOut;
+    // Allocate memory to hold the concatenated file contents
+    size_t totalSize = 0;
+    for (int i = 1; i < argc; i++) {
+        int readfArgc;
+        char **readfArgv = FileNameToArgv(&readfArgc, argv[i]);
+        LPVOID readfOut = readf->fnRunA(readfArgc, readfArgv);
+        if (readfOut) {
+            CommandOut_readf *readfResult = (CommandOut_readf *)readfOut;
+            // Print the file contents to the standard output
+            core->printf("%s", readfResult->lpBuffer);
+            totalSize += readfResult->qwFileSize.QuadPart;
+            core->free(readfResult->lpBuffer);
+            core->free(readfResult);
+        }
+        core->free(readfArgv);
+    }
+
+    if (totalSize == 0) {
+        core->wprintf(L"No files to concatenate.\n");
+        return NULL;
+    }
+
+    // Allocate memory to hold the concatenated file contents
+    char *concatenatedContents = (char *)core->malloc(totalSize + 1);
+    if (!concatenatedContents) {
+        core->wprintf(L"Memory allocation failed.\n");
+        return NULL;
+    }
+    core->memset(concatenatedContents, 0, totalSize + 1);
+
+    return concatenatedContents;
 }
+
 
 // Entrypoint for the DLL
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {

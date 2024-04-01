@@ -3,7 +3,6 @@
 #include "errhandlingapi.h"
 #include <windows.h>
 
-
 const char Name[] = "download";
 const char Help[] =
     "Download a file from a specified URL to the local filesystem.\n"
@@ -20,10 +19,7 @@ __declspec(dllexport) VOID CommandCleanup() {
   }
 }
 // initialization code
-__declspec(dllexport) BOOL CommandInit(InternalAPI *lpCore) { 
-    core = lpCore;
-    return TRUE; }
-
+__declspec(dllexport) BOOL CommandInit(InternalAPI *lpCore) { core = lpCore; }
 
 // Exported function - Name
 __declspec(dllexport) const char *CommandNameA() { return Name; }
@@ -38,22 +34,21 @@ __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
     core->wprintf(L"Invalid arguments.\n%s", CommandHelpA());
     return (LPVOID)1; // Error code for invalid arguments
   }
-  // // your answer here
+
   const char* url = argv[1];
   const char* filePath = argv[2];
-  core->wprintf(L"downloading %s to %s\n", url, filePath);
-
-
-  HRESULT dl = URLDownloadToFileA(NULL, url, filePath, 0, NULL);
-  if(dl == S_OK) {
-    core->wprintf(L"Sucess\n");
-    return (LPVOID)1; // Success
-  } else {
-    core->wprintf(L"Error Downloading File.\n%s",dl);
-    return (LPVOID)0; // fail :( 
+  
+  // Download the file from URL to local path
+  HRESULT hr = URLDownloadToFileA(NULL, url, filePath, 0, NULL);
+  if (hr != S_OK) {
+    core->wprintf(L"Failed to download file from URL: %S\n", url);
+    return (LPVOID)1; // Error 
   }
-}
 
+  core->wprintf(L"File downloaded from URL: %S to local path: %S\n", url, filePath);
+  
+  return (LPVOID)0; // Success
+}
 
 // Entrypoint for the DLL
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {

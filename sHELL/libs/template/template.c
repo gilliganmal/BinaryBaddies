@@ -18,7 +18,6 @@ __declspec(dllexport) VOID CommandCleanup() {
   }
 }
 // initialization code
-
 __declspec(dllexport) BOOL CommandInit(InternalAPI *lpCore) {
   core = lpCore;
   return TRUE;

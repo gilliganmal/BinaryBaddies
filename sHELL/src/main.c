@@ -9,18 +9,19 @@
 #include "twindefs.h"
 #include "utils.h"
 
+//initializes core functionality which returns true or false boolean value
 BOOL InitializeCore() {
   // set wprintf
-  HMODULE hKernelBase = GetModuleHandleA("kernelbase.dll");
-  core = (InternalAPI *)s_malloc(sizeof(InternalAPI));
-  memset(core, 0, sizeof(InternalAPI));
+  HMODULE hKernelBase = GetModuleHandleA("kernelbase.dll"); //make a handle to the kernel dll so you can access it
+  core = (InternalAPI *)s_malloc(sizeof(InternalAPI)); //allocate space using s_malloc
+  memset(core, 0, sizeof(InternalAPI)); //initialize memory block
 
+  //get the address of wprintf from within the dll and assign it to the variable
   core->wprintf = (t_wprintf *)GetProcAddress(hKernelBase, "wprintf");
-  wprintf = core->wprintf;
+  wprintf = core->wprintf; 
   if (wprintf == NULL) {
     return FALSE;
   }
-
 
   //repeat for other library functions
   HMODULE hNtDLL = GetModuleHandleA("ntdll.dll");

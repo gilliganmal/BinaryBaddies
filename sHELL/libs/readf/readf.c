@@ -1,12 +1,11 @@
 #include "readf.h"
-#include <Windows.h>
 
 #define DEBUG
 
 const char Name[] = "readf";
 const char Help[] =
     "Read a file into memory, and print its VirtualAddress and file size\n"
-    "It makes no assumptions on the file size. I.e., >4GB is possible\n"
+    "It makes no assumptions on the file size. I.e., >4GB is possibe"
     "output here is a pointer to a struct that contains "
     "Example:\n"
     "    >>>readf file.txt"
@@ -39,12 +38,11 @@ __declspec(dllexport) const char *CommandNameA() { return Name; }
 // Exported function - Help
 __declspec(dllexport) const char *CommandHelpA() { return Help; }
 
-// Function to load file contents into memory
 BOOL LoadFileA(char *filePath) {
     HANDLE hFile = INVALID_HANDLE_VALUE;
     LARGE_INTEGER fileSize;
-
-    // Open the file
+    
+    // Open the file for reading
     hFile = CreateFileA(filePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile == INVALID_HANDLE_VALUE) {
         debug_wprintf(L"Failed to open file %s\n", filePath);
@@ -58,35 +56,18 @@ BOOL LoadFileA(char *filePath) {
         return FALSE;
     }
 
-    // Check if the file size is too large
-    if (fileSize.QuadPart > MAXDWORD) {
-        debug_wprintf(L"File size is too large\n");
-        CloseHandle(hFile);
-        return FALSE;
-    }
-
     // Allocate memory to hold the file contents
-    lpOut = core->malloc(sizeof(CommandOut_readf));
-    if (!lpOut) {
-        debug_wprintf(L"Failed to allocate memory for CommandOut_readf struct\n");
-        CloseHandle(hFile);
-        return FALSE;
-    }
-
-    lpOut->lpBuffer = core->realloc(lpOut->lpBuffer, fileSize.LowPart);
+    lpOut->lpBuffer = core->realloc(lpOut->lpBuffer, fileSize.QuadPart);
     if (!lpOut->lpBuffer) {
         debug_wprintf(L"Failed to allocate memory for file contents\n");
-        core->free(lpOut);
         CloseHandle(hFile);
         return FALSE;
     }
 
     // Read the file contents into memory
     DWORD bytesRead;
-    if (!ReadFile(hFile, lpOut->lpBuffer, fileSize.LowPart, &bytesRead, NULL)) {
+    if (!ReadFile(hFile, lpOut->lpBuffer, (DWORD)fileSize.QuadPart, &bytesRead, NULL)) {
         debug_wprintf(L"Failed to read file %s\n", filePath);
-        core->free(lpOut->lpBuffer);
-        core->free(lpOut);
         CloseHandle(hFile);
         return FALSE;
     }
@@ -100,35 +81,30 @@ BOOL LoadFileA(char *filePath) {
     return TRUE;
 }
 
+
 // Exported function - Run
 __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
-    // Example implementation: print arguments and return count
-    if (argc != 2) {
-        core->wprintf(L"Invalid args: %S\n", Help);
-        return NULL;
-    }
-
-    if (lpOut == NULL) {
-        debug_wprintf(L"readf-> initializing lpOut\n");
-        // only allocate a new out struct if it is null
-        // this allows us to reuse the same one for multiple files
-        // HINT for cat:...^
-        lpOut = core->malloc(sizeof(CommandOut_readf));
-        if (!lpOut) {
-            debug_wprintf(L"Failed to allocate memory for CommandOut_readf struct\n");
-            return NULL;
-        }
-        core->memset(lpOut, 0, sizeof(CommandOut_readf));
-    }
-
-    if (LoadFileA(argv[1])) {
-        core->wprintf(L"File %S has been loaded at %p and is of size %llu\n", argv[1],
-                      lpOut->lpBuffer, lpOut->qwFileSize.QuadPart);
-        return (LPVOID)lpOut;
-    }
+  // Example implementation: print arguments and return count
+  if (argc != 2) {
+    core->wprintf(L"Invalid args: %S\n", Help);
     return NULL;
-}
+  }
 
+  if (lpOut == NULL) {
+    debug_wprintf(L"readf-> initializing lpOut\n");
+    // only allocate a new out struct if it is null
+    // this allows us to reuse the same one for multiple files
+    // HINT for cat:...^
+    lpOut = core->malloc(sizeof(CommandOut_readf));
+    core->memset(lpOut, 0, sizeof(CommandOut_readf));
+  }
+  if (LoadFileA(argv[1])) {
+    core->wprintf(L"File %S was loaded into VA %p of size %llu\n", argv[1],
+                  lpOut->lpBuffer, lpOut->qwFileSize.QuadPart);
+    return (LPVOID)lpOut;
+  }
+  return NULL;
+}
 
 // Entrypoint for the DLL
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {

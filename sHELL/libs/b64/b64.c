@@ -1,8 +1,5 @@
 #include <windows.h>
-
 #include "../include/sHELL.h"
-
-#include <wincrypt.h>
 
 const char Name[] = "b64";
 const char Help[] =
@@ -16,9 +13,9 @@ InternalAPI *core = NULL;
 LPVOID lpOut = NULL;
 
 // Initialization code
-__declspec(dllexport) BOOL CommandInit(InternalAPI *lpCore) {
-  core = lpCore;
-  return TRUE;
+__declspec(dllexport) BOOL CommandInit(InternalAPI *lpCore) { 
+    core = lpCore; 
+    return TRUE; // Initialization successful
 }
 
 // Exported function - Name
@@ -27,7 +24,7 @@ __declspec(dllexport) const char *CommandNameA() { return Name; }
 // Exported function - Help
 __declspec(dllexport) const char *CommandHelpA() { return Help; }
 
-// Clenaup
+// Cleanup
 __declspec(dllexport) VOID CommandCleanup() {
   if (lpOut) {
     core->free(lpOut);
@@ -37,38 +34,57 @@ __declspec(dllexport) VOID CommandCleanup() {
 
 // Utility function to encode a string to base64
 BOOL Base64Encode(const char *input, char **output, DWORD *outputSize) {
-  // [in] pbBinary -- A pointer to the array of bytes to be converted into a string.
-  const BYTE *pbBinary = (BYTE *) input;
+  DWORD cbData = lstrlenA(input);
+  DWORD cchEncoded = 0;
 
-  // [in] pbBinary -- A pointer to the array of bytes to be converted into a string.
-  DWORD cbBinary = sizeof(input) / sizeof(char);
+  // Calculate the size of the encoded string
+  if (!CryptBinaryToStringA((const BYTE*)input, cbData, CRYPT_STRING_BASE64, NULL, &cchEncoded))
+    return FALSE;
 
-  // [in] dwFlags -- Specifies the format of the resulting formatted string.
-  // CRYPT_STRING_BASE64HEADER - 0x00000000
+  // Allocate memory for the encoded string
+  *output = (char*)core->malloc(cchEncoded);
+  if (!*output)
+    return FALSE;
 
-  // [out, optional] pszString
-  // A pointer to a buffer that receives the converted string. To calculate the number of characters that must be allocated to hold the returned string, set this parameter to NULL. The function will place the required number of characters, including the terminating NULL character, in the value pointed to by pcchString.
-  LPSTR pszString = *output;
+  // Encode the string
+  if (!CryptBinaryToStringA((const BYTE*)input, cbData, CRYPT_STRING_BASE64, *output, &cchEncoded)) {
+    core->free(*output);
+    return FALSE;
+  }
 
-  // [in, out] pcchString
-  // A pointer to a DWORD variable that contains the size, in TCHARs, of the pszString buffer. If pszString is NULL, the function calculates the length of the return string (including the terminating null character) in TCHARs and returns it in this parameter. If pszString is not NULL and big enough, the function converts the binary data into a specified string format including the terminating null character, but pcchString receives the length in TCHARs, not including the terminating null character.
-  DWORD *pcchString = outputSize;
-
-  // The CryptBinaryToString function converts an array of bytes into a formatted string.
-  BOOL result = CryptBinaryToStringA(pbBinary, cbBinary, CRYPT_STRING_BASE64HEADER, pszString, pcchString);
-
-  // If the function succeeds, the function returns nonzero (TRUE).
-  // If the function fails, it returns zero (FALSE).
-  return result;
+  *outputSize = cchEncoded;
+  return TRUE;
 }
 
+// Utility function to decode a base64 string
+BOOL Base64Decode(const char *input, BYTE **output, DWORD *outputSize) {
+  DWORD cchData = lstrlenA(input);
+  DWORD cbDecoded = 0;
+
+  // Calculate the size of the decoded data
+  if (!CryptStringToBinaryA(input, cchData, CRYPT_STRING_BASE64, NULL, &cbDecoded, NULL, NULL))
+    return FALSE;
+
+  // Allocate memory for the decoded data
+  *output = (BYTE*)core->malloc(cbDecoded);
+  if (!*output)
+    return FALSE;
+
+  // Decode the data
+  if (!CryptStringToBinaryA(input, cchData, CRYPT_STRING_BASE64, *output, &cbDecoded, NULL, NULL)) {
+    core->free(*output);
+    return FALSE;
+  }
+
+  *outputSize = cbDecoded;
+  return TRUE;
+}
 
 // Utility function to decode a base64 string
 BOOL Base64Decode(const char *input, BYTE **output, DWORD *outputSize) {
   // // your answer here
   return TRUE;
 }
-
 
 // Exported function - Run
 __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
@@ -83,22 +99,19 @@ __declspec(dllexport) LPVOID CommandRunA(int argc, char **argv) {
     if (Base64Encode(argv[2], &encodedString, &encodedSize)) {
       core->wprintf(L"%S\n", encodedString);
       lpOut = (LPVOID)encodedString;
-
     } else {
       core->wprintf(L"Error encoding string.\n");
-      return (LPVOID)NULL;
+      return NULL; // Error code for encoding failure
     }
   } else if (core->strcmp(argv[1], "decode") == 0) {
     BYTE *decodedBytes = NULL;
     DWORD decodedSize = 0;
     if (Base64Decode(argv[2], &decodedBytes, &decodedSize)) {
-      // Assuming decoded output is also an ANSI string
       core->wprintf(L"%.*S\n", decodedSize, decodedBytes);
-      // core->free(decodedBytes);
       lpOut = (LPVOID)decodedBytes;
     } else {
       core->wprintf(L"Error decoding string.\n");
-      return NULL;
+      return NULL; // Error code for decoding failure
     }
   } else {
     core->wprintf(L"Invalid command. Use 'encode' or 'decode'.\n");
