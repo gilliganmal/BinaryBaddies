@@ -2,4 +2,8 @@
 *.dll
 *.pdb 
 djb
+<<<<<<< HEAD
+=======
+vs/
+>>>>>>> 51fac4d53103d55b47b4b9ec1f6f59d62ca62782
 
