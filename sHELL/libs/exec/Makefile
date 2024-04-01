@@ -1,12 +1,14 @@
+
 CC=x86_64-w64-mingw32-gcc
 .PHONY: clean build 
 NAME=exec
-CFLAGS=-Wall -fPIC -shared -nostdlib -ffreestanding -s -I/c/programdata/chocolatey/lib/mingw/tools/install/mingw64/x86_64-w64-mingw32/include
-LDFLAGS=-lkernel32
+CFLAGS=-Wall -fPIC -shared -nostdlib -ffreestanding -s 
+LDFLAGS=-lkernel32 
 all: build dist 
 
 build:
 	$(CC) $(CFLAGS) $(NAME).c  -e DllMain  $(LDFLAGS) -o $(NAME).dll
+
 
 dist: build 
 	cp $(NAME).dll ../../dist/
