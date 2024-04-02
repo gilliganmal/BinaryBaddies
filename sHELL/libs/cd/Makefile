@@ -3,7 +3,7 @@ CC=x86_64-w64-mingw32-gcc
 .PHONY: clean build 
 NAME=cd
 CFLAGS=-Wall -fPIC -shared -nostdlib -ffreestanding -s 
-LDFLAGS=-lkernel32
+LDFLAGS=-lkernel32 
 all: build dist 
 
 build:
