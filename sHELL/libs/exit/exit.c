@@ -4,7 +4,7 @@
 #include <windows.h>
 
 const char Name[] = "exit";
-const char Help[] = "exit the shell by calling ExitProcess with exitcode 0"
+const char Help[] = "exit the shell by calling ExitProcess with exitcode 0\n"
                     ">>>exit\n"
                     "$";
 

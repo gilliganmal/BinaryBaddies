@@ -4,7 +4,7 @@
 
 
 const char Name[] = "pkill";
-const char Help[] = "Terminate a process by its ID. Example:"
+const char Help[] = "Terminate a process by its ID. Example:\n"
                     ">>>pkill <process_id>";
 
 InternalAPI *core = NULL;

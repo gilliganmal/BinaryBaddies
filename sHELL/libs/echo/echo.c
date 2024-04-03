@@ -2,7 +2,7 @@
 #include <windows.h>
 
 const char Name[] = "echo";
-const char Help[] = "echo a string back to the terminal. Example:"
+const char Help[] = "echo a string back to the terminal. Example:\n"
                     ">>>echo asdf"
                     ">>>asdf";
 
