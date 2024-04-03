@@ -3,6 +3,7 @@ from flask import Flask
 from speedrun.db import db 
 from speedrun.admin import admin
 from speedrun.rpc import rpc 
+
 def build_app():
     app = Flask(__name__)
     app.config.from_mapping(
