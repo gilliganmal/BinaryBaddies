@@ -31,6 +31,16 @@ class Implant(db.Model):
     # Expected Check in: When should you expect to see the agent again?
     expected_checkin = db.Column(db.String)
 
+'''
+class Task(db.Model):
+    id =  db.Column(db.Integer, primary_key = True)
+    task_id = db.Column(db.String)
+    status = db.Column(db.String)
+    implant_guid = db.Column(db.String)
+    task_opcode = db.Column(db.Integer)
+    task_args = db.Column(db.String)
+'''
+
 # Tasks Table: Keep track of jobs sent to implants that are in progress/finished
 @dataclass 
 class Task(db.Model):

