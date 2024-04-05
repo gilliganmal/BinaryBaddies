@@ -1,9 +1,9 @@
 # init_server.py
 
 from flask import Flask 
-from C2_Server.database import db
-from C2_Server.app_blueprints.admin import admin
-from C2_Server.app_blueprints.rpc import rpc
+# from database import db
+from blueprint_admin import admin
+# from blueprint_rpc import rpc
 
 
 def build_app():
@@ -14,13 +14,18 @@ def build_app():
     app.config.from_mapping(SQLALCHEMY_DATABASE_URI = 'postgresql://user:pass@localhost:6666/c2.db')
 
     app.register_blueprint(admin)
-    app.register_blueprint(rpc)
+    # app.register_blueprint(rpc)
 
-    db.init_app(app)
+    # db.init_app(app)
 
     return app 
 
-
+'''
 def init_db():
     db.drop_all()
     db.create_all()
+'''
+
+if __name__ == '__main__':  
+   app = build_app()
+   app.run()

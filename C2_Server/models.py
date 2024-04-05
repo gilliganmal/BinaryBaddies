@@ -1,5 +1,5 @@
 
-from C2_Server.database import db
+from database import db
 from dataclasses import dataclass
 import os # for random
 

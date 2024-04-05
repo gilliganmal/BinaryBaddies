@@ -31,7 +31,7 @@ def create_dummy_implyn():
     r.Hostname = "Ghost"
     r.GUID = "xxxxxxxxxxxx"
     out = r.SerializeToString()
-    r = reuqests.post(urljoin( c2, register), data = out)
+    r = requests.post(urljoin( c2, register), data = out)
 
 
 #create_dummy_task()
