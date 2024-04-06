@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-message Register {
+message RegisterImplant {
   string Password = 1;
   string GUID = 2;
   string Username = 3;
