@@ -6,7 +6,9 @@ from flask_wtf import FlaskForm, CSRFProtect
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, Length
 import requests
+from client_pb2 import Command
 
+msg = Command()
 app = Flask(__name__)
 
 app.secret_key = 'tO$&!|0wkamvVia0?n$NqIRVWOG'
@@ -19,18 +21,21 @@ csrf = CSRFProtect(app)
 foo = secrets.token_urlsafe(16)
 app.secret_key = foo
 
+
 class Terminal(FlaskForm):
-    cmd = StringField('=> ', validators=[DataRequired(), Length(3, 400)])
+    cmd = StringField('=> ', validators=[DataRequired(), Length(1, 400)])
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    if request.method == 'POST':
-        print(request.form)  # Print out the form data
-    term = Terminal()
-    cmd = term.cmd.data
-    return render_template('index.html', form=term, cmd=cmd)
-
-
+    whole = ""
+    form = Terminal()
+    if form.validate_on_submit():
+        whole = form.cmd.data
+        firstword, leftoverstring = whole.split(' ', 1)
+        msg.cmd = firstword
+        msg.args = leftoverstring
+        print('Command received successfully!')
+    return render_template('index.html', form=form, cmd=whole)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message Command {
+    string cmd = 1;
+    string args = 2;
+}
