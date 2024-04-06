@@ -2,7 +2,7 @@
 
 from flask import Blueprint, request, jsonify 
 from database import db 
-from models import * 
+from models import *
 
 admin = Blueprint("admin", __name__)
 

@@ -11,7 +11,7 @@ password = "foobar"
 
 @rpc.route("/register", methods=["POST"])
 def handle_register():
-    register = RegisterImplant()
+    register = Register()
     req_data = request.get_data()
     register.ParseFromString(req_data)
     if register.Password != password:

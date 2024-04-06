@@ -47,7 +47,7 @@ class Task(db.Model):
     id: int  =  db.Column(db.Integer, primary_key = True)
     task_id: str = db.Column(db.String)
     status: str = db.Column(db.String)
-    implant_id:int   = db.Column(db.Integer)
+    implant_guid:int   = db.Column(db.Integer)
     task_opcode:str  = db.Column(db.String)
     task_args:str  = db.Column(db.String)
 
