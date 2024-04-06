@@ -8,10 +8,10 @@ Super Secret Client Endpoint
 <style>
     /* Custom CSS for terminal-like appearance */
     .terminal-form {
-        background-color: black;
-        color: white;
-        border: 2px solid #33cc33; /* Green border */
-        border-radius: 5px;
+        background-color: #f8e7e7; /*pink!*/
+        color: #724060;
+        border: 7px solid #724060; /* purple border */
+        border-radius: 25px;
         padding: 10px;
         margin-top: 20px;
         font-family: monospace; /* Use a monospace font for terminal-like appearance */
@@ -20,29 +20,31 @@ Super Secret Client Endpoint
     }
     .terminal-input {
         background-color: transparent; /* Transparent background */
-        color: white;
+        color: #724060;
         border: none;
         outline: none;
         font-family: monospace; /* Use a monospace font for terminal-like appearance */
         width: 100%; /* Fill the width of the parent container */
     }
+    .cursor {
+        cursor: url("{{ url_for('static', filename='mouse.png') }}"), auto;
+    }
 </style>
 
-<div class="container">
-  <div class="row">
-    <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
-      <h1 class="pt-5 pb-2">Welcome to our homebase!</h1>
-      <p class="lead">This is the index page for an example Flask app using Bootstrap and WTForms.</p>
-      <form id="myForm" action="/" method="post" class="terminal-form">
-          {{ form.csrf_token }}
-          <div class="border p-4 rounded">
-              <input type="text" name="cmd" class="terminal-input" autofocus placeholder="=> " required>
-          </div>
-      </form>
-      <h3>Previous command:</h3>
-      <p class="pt-5"><strong>{{ cmd }}</strong></p>
+<div class="container cursor">
+    <div class="row">
+        <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
+            <h1 class="pt-5 pb-2">Welcome to our homebase!</h1>
+            <form id="myForm" action="/" method="post" class="terminal-form">
+                {{ form.csrf_token }}
+                <div class="border p-4 rounded">
+                    <input type="text" name="cmd" class="terminal-input" autofocus placeholder="=> " required>
+                </div>
+            </form>
+            <h3>Previous command:</h3>
+            <p class="pt-5"><strong>{{ cmd }}</strong></p>
+        </div>
     </div>
-  </div>
 </div>
 
 <script>
