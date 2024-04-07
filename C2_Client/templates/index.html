@@ -5,6 +5,14 @@ Super Secret Client Endpoint
 {% endblock %}
 
 {% block content %}
+
+{% if error_message %}
+<div class="alert alert-danger" role="alert">
+    {{ error_message }} <!-- Corrected here -->
+</div>
+{% endif %}
+
+
 <style>
     /* Custom CSS for terminal-like appearance */
     .terminal-form {
@@ -26,9 +34,6 @@ Super Secret Client Endpoint
         font-family: monospace; /* Use a monospace font for terminal-like appearance */
         width: 100%; /* Fill the width of the parent container */
     }
-    /*.cursor {
-        cursor: url("{{ url_for('static', filename='mouse.png') }}"), auto;
-    }*/
 </style>
 
 <div class="container cursor">
