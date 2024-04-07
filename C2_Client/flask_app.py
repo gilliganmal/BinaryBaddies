@@ -5,7 +5,6 @@ import secrets
 from flask_wtf import FlaskForm, CSRFProtect
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, Length
-import requests
 from client_pb2 import Command
 
 msg = Command()
