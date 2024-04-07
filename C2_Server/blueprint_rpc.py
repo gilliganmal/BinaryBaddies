@@ -1,7 +1,7 @@
 # rpc blueprint
 
 from flask import Blueprint, request , abort 
-from C2_Server.implant_pb2 import * 
+from implant_pb2 import * 
 from database import db
 from models import *
 
@@ -11,7 +11,7 @@ password = "foobar"
 
 @rpc.route("/register", methods=["POST"])
 def handle_register():
-    register = Register()
+    register = RegisterImplant()
     req_data = request.get_data()
     register.ParseFromString(req_data)
     if register.Password != password:
@@ -25,7 +25,7 @@ def handle_register():
     
 @rpc.route("/testpb", methods=["POST"])
 def handle_pbtest():
-    register = Register()
+    register = RegisterImplant()
     req_data = request.get_data()
     register.ParseFromString(req_data)
     print(register)

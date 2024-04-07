@@ -1,0 +1,11 @@
+*.exe
+*.dll
+*.pdb 
+djb
+
+
+# Folders
+vs/
+venv/
+vscode/
+__pycache__/

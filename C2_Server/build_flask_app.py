@@ -17,7 +17,7 @@ def build_app():
 
     app.register_blueprint(basic)
     app.register_blueprint(admin)
-    # app.register_blueprint(rpc)
+    app.register_blueprint(rpc)
 
     db.init_app(app)
 
