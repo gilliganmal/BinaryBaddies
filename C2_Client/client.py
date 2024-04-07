@@ -1,6 +1,6 @@
 from urllib.parse  import urljoin 
 #from implant_pb2 import *
-from client_pb2 import Command
+from C2_Server.client_pb2 import Command
 import requests
 
 c2 = "http://127.0.0.1:5000"

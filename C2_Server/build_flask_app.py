@@ -5,9 +5,11 @@ from database import db
 from blueprint_basic import basic
 from blueprint_admin import admin
 from blueprint_rpc import rpc
+from blueprint_client import client
 from flask import Flask, request
 from flask import Flask, render_template, redirect, url_for
 from flask_bootstrap import Bootstrap
+
 import secrets
 from flask_wtf import FlaskForm, CSRFProtect
 from wtforms import StringField, SubmitField
@@ -35,6 +37,7 @@ def build_app():
     app.register_blueprint(basic)
     app.register_blueprint(admin)
     app.register_blueprint(rpc)
+    app.register_blueprint(client)
 
     db.init_app(app)
 
