@@ -1,6 +1,6 @@
 from flask import Flask, request
 from flask import Flask, render_template, redirect, url_for
-from flask_bootstrap import Bootstrap5
+from flask_bootstrap import Bootstrap
 import secrets
 from flask_wtf import FlaskForm, CSRFProtect
 from wtforms import StringField, SubmitField
@@ -13,7 +13,7 @@ app = Flask(__name__)
 app.secret_key = 'tO$&!|0wkamvVia0?n$NqIRVWOG'
 
 # Bootstrap-Flask requires this line
-bootstrap = Bootstrap5(app)
+bootstrap = Bootstrap(app)
 # Flask-WTF requires this line
 csrf = CSRFProtect(app)
 
@@ -26,15 +26,22 @@ class Terminal(FlaskForm):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    whole = ""
     form = Terminal()
+    whole = None
+    error_message = None  # Initialize the error message to None
     if form.validate_on_submit():
         whole = form.cmd.data
-        firstword, leftoverstring = whole.split(' ', 1)
-        msg.cmd = firstword
-        msg.args = leftoverstring
-        print('Command received successfully!')
-    return render_template('index.html', form=form, cmd=whole)
+        parts = whole.split(' ', 1)
+        if len(parts) == 2:
+            firstword, leftoverstring = parts
+            msg.cmd = firstword
+            msg.args = leftoverstring
+            print('Command received successfully!')
+        else:
+            error_message = 'Not enough arguments provided!'  # Set the error message
+    return render_template('index.html', form=form, cmd=whole, error_message=error_message)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
