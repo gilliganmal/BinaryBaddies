@@ -10,6 +10,16 @@ from blueprint_rpc import rpc
 def build_app():
     app = Flask(__name__)
     
+    app.secret_key = 'tO$&!|0wkamvVia0?n$NqIRVWOG'
+
+    # Bootstrap-Flask requires this line
+    bootstrap = Bootstrap(app)
+    # Flask-WTF requires this line
+    csrf = CSRFProtect(app)
+
+    foo = secrets.token_urlsafe(16)
+    app.secret_key = foo
+
     # basic database connection URL = dialect://username:password@host:port/database
     # TODO add a "SECRET_KEY" to app configuration
     app.config.from_mapping(SQLALCHEMY_DATABASE_URI = 'mysql://user:pass@localhost:5000/c2.db')
