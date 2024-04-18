@@ -19,7 +19,7 @@ def handle_register():
     r = make_implant(register)
     db.session.add(r)
     db.commit()
-    print("New Implant connected!")
+    print("Watch out sexy ;) a New Implant connected!")
     return ""
     
     

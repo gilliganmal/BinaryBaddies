@@ -25,5 +25,5 @@ def index():
             msg.args = leftoverstring
             print('Slay Baddies your command was received successfully!')
         else:
-            error_message = 'Not enough arguments provided!'  # Set the error message
+            error_message = 'Grrrrr Loser Not enough arguments provided!\n what are you dumb'  # Set the error message
     return render_template('index.html', form=form, cmd=whole, error_message=error_message)

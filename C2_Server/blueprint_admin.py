@@ -8,7 +8,7 @@ admin = Blueprint("admin", __name__)
 
 @admin.route("/admin/hello")
 def admin_hello():
-    return "Hello my dearest admin, welcome to le C2's cousin Rebecca."
+    return "Hello my dearest admin, welcome to le C2's ugly cousin Rebecca.\n Be nice to her shes self concious"
 
 @admin.route("/implant/list")
 def admin_list_implants():
