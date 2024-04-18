@@ -1,0 +1,99 @@
+    1  nslookup rigmalwarole.com
+    2  ssh -i ./BADDisSEcured.pem ubuntu@rigmalwarole.com
+    3  exit
+    4  ls
+    5  sudo apt install python3
+    6  python3 --version
+    7  flask --version
+    8  pip install flask
+    9  sudo apt-get install git-all
+   10  git --version
+   11  cd ~
+   12  cd
+   13  pwd
+   14  git clone https://github.com/gilliganmal/BinaryBaddies.git
+   15  ls
+   16  curl -sSL https://install.python-poetry.org | python3 -
+   17  nano ./.bashrc 
+   18  poetry 
+   19  exit
+   20  sudo apt install python3
+   21  pip install flask
+   22  pip3 install flask
+   23  sudo apt install python3-pip
+   24  sudo apt install python3-pip3
+   25  sudo apt install python3-pip
+   26  sudo apt install python-pip
+   27  sudo apt install python-pip3
+   28  sudo apt update
+   29  sudo apt install python3-pip
+   30  pip install flask
+   31  clear
+   32  ls
+   33  clear
+   34  ls
+   35  cd BinaryBaddies
+   36  ls
+   37  cat requirements.txt
+   38  ls
+   39  cd speedrun/
+   40  ls -lh
+   41  exit
+   42  ls
+   43  cd BinaryBaddies/
+   44  cat
+   45  ls
+   46  cat docker-compose.yml 
+   47  docker compose up
+   48  . /home/ubuntu/.cache/pypoetry/virtualenvs/cvnt-3bgpRIt--py3.10/bin/activate
+   49  ls
+   50  cd ..
+   51  cd cvnt/
+   52  ls
+   53  mv ../../C2_Server/database.py .
+   54  ls
+   55  mv ../../C2_Server/* .
+   56  ls -l
+   57  vim build_flask_app.py 
+   58  cd ..
+   59  vim cvnt/cvnt/app.py
+   60  cat cvnt/cvnt/build_flask_app.py 
+   61  vim cvnt/cvnt/app.py
+   62  export FLASK_APP=cvnt.app:app ; export FLASK_ENV=development; flask run
+   63  cd cvnt/
+   64  poetry shell
+   65  export FLASK_APP=cvnt.app:app ; export FLASK_ENV=development; flask run
+   66  ls -l
+   67  cd cvnt/
+   68  vim database.py 
+   69  vim build_flask_app.py 
+   70  cd ..
+   71  export FLASK_APP=cvnt.app:app ; export FLASK_ENV=development; flask run
+   72  vim cvnt/blueprint_admin.py 
+   73  vim cvnt/blueprint_basic.py 
+   74  vim cvnt/blueprint_client.py 
+   75  export FLASK_APP=cvnt.app:app ; export FLASK_ENV=development; flask run
+   76  vim cvnt/models.py 
+   77  export FLASK_APP=cvnt.app:app ; export FLASK_ENV=development; flask run
+   78  vim cvnt/blueprint_rpc.py 
+   79  export FLASK_APP=cvnt.app:app ; export FLASK_ENV=development; flask run
+   80  pip install google
+   81  ls -l
+   82  cd ..
+   83  ls -l
+   84  export FLASK_APP=cvnt.app:app ; export FLASK_ENV=development; flask run
+   85  cd cvnt/
+   86  export FLASK_APP=cvnt.app:app ; export FLASK_ENV=development; flask run
+   87  ls -l
+   88  pip install protobuf grpcio-tools
+   89  ls -l
+   90  export FLASK_APP=cvnt.app:app ; export FLASK_ENV=development; flask run
+   91  poetry install
+   92  poetry add flask_wtf
+   93  export FLASK_APP=cvnt.app:app ; export FLASK_ENV=development; flask run
+   94  vim cvnt/blueprint_client.py 
+   95  export FLASK_APP=cvnt.app:app ; export FLASK_ENV=development; flask run
+   96  poetry add flask_bootstrap
+   97  export FLASK_APP=cvnt.app:app ; export FLASK_ENV=development; flask run
+   98  cd ..
+   99  history > got_stuff_to_work2.txt

@@ -6,9 +6,9 @@ services:
     volumes:
       - db:/bitnami/postgresql
     environment:
-      - POSTGRESQL_USERNAME=speedrun
-      - POSTGRESQL_PASSWORD=gofast
-      - POSTGRESQL_DATABASE=src2
+      - POSTGRESQL_USERNAME=baddie
+      - POSTGRESQL_PASSWORD=pass
+      - POSTGRESQL_DATABASE=c2
     ports:
       - "127.0.0.1:5432:5432"
 

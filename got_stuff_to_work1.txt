@@ -1,0 +1,78 @@
+    1  nslookup rigmalwarole.com
+    2  ssh -i ./BADDisSEcured.pem ubuntu@rigmalwarole.com
+    3  exit
+    4  ls
+    5  sudo apt install python3
+    6  python3 --version
+    7  flask --version
+    8  pip install flask
+    9  sudo apt-get install git-all
+   10  git --version
+   11  cd ~
+   12  cd
+   13  pwd
+   14  git clone https://github.com/gilliganmal/BinaryBaddies.git
+   15  ls
+   16  curl -sSL https://install.python-poetry.org | python3 -
+   17  nano ./.bashrc 
+   18  poetry 
+   19  exit
+   20  sudo apt install python3
+   21  pip install flask
+   22  pip3 install flask
+   23  sudo apt install python3-pip
+   24  sudo apt install python3-pip3
+   25  sudo apt install python3-pip
+   26  sudo apt install python-pip
+   27  sudo apt install python-pip3
+   28  sudo apt update
+   29  sudo apt install python3-pip
+   30  pip install flask
+   31  clear
+   32  ls
+   33  clear
+   34  ls
+   35  cd BinaryBaddies
+   36  ls
+   37  cat requirements.txt
+   38  ls
+   39  cd speedrun/
+   40  ls -lh
+   41  exit
+   42  curl -sSL https://install.python-poetry.org | python3 -
+   43  export $PATH=$PATH:$HOME/.local/bin
+   44  sudo apt-get install -y postgresql-client
+   45  sudo apt install -y protobuf-compiler
+   46  wget https://jpa.kapsi.fi/nanopb/download/nanopb-0.4.8.tar.gz
+   47  tar xfv nanopb-0.4.8.tar.gz
+   48  ls -l
+   49  rm nanopb-0.4.8.tar.gz 
+   50  ls -l
+   51  rm requirements.txt 
+   52  ls -l
+   53  cd C2_Server/
+   54  ls -l
+   55  cat pyproject.toml 
+   56  cd ..
+   57  ls -l
+   58  cat docker-compose.yml 
+   59  vim docker-compose.yml 
+   60  vim implant.proto 
+   61  vim Makefile 
+   62  psql -h 127.0.0.1  -U baddy -d c2
+   63  docker compose up
+   64  cat postinstall.sh 
+   65  docker compose up
+   66  docker ps
+   67  docker ps -a
+   68  docker container remove a81d7c71aa47
+   69  docker ps -a
+   70  docker container remove 6b405c91b8d0
+   71  ls
+   72  nano docker-compose.yml 
+   73  docker compose up
+   74  ls -l
+   75  pip install protobuf grpcio-tools
+   76  nslookup rigmalwarole.com
+   77  dig rigmalwarole.com
+   78  history > got_stuff_to_work1.txt
