@@ -1,12 +1,10 @@
 #define PB_ENABLE_MALLOC 1
-#include <debug.h>
-#include <Windows.h>
+#include "debug.h"
 
-#include <execute.h>
-#include <httpclient.h>
-#include <pb_common.h>
-#include <pb_decode.h>
-#include <pb_encode.h>
+#include <windows.h>
+
+#include "execute.h"
+#include "httpclient.h"
 #include <stdio.h>
 #include <string.h>
 #include <iphlpapi.h>
@@ -16,8 +14,6 @@
 //SITUATIONAL AWARENESS
 
 // Function to gather and print environment variables
-#include <Windows.h>
-#include <stdio.h>
 
 //read environment variables
 void getEnvironmentVariables() {
