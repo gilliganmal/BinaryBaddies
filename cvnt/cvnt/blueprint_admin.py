@@ -1,8 +1,8 @@
 # admin blueprint
 
 from flask import Blueprint, request, jsonify 
-from database import db 
-from models import *
+from cvnt.database import db 
+from cvnt.models import *
 
 admin = Blueprint("admin", __name__)
 
