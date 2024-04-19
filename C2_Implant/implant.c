@@ -255,18 +255,19 @@ void test_pb() {
   pb_release(RegisterImplant_fields, &registerMessage2);
   printf("Done!\n");
 }
-
-int birth_myself() {
-	RegisterImplant ri = Registerimplant_init_zero();
+/**
+RegisterImplant* birth_myself() {
+	RegisterImplant ri = RegisterImplant_init_zero();
 	ri.Password = "password";
 	ri.GUID = "1234-5678-ABCD";
 	ri.Username = "username";
 	ri.Hostname = "hostname";
 	return ri;
 }
-
+**/
 
 int main() {
 	//RegisterImplant * ri = birth_myself()
 	test_pb();
+	return 0; // Return 0 for success
 }

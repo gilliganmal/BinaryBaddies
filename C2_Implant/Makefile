@@ -1,6 +1,9 @@
 # Include the nanopb provided Makefile rules
-#include ../../extra/nanopb.mk
+
+# include ../../extra/nanopb.mk
+export NANOPB_DIR := /home/ubuntu/BinaryBaddies/nanopb/
 CC=x86_64-w64-mingw32-gcc
+
 # Compiler flags to enable all warnings & debug info
 CFLAGS = -Wall -Werror -g -O0
 CFLAGS += "-I$(NANOPB_DIR)"
