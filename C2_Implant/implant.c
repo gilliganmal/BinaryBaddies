@@ -34,36 +34,47 @@ int main() {
 	
 	printf("wrote %llu\n", stream.bytes_written);
 	
-	// Decoding done, `registerMessage2` is now populated.
+	// Initialize WinHTTP and send the request
+	HINTERNET hSession = WinHttpOpen(L"A Custom User Agent",
+			WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
+			WINHTTP_NO_PROXY_NAME,
+			WINHTTP_NO_PROXY_BYPASS, 0);
 	
-// Initialize WinHTTP and send the request
-    HINTERNET hSession = WinHttpOpen(L"A Custom User Agent",
-                                     WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
-                                     WINHTTP_NO_PROXY_NAME,
-                                     WINHTTP_NO_PROXY_BYPASS, 0);
+	LPCWSTR SERVER_NAME = L"0.0.0.0";
+	// SERVER_PORT = 5000;
+	HINTERNET hConnect = WinHttpConnect(hSession,
+			SERVER_NAME,
+			5000,
+			0);
+	
 
-    // SERVER_NAME = 0.0.0.0
-    // SERVER PORT = 5000
-    LPCWSTR SERVER_NAME = L"0.0.0.0";
-    HINTERNET hConnect = WinHttpConnect(hSession, SERVER_NAME, 5000, 0);
-
-    LPCWSTR API_PATH = L"/register";
-    HINTERNET hRequest = WinHttpOpenRequest(hConnect, L"POST", API_PATH,
-                                            NULL, WINHTTP_NO_REFERER,
-                                            WINHTTP_DEFAULT_ACCEPT_TYPES,
-                                            0);
-
-    // Set the Content-Type header
-    WinHttpAddRequestHeaders(hRequest,
-                             L"Content-Type: application/x-protobuf",
-                             -1, WINHTTP_ADDREQ_FLAG_ADD);
-
-    // Send the request
-    if (!WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0,
-                            buffer, stream.bytes_written,
-                            stream.bytes_written, 0)) {
-        printf("Failed to send request. Error: %ld\n", GetLastError());
-    }
+	// LPCWSTR POST_VERB = L"POST";
+	LPCWSTR GET_VERB = L"GET";
+	// LPCWSTR API_PATH = L"/register";
+	LPCWSTR REQUEST_CSRF_PATH = L"/get_csrf";
+	
+	HINTERNET hRequest = WinHttpOpenRequest(hConnect,
+			GET_VERB,
+		    	REQUEST_CSRF_PATH,
+		    	NULL,
+		    	WINHTTP_NO_REFERER,
+		    	WINHTTP_DEFAULT_ACCEPT_TYPES,
+		    	0);
+	
+	// Set the Content-Type header
+	WinHttpAddRequestHeaders(hRequest,
+			L"Content-Type: application/x-protobuf",
+			-1,
+			WINHTTP_ADDREQ_FLAG_ADD);
+	// Send the request
+	if (!WinHttpSendRequest(hRequest,
+				WINHTTP_NO_ADDITIONAL_HEADERS,
+				0,
+				buffer,
+				stream.bytes_written,
+				stream.bytes_written, 0)) {
+		printf("Failed to send request. Error: %ld\n", GetLastError());
+	}
 
     // Receive the response
     if (WinHttpReceiveResponse(hRequest, NULL)) {

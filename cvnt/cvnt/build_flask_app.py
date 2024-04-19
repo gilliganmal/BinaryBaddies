@@ -24,6 +24,7 @@ def build_app():
     # Bootstrap-Flask requires this line
     bootstrap = Bootstrap(app)
     # Flask-WTF requires this line
+    # Packets from IMPLANT to SERVER require a CSRF token
     csrf = CSRFProtect(app)
 
     # foo = secrets.token_urlsafe(16)

