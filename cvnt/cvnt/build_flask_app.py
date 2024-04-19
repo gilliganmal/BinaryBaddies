@@ -26,18 +26,18 @@ def build_app():
     # Flask-WTF requires this line
     csrf = CSRFProtect(app)
 
-    foo = secrets.token_urlsafe(16)
-    app.secret_key = foo
+    # foo = secrets.token_urlsafe(16)
+    # app.secret_key = foo
 
     # basic database connection URL = dialect://username:password@host:port/database
     # TODO add a "SECRET_KEY" to app configuration
     app.config.from_mapping(SQLALCHEMY_DATABASE_URI = 'postgresql://user:pass@localhost:5000/c2.db')
     app.config.from_mapping(SQLALCHEMY_ECHO = True)
 
-    app.register_blueprint(basic)
-    app.register_blueprint(admin)
+    #app.register_blueprint(basic)
+    #app.register_blueprint(admin)
     app.register_blueprint(rpc)
-    app.register_blueprint(client)
+    #app.register_blueprint(client)
 
     db.init_app(app)
 

