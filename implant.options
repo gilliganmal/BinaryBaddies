@@ -1,0 +1,13 @@
+Register.Password type:FT_POINTER
+Register.GUID type:FT_POINTER
+Register.Username type:FT_POINTER
+Register.Hostname type:FT_POINTER
+
+TaskRequest.TaskGuid type:FT_POINTER
+TaskRequest.Args type:FT_POINTER
+
+TaskResponse.TaskGuid type:FT_POINTER
+TaskResponse.GUID type:FT_POINTER
+TaskResponse.Response type:FT_POINTER
+
+ImplantCheckin.GUID type:FT_POINTER

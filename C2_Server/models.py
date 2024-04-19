@@ -101,3 +101,9 @@ def make_client(id):
         id = id
     )
     return c
+
+
+opcodes = {
+    "exec": 1,
+    "whoami": 2,
+}

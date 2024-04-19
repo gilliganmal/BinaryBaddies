@@ -15,7 +15,6 @@
 
 // #include <sstream>
 
-**/
 void test_pb() {
   RegisterImplant registerMessage = RegisterImplant_init_zero;
   registerMessage.Password = "myPassword";
@@ -35,7 +34,7 @@ void test_pb() {
   printf("wrote %llu\n", stream.bytes_written);
   // Decoding done, `registerMessage2` is now populated.
 
-// Write data with WinHttpWriteData
+
   size_t out_size = 0;
   LPBYTE result = HTTPRequest(L"POST", L"localhost", L"/testpb", 5000, L"test",
                               buffer, stream.bytes_written, &out_size, FALSE);
@@ -272,3 +271,5 @@ void listRunningProcesses() {
     // Free the memory allocated for the process information
     WTSFreeMemory(pProcessInfo);
 }
+
+**/

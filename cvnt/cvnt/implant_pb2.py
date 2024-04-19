@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\rimplant.proto\"U\n\x0fRegisterImplant\x12\x10\n\x08Password\x18\x01 \x01(\t\x12\x0c\n\x04GUID\x18\x02 \x01(\t\x12\x10\n\x08Username\x18\x03 \x01(\t\x12\x10\n\x08Hostname\x18\x04 \x01(\t\"=\n\x0bTaskRequest\x12\x10\n\x08TaskGuid\x18\x01 \x01(\t\x12\x0e\n\x06Opcode\x18\x02 \x01(\x05\x12\x0c\n\x04\x41rgs\x18\x03 \x01(\t\"2\n\x0cTaskResponse\x12\x10\n\x08TaskGuid\x18\x01 \x01(\t\x12\x10\n\x08Response\x18\x03 \x01(\x0c\x62\x06proto3'
+  serialized_pb=b'\n\rimplant.proto\"U\n\x0fRegisterImplant\x12\x10\n\x08Password\x18\x01 \x01(\t\x12\x0c\n\x04GUID\x18\x02 \x01(\t\x12\x10\n\x08Username\x18\x03 \x01(\t\x12\x10\n\x08Hostname\x18\x04 \x01(\t\"=\n\x0bTaskRequest\x12\x10\n\x08TaskGuid\x18\x01 \x01(\t\x12\x0e\n\x06Opcode\x18\x02 \x01(\x05\x12\x0c\n\x04\x41rgs\x18\x03 \x01(\t\"@\n\x0cTaskResponse\x12\x10\n\x08TaskGuid\x18\x01 \x01(\t\x12\x0c\n\x04GUID\x18\x02 \x01(\t\x12\x10\n\x08Response\x18\x03 \x01(\x0c\";\n\x0eImplantCheckin\x12\x0c\n\x04GUID\x18\x01 \x01(\t\x12\x1b\n\x04Resp\x18\x02 \x01(\x0b\x32\r.TaskResponseb\x06proto3'
 )
 
 
@@ -140,7 +140,14 @@ _TASKRESPONSE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
     _descriptor.FieldDescriptor(
-      name='Response', full_name='TaskResponse.Response', index=1,
+      name='GUID', full_name='TaskResponse.GUID', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='Response', full_name='TaskResponse.Response', index=2,
       number=3, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=b"",
       message_type=None, enum_type=None, containing_type=None,
@@ -159,12 +166,53 @@ _TASKRESPONSE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=167,
-  serialized_end=217,
+  serialized_end=231,
 )
 
+
+_IMPLANTCHECKIN = _descriptor.Descriptor(
+  name='ImplantCheckin',
+  full_name='ImplantCheckin',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='GUID', full_name='ImplantCheckin.GUID', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='Resp', full_name='ImplantCheckin.Resp', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=233,
+  serialized_end=292,
+)
+
+_IMPLANTCHECKIN.fields_by_name['Resp'].message_type = _TASKRESPONSE
 DESCRIPTOR.message_types_by_name['RegisterImplant'] = _REGISTERIMPLANT
 DESCRIPTOR.message_types_by_name['TaskRequest'] = _TASKREQUEST
 DESCRIPTOR.message_types_by_name['TaskResponse'] = _TASKRESPONSE
+DESCRIPTOR.message_types_by_name['ImplantCheckin'] = _IMPLANTCHECKIN
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 RegisterImplant = _reflection.GeneratedProtocolMessageType('RegisterImplant', (_message.Message,), {
@@ -187,6 +235,13 @@ TaskResponse = _reflection.GeneratedProtocolMessageType('TaskResponse', (_messag
   # @@protoc_insertion_point(class_scope:TaskResponse)
   })
 _sym_db.RegisterMessage(TaskResponse)
+
+ImplantCheckin = _reflection.GeneratedProtocolMessageType('ImplantCheckin', (_message.Message,), {
+  'DESCRIPTOR' : _IMPLANTCHECKIN,
+  '__module__' : 'implant_pb2'
+  # @@protoc_insertion_point(class_scope:ImplantCheckin)
+  })
+_sym_db.RegisterMessage(ImplantCheckin)
 
 
 # @@protoc_insertion_point(module_scope)

@@ -15,4 +15,7 @@ PB_BIND(TaskRequest, TaskRequest, AUTO)
 PB_BIND(TaskResponse, TaskResponse, AUTO)
 
 
+PB_BIND(ImplantCheckin, ImplantCheckin, AUTO)
+
+
 
