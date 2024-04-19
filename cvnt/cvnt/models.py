@@ -1,5 +1,5 @@
 
-from database import db
+from cvnt.database import db
 from dataclasses import dataclass
 import os # for random
 

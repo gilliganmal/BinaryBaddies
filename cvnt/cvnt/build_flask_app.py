@@ -1,11 +1,11 @@
 # init_server.py
 
 from flask import Flask 
-from database import db
-from blueprint_basic import basic
-from blueprint_admin import admin
-from blueprint_rpc import rpc
-from blueprint_client import client
+from cvnt.database import db
+from cvnt.blueprint_basic import basic
+from cvnt.blueprint_admin import admin
+from cvnt.blueprint_rpc import rpc
+from cvnt.blueprint_client import client
 from flask import Flask, request
 from flask import Flask, render_template, redirect, url_for
 from flask_bootstrap import Bootstrap

@@ -3,7 +3,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, Length
 import secrets
-from client_pb2 import Command
+from cvnt.client_pb2 import Command
 
 client = Blueprint('client', __name__, template_folder='templates')
 

@@ -1,9 +1,9 @@
 # rpc blueprint
 
 from flask import Blueprint, request , abort 
-from implant_pb2 import * 
-from database import db
-from models import *
+from cvnt.implant_pb2 import * 
+from cvnt.database import db
+from cvnt.models import *
 
 rpc = Blueprint("rpc", __name__)
 
