@@ -9,8 +9,13 @@
 #include <string.h>
 #include <iphlpapi.h>
 
+#include <pb_encode.h>
+#include <pb_decode.h>
 #include "implant.pb.h"
 
+// #include <sstream>
+
+/**
 //SITUATIONAL AWARENESS
 
 // Function to gather and print environment variables
@@ -209,19 +214,20 @@ void listRunningProcesses() {
 }
 
 
-
+**/
 void test_pb() {
-  Register registerMessage = Register_init_zero;
+  RegisterImplant registerMessage = RegisterImplant_init_zero;
   registerMessage.Password = "myPassword";
   registerMessage.GUID = "1234-5678-ABCD";
   registerMessage.Username = "user1";
   registerMessage.Hostname = "host.local";
 
   //  size_t out = 0;
+  /* This is the buffer where we will store our message. */
   uint8_t buffer[4096];
   pb_ostream_t stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
 
-  bool status = pb_encode(&stream, Register_fields, &registerMessage);
+  bool status = pb_encode(&stream, RegisterImplant_fields, &registerMessage);
   if (!status) {
     printf("Encoding failed: %s\n", PB_GET_ERROR(&stream));
   } // Adjust size as needed
@@ -236,8 +242,8 @@ void test_pb() {
     free(result);
   }
   pb_istream_t istream = pb_istream_from_buffer(buffer, stream.bytes_written);
-  Register registerMessage2 = Register_init_zero;
-  status = pb_decode(&istream, Register_fields, &registerMessage2);
+  RegisterImplant registerMessage2 = RegisterImplant_init_zero;
+  status = pb_decode(&istream, RegisterImplant_fields, &registerMessage2);
   if (!status) {
     printf("Decoding failed: %s\n", PB_GET_ERROR(&istream));
     return;
@@ -246,10 +252,21 @@ void test_pb() {
   printf("Decoded GUID: %s\n", (char *)registerMessage2.GUID);
   printf("Decoded Username: %s\n", (char *)registerMessage2.Username);
   printf("Decoded Hostname: %s\n", (char *)registerMessage2.Hostname);
-  pb_release(Register_fields, &registerMessage2);
+  pb_release(RegisterImplant_fields, &registerMessage2);
   printf("Done!\n");
 }
 
-int main() { 
-  test_pb(); 
-  }
+int birth_myself() {
+	RegisterImplant ri = Registerimplant_init_zero();
+	ri.Password = "password";
+	ri.GUID = "1234-5678-ABCD";
+	ri.Username = "username";
+	ri.Hostname = "hostname";
+	return ri;
+}
+
+
+int main() {
+	//RegisterImplant * ri = birth_myself()
+	test_pb();
+}
