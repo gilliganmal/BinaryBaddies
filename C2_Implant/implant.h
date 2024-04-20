@@ -7,7 +7,6 @@
 #define POST_VERB L"POST"
 #define GET_VERB L"GET"
 
-#define CSRF_PATH L"/get_csrf"
 #define REGISTER_PATH L"/register"
 #define CHECKIN_PATH L"/checkin"
 

