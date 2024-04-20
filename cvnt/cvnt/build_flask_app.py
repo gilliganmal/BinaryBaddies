@@ -40,6 +40,8 @@ def build_app():
     app.register_blueprint(rpc) # CSRF Token sent to implant
     app.register_blueprint(client)
 
+    csrf.exempt(rpc)
+
     db.init_app(app)
 
 

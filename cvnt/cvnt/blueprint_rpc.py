@@ -11,17 +11,12 @@ rpc = Blueprint("rpc", __name__)
 
 password = "password"
 
-
-@rpc.route("/get_csrf", methods=["GET"])
-def assign_csrf():
-    print(f'Generating a CSRF Token.')
-    return generate_csrf()
-
 @rpc.route("/register", methods=["POST"])
 def handle_register():
     print(f'REGISTERING A NEW IMPLANT')
     register = RegisterImplant()
     reg_data = request.get_data()
+    print(reg_data)
     register.ParseFromString(reg_data)
     if register.Password != password:
         abort(404)
