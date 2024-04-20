@@ -6,6 +6,7 @@ import secrets
 from cvnt.client_pb2 import *
 from urllib.parse import urljoin
 from cvnt.client_pb2 import Command, ClientTaskRequest, ClientTaskResponse, Packet
+from cvnt.constants import opcodes
 
 
 client = Blueprint('client', __name__, template_folder='templates')
@@ -46,10 +47,7 @@ def index():
     return render_template('index.html', form=form, cmd=whole, error_message=error_message)
 
 def valid_command(cmd):
-    filename = "cvnt.commands.txt"
-    with open(filename) as file:
-        lines = [line.rstrip() for line in file]
-    if cmd not in lines:
+    if cmd not in opcodes:
         return False
     return True
 
