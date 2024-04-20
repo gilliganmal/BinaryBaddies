@@ -1,7 +1,11 @@
-
 from cvnt.database import db
 from dataclasses import dataclass
 import os # for random
+from cvnt.implant_pb2 import * 
+from cvnt.database import db
+from cvnt.models import *
+from flask_wtf.csrf import *
+
 
 # Implants Table
 @dataclass
@@ -31,31 +35,6 @@ class Implant(db.Model):
     # Expected Check in: When should you expect to see the agent again?
     expected_checkin = db.Column(db.String)
 
-'''
-class Task(db.Model):
-    id =  db.Column(db.Integer, primary_key = True)
-    task_id = db.Column(db.String)
-    status = db.Column(db.String)
-    implant_guid = db.Column(db.String)
-    task_opcode = db.Column(db.Integer)
-    task_args = db.Column(db.String)
-'''
-
-# Tasks Table: Keep track of jobs sent to implants that are in progress/finished
-@dataclass 
-class Task(db.Model):
-    id: int  =  db.Column(db.Integer, primary_key = True)
-    task_id: str = db.Column(db.String)
-    status: str = db.Column(db.String)
-    implant_guid:int   = db.Column(db.Integer)
-    task_opcode:str  = db.Column(db.String)
-    task_args:str  = db.Column(db.String)
-
-# Clients Table: Keep track of operators connected to the C2 via the client
-@dataclass
-class Client(db.Model):
-    id: int = db.Column(db.Integer, primary_key = True)
-
 
 # MAKE MODEL FUNCTIONS
 def make_implant(id, computer_name, username, computer_GUID, privileges, connecting_IP_addr, session_key, sleep_frq, checkin_frq, first_seen, last_seen, expected_checkin):
@@ -75,8 +54,19 @@ def make_implant(id, computer_name, username, computer_GUID, privileges, connect
     )
     return i
 
+# Tasks Table: Keep track of jobs sent to implants that are in progress/finished
+@dataclass 
+class Task(db.Model):
+    id: int  =  db.Column(db.Integer, primary_key = True)
+    task_id: str = db.Column(db.String)
+    status: str = db.Column(db.String)
+    implant_guid:int   = db.Column(db.Integer)
+    task_opcode:str  = db.Column(db.String)
+    task_args:str  = db.Column(db.String)
+
+
 # Task Statuses
-STATUS_CREATED  = "implant created"
+STATUS_CREATED  = "implant task created"
 STATUS_TASK_RECIEVED = "implant pulled down task"
 STATUS_TASK_COMPLETE = "implant successfully compeleted task"
 STATUS_TASK_FAILED = "implant failed ot complete task"
@@ -96,8 +86,60 @@ def make_task(id, task_id, status, implant_id, task_opcode, task_args):
     )
     return t
 
+
+def get_task_for_implant(implant_guid):
+    """
+    Get a task for an implant
+    """
+    i = db.session.query(Implant).filter_by(implant_guid=implant_guid).first()
+    if not i:
+        print(f"No implant with id {i}")
+        return False
+    task = (
+        db.session.query(Task).filter_by(implant_id=i.id, status=STATUS_CREATED).first()
+    )
+    if task:
+        task.status = STATUS_TASK_RECIEVED
+        db.session.add(task)
+        db.session.commit()
+        print(f"Pulling down {task}")
+        return task
+    return False
+
+
+def handle_task_complete(task_id, tr: TaskResponse):
+    with db.session() as session:
+        try:
+            if not tr.TaskGuid:
+                return False
+            task = session.query(Task).filter_by(task_id=tr.TaskGuid).first()
+            if not task:
+                print(f"Task {tr} could not be updated as the ID is missing ")
+                return False
+            task.status = STATUS_TASK_COMPLETE
+            task.task_response = tr.Response
+            session.add(task)
+            session.commit()
+            print("Task {tr.TaskGuid} has completed")
+        except:
+            print(f"Error handling task {tr}")
+            task.status = STATUS_TASK_FAILED
+            return False
+    return True
+
+
+
+# Clients Table: Keep track of operators connected to the C2 via the client
+@dataclass
+class Client(db.Model):
+    id: int = db.Column(db.Integer, primary_key = True)
+
+
 def make_client(id):
     c = Client(
-        id = id
+        id = id,
+        username = username,
+        password = password
     )
     return c
+
