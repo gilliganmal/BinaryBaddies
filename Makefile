@@ -14,7 +14,7 @@ pbc:
 client_pbpy:
 	protoc  client.proto --python_out=./cvnt/cvnt/ --pyi_out=./cvnt/cvnt/
 
-implant_pbyp:
+implant_pbpy:
 	protoc  implant.proto --python_out=./cvnt/cvnt/  --pyi_out=./cvnt/cvnt/
 
 
