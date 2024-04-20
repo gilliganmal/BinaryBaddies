@@ -46,7 +46,7 @@ def index():
     return render_template('index.html', form=form, cmd=whole, error_message=error_message)
 
 def valid_command(cmd):
-    filename = "commands.txt"
+    filename = "cvnt.commands.txt"
     with open(filename) as file:
         lines = [line.rstrip() for line in file]
     if cmd not in lines:

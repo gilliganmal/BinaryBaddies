@@ -11,12 +11,11 @@ rpc = Blueprint("rpc", __name__)
 
 password = "password"
 
-'''
+
 @rpc.route("/get_csrf", methods=["GET"])
 def assign_csrf():
     print(f'Generating a CSRF Token.')
     return generate_csrf()
-'''
 
 @rpc.route("/register", methods=["POST"])
 def handle_register():
@@ -30,7 +29,7 @@ def handle_register():
     db.session.add(r)
     db.commit()
     print("Watch out sexy ;) a New Implant connected!")
-    return generate_csrf()
+    return "Success\n."
 
 @rpc.route("/task/request", methods=["POST"])
 def send_task():
