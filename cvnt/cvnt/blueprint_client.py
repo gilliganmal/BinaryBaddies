@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, session, render_template, redirect, url_for
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, Length
@@ -25,6 +25,8 @@ class Terminal(FlaskForm):
 @client.route('/client', methods=['GET', 'POST'])
 def index():
     form = Terminal()
+    if 'authenticated' not in session or not session['authenticated']:
+        return redirect(url_for('basic.login_success'))
     whole = None
     error_message = None  # Initialize the error message to None
     if form.validate_on_submit():
