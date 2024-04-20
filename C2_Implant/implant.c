@@ -75,45 +75,46 @@ int main() {
 				stream.bytes_written, 0)) {
 		printf("Failed to send request. Error: %ld\n", GetLastError());
 	}
+	// Receive the response
+	if (WinHttpReceiveResponse(hRequest, NULL)) {
+		DWORD dwSize = 0;
+		DWORD dwDownloaded = 0;
+		LPSTR pszOutBuffer;
+		do {
+			// Check for available data
+			dwSize = 0;
+			if (!WinHttpQueryDataAvailable(hRequest, &dwSize)) {
+				printf("Error %lu in WinHttpQueryDataAvailable.\n", GetLastError());
+			}
 
-    // Receive the response
-    if (WinHttpReceiveResponse(hRequest, NULL)) {
-        DWORD dwSize = 0;
-        DWORD dwDownloaded = 0;
-        LPSTR pszOutBuffer;
-        do {
-            // Check for available data
-            dwSize = 0;
-            if (!WinHttpQueryDataAvailable(hRequest, &dwSize)) {
-                printf("Error %lu in WinHttpQueryDataAvailable.\n",
-                       GetLastError());
-            }
-
-            // Allocate space for the data
-            pszOutBuffer = (LPSTR)malloc(dwSize + 1);
-            if (!pszOutBuffer) {
-                printf("Out of memory\n");
-                dwSize = 0;
-            } else {
-                // Read the data
-                ZeroMemory(pszOutBuffer, dwSize + 1);
-                if (!WinHttpReadData(hRequest, (LPVOID)pszOutBuffer,
-                                     dwSize, &dwDownloaded)) {
-                    printf("Error %lu in WinHttpReadData.\n", GetLastError());
-                } else {
-                    printf("Server response: %s\n", pszOutBuffer);
-                }
-
-                // Free the memory allocated to the buffer
-                free(pszOutBuffer);
-            }
-        } while (dwSize > 0);
-    }
-
-    // Clean up
-    WinHttpCloseHandle(hRequest);
-    WinHttpCloseHandle(hConnect);
-    WinHttpCloseHandle(hSession);
+			// Allocate space for the data
+			pszOutBuffer = (LPSTR)malloc(dwSize + 1);
+			
+			if (!pszOutBuffer) {
+				printf("Out of memory\n");
+				dwSize = 0;
+			} else {
+				// Read the data
+				ZeroMemory(pszOutBuffer, dwSize + 1);
+				if (!WinHttpReadData(hRequest,
+							(LPVOID)pszOutBuffer,
+							dwSize,
+							&dwDownloaded)) {
+					printf("Error %lu in WinHttpReadData.\n", GetLastError());
+				} else {
+					printf("Server response: %s\n", pszOutBuffer);
+				}
+				
+				// Free the memory allocated to the buffer
+				free(pszOutBuffer);
+			}
+		} while (dwSize > 0);
+	}
+	
+	// Clean up
+	WinHttpCloseHandle(hRequest);
+	WinHttpCloseHandle(hConnect);
+	WinHttpCloseHandle(hSession);
 }
 
 

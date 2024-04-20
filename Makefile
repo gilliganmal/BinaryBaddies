@@ -11,8 +11,11 @@ pbc:
 	mv implant.pb.h C2_Implant/
 	mv implant.pb.c C2_Implant/
 
-pbpy:
-	protoc  implant.proto --python_out=./cvnt/cvnt/  
+client_pbpy:
+	protoc  client.proto --python_out=./cvnt/cvnt/ --pyi_out=./cvnt/cvnt/
+
+implant_pbyp:
+	protoc  implant.proto --python_out=./cvnt/cvnt/  --pyi_out=./cvnt/cvnt/
 
 
 

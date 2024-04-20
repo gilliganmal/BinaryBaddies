@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+message ClientTaskRequest {
+  int32 ImplantID = 1;
+  int32 JobID = 2;
+  string Function = 3;
+  string Inputs = 4;
+}
+
+message ClientTaskResponse {
+  int32 ImplantID = 1;
+  int32 JobID = 2;
+  string Output = 3;
+}
+
+message Packet {
+  string message = 1;
+  string CSRF = 2;
+}

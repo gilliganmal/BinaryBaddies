@@ -1,4 +1,4 @@
-# rpc blueprint
+# rpc blueprint - Implant <--> Server
 
 from flask import Blueprint, request , abort 
 from cvnt.implant_pb2 import * 
@@ -15,7 +15,6 @@ password = "password"
 def assign_csrf():
     print(f'Generating a CSRF Token')
     return generate_csrf()
-    # return jsonify({'token': generate_csrf()})
 
 @rpc.route("/register", methods=["POST"])
 def handle_register():
