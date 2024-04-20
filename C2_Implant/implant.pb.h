@@ -19,7 +19,7 @@ typedef struct _RegisterImplant {
 
 typedef struct _TaskRequest {
     char *TaskGuid;
-    int32_t *Opcode;
+    int32_t Opcode;
     char *Args;
 } TaskRequest;
 
@@ -31,7 +31,8 @@ typedef struct _TaskResponse {
 
 typedef struct _ImplantCheckin {
     char *GUID;
-    struct _TaskResponse *Resp;
+    bool has_Resp;
+    TaskResponse Resp;
 } ImplantCheckin;
 
 
@@ -41,13 +42,13 @@ extern "C" {
 
 /* Initializer values for message structs */
 #define RegisterImplant_init_default             {NULL, NULL, NULL, NULL}
-#define TaskRequest_init_default                 {NULL, NULL, NULL}
+#define TaskRequest_init_default                 {NULL, 0, NULL}
 #define TaskResponse_init_default                {NULL, NULL, NULL}
-#define ImplantCheckin_init_default              {NULL, NULL}
+#define ImplantCheckin_init_default              {NULL, false, TaskResponse_init_default}
 #define RegisterImplant_init_zero                {NULL, NULL, NULL, NULL}
-#define TaskRequest_init_zero                    {NULL, NULL, NULL}
+#define TaskRequest_init_zero                    {NULL, 0, NULL}
 #define TaskResponse_init_zero                   {NULL, NULL, NULL}
-#define ImplantCheckin_init_zero                 {NULL, NULL}
+#define ImplantCheckin_init_zero                 {NULL, false, TaskResponse_init_zero}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define RegisterImplant_Password_tag             1
@@ -74,7 +75,7 @@ X(a, POINTER,  SINGULAR, STRING,   Hostname,          4)
 
 #define TaskRequest_FIELDLIST(X, a) \
 X(a, POINTER,  SINGULAR, STRING,   TaskGuid,          1) \
-X(a, POINTER,  SINGULAR, INT32,    Opcode,            2) \
+X(a, STATIC,   SINGULAR, INT32,    Opcode,            2) \
 X(a, POINTER,  SINGULAR, STRING,   Args,              3)
 #define TaskRequest_CALLBACK NULL
 #define TaskRequest_DEFAULT NULL
@@ -88,7 +89,7 @@ X(a, POINTER,  SINGULAR, BYTES,    Response,          3)
 
 #define ImplantCheckin_FIELDLIST(X, a) \
 X(a, POINTER,  SINGULAR, STRING,   GUID,              1) \
-X(a, POINTER,  OPTIONAL, MESSAGE,  Resp,              2)
+X(a, STATIC,   OPTIONAL, MESSAGE,  Resp,              2)
 #define ImplantCheckin_CALLBACK NULL
 #define ImplantCheckin_DEFAULT NULL
 #define ImplantCheckin_Resp_MSGTYPE TaskResponse

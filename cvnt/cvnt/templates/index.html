@@ -1,4 +1,3 @@
-<!-- index.html -->
 {% extends 'base.html' %}
 {% block title %}
 Super Secret Client Endpoint
@@ -14,8 +13,32 @@ Super Secret Client Endpoint
 
 <h1 class="pt-5 pb-2">You made it, Welcome to our homebase!</h1>
 
-<form id="myForm" action="{{ url_for('client.index') }}" method="post" class="terminal-form">
-
+<div class="container">
+    <div class="row">
+        <!-- Map column -->
+        <div class="col-md-6">
+	     <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2949.638527085908!2d-71.0875!3d42.3367!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89e3778d9b3b9b23%3A0x32b7439e8515d1cb!2sBoston%2C%20MA%2C%20USA!5e0!3m2!1sen!2sbg!4v1649871888598!5m2!1sen!2sbg" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+        </div>
+        <!-- Green/black box column -->
+        <div class="col-md-6">
+            <div class="container cursor">
+                <form id="myForm" action="{{ url_for('client.index') }}" method="post" class="terminal-form">
+                    {{ form.csrf_token }}
+                    <div class="border p-4 rounded">
+                        <input type="text" name="cmd" class="terminal-input" autofocus placeholder="=> " required>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    </div>
+                </form>
+                <div class="row mt-3"> <!-- Add a new row for the "Previous command" section -->
+                    <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
+                        <h3>Previous command:</h3>
+                        <p class="pt-2"><strong>{{ cmd }}</strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <style>
     /* Custom CSS for terminal-like appearance */
@@ -28,7 +51,7 @@ Super Secret Client Endpoint
         margin-top: 20px;
         font-family: monospace; /* Use a monospace font for terminal-like appearance */
         height: 300px; /* Adjust the height to your preference */
-        overflow-y: auto
+        overflow-y: auto;
     }
     .terminal-input {
         background-color: transparent; /* Transparent background */
@@ -39,27 +62,6 @@ Super Secret Client Endpoint
         width: 100%; /* Fill the width of the parent container */
     }
 </style>
-
-<div class="container cursor">
-    <div class="row">
-        <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
-            <form id="myForm" action="/" method="post" class="terminal-form">
-                {{ form.csrf_token }}
-                <div class="border p-4 rounded">
-                    <input type="text" name="cmd" class="terminal-input" autofocus placeholder="=> " required>
-                    <input type="hidden" name="csrf_token" value = "{{ csrf_token() }}" />
-		</div>
-            </form>
-        </div>
-    </div>
-    <div class="row mt-3"> <!-- Add a new row for the "Previous command" section -->
-        <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
-            <h3>Previous command:</h3>
-            <p class="pt-2"><strong>{{ cmd }}</strong></p>
-        </div>
-    </div>
-</div>
-
 
 <script>
     // JavaScript function to handle form submission on Enter key press

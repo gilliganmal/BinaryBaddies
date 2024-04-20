@@ -7,7 +7,7 @@ psql:
 
 
 pbc:
-	nanopb/generator/nanopb_generator  -s type:FT_POINTER implant.proto
+	nanopb/generator/nanopb_generator implant.proto
 	mv implant.pb.h C2_Implant/
 	mv implant.pb.c C2_Implant/
 
