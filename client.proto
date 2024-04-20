@@ -1,5 +1,10 @@
 syntax = "proto3";
 
+message Command {
+  string cmd;
+  string args;
+}
+
 message ClientTaskRequest {
   int32 ImplantID = 1;
   int32 JobID = 2;

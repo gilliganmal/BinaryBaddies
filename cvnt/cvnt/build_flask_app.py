@@ -38,7 +38,7 @@ def build_app():
     app.register_blueprint(basic) # CSRF Token sent to client here
     #app.register_blueprint(admin)
     app.register_blueprint(rpc) # CSRF Token sent to implant
-    #app.register_blueprint(client)
+    app.register_blueprint(client)
 
     db.init_app(app)
 

