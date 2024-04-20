@@ -41,7 +41,7 @@
   ======================================================== -->
 </head>
 
-<body>
+<body> 
 
   <!-- ======= Header ======= -->
   <header id="header" class="d-flex align-items-center">
@@ -68,12 +68,32 @@
         </div>
       </div>
 
+      <div class="container">
+        <div class="row">
+          <div class="col-md-6 offset-md-3">
+            <!-- Flash message -->
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <div class="alert alert-success text-center" role="alert">
+                  <ul>
+                    {% for message in messages %}
+                      <li>{{ message }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              {% endif %}
+            {% endwith %}
+
       <div class="subscribe">
         <h4>Subscribe now to get the latest updates!</h4>
-        <form  class="form-signin"> 
-            <input type="sign-in" name="email" id="inputEmail" class="form-control form-group" placeholder="email" required autofocus>
-            <button class="btn btn-lg btn-primary btn-block btn-signin" type="submit">enter</button>
-        </form>
+        <form method="POST" action="">
+          {{ form.csrf_token }}
+          <div class="form-group">
+              {{ form.email.label }}
+              {{ form.email(class="form-control") }}
+          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+      </form>      
       </div>
 
       <div class="social-links text-center">
@@ -171,4 +191,7 @@
 
 </body>
 
-</html> s
+
+</body>
+
+</html> 

