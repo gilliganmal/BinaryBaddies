@@ -18,11 +18,12 @@ from wtforms.validators import DataRequired, Length
 
 def build_app():
     app = Flask(__name__)
-    
+
     app.secret_key = 'tO$&!|0wkamvVia0?n$NqIRVWOG'
 
     # Bootstrap-Flask requires this line
     bootstrap = Bootstrap(app)
+    
     # Flask-WTF requires this line
     # Packets from IMPLANT to SERVER require a CSRF token
     csrf = CSRFProtect(app)
@@ -31,16 +32,16 @@ def build_app():
     # app.secret_key = foo
 
     # basic database connection URL = dialect://username:password@host:port/database
-    # TODO add a "SECRET_KEY" to app configuration
     app.config.from_mapping(SQLALCHEMY_DATABASE_URI = 'postgresql://user:pass@localhost:5000/c2.db')
     app.config.from_mapping(SQLALCHEMY_ECHO = True)
 
-    #app.register_blueprint(basic)
+    app.register_blueprint(basic) # CSRF Token sent to client here
     #app.register_blueprint(admin)
-    app.register_blueprint(rpc)
+    app.register_blueprint(rpc) # CSRF Token sent to implant
     #app.register_blueprint(client)
 
     db.init_app(app)
+
 
     return app 
 
@@ -52,3 +53,5 @@ def init_db():
 if __name__ == '__main__':  
    app = build_app()
    app.run(host='0.0.0.0', debug=True)
+
+

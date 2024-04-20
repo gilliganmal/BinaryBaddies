@@ -169,6 +169,13 @@
   <!-- Template Main JS File -->
   <script src="static/js/main.js"></script>
 
+  <!-- CSRF Token -->
+  <form action="{{ url_for('/') }}" method="POST">
+    <label for="Name">Your Name Please ? </label>
+    <input type="text" name="Name">
+    <input type="hidden" name="csrf_token" value = "{{ csrf_token() }}" />
+    <button type="submit">Submit</button>
+  </form>
 </body>
 
 </html> s
