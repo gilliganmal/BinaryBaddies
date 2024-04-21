@@ -27,7 +27,7 @@ LPBYTE SendToServer(LPCWSTR VERB, LPCWSTR PATH, BYTE *buffer, size_t bytes_writt
 				5000,
 				0);
 	}
-	printf("HTTP Verb: %S\n", VERB);
+	
 	// Create an HTTP request handle.
 	if (hConnect) {
 		hRequest = WinHttpOpenRequest(hConnect,
@@ -39,13 +39,13 @@ LPBYTE SendToServer(LPCWSTR VERB, LPCWSTR PATH, BYTE *buffer, size_t bytes_writt
 				0);
 	}
 
+	/**
 	// Set the Content-Type header
         WinHttpAddRequestHeaders(hRequest,
                         L"Content-Type: application/x-protobuf",
                         -1,
                         WINHTTP_ADDREQ_FLAG_ADD);
-
-	printf("add headers good.\n");
+	**/
 
 	// Send a request.
 	if (hRequest) {
@@ -65,7 +65,7 @@ LPBYTE SendToServer(LPCWSTR VERB, LPCWSTR PATH, BYTE *buffer, size_t bytes_writt
                                 sizeof(buffer),
                                 bytes_written,
 				0)) {
-                printf("Failed to send request. Error: %ld\n", GetLastError());
+                DEBUG_PRINTF("Failed to send request. Error: %ld\n", GetLastError());
         }
 
 	// End the request.
@@ -73,35 +73,35 @@ LPBYTE SendToServer(LPCWSTR VERB, LPCWSTR PATH, BYTE *buffer, size_t bytes_writt
 
         	// Receive the response
         	if (WinHttpReceiveResponse(hRequest, NULL)) {
-			printf("recieved.\n");
+			// DEBUG_PRINTF("Recieved.\n");
 		}
 
 			do {
-				printf("Checking for available data.\n");
+				DEBUG_PRINTF("Checking for available data.\n");
                         	// Check for available data
                         	dwSize = 0;
                         	if (!WinHttpQueryDataAvailable(hRequest, &dwSize)) {
-                                	printf("Error %lu in WinHttpQueryDataAvailable.\n", GetLastError());
+                                	DEBUG_PRINTF("Error %lu in WinHttpQueryDataAvailable.\n", GetLastError());
                         	}
 
                         	// Allocate space for the data
                         	responseBuffer = (BYTE *)malloc(dwSize + 1);
 				//pszOutBuffer = new char[dwSize+1];
                         	if (!responseBuffer) {
-                                	printf("Out of memory\n");
+                                	DEBUG_PRINTF("Out of memory\n");
                                 	dwSize = 0;
                         	} else {
-					printf("Reading the data\n.");
+					// DEBUG_PRINTF("Reading the data\n.");
                                 	// Read the data
                                 	ZeroMemory(responseBuffer, dwSize + 1);
                                 	if (!WinHttpReadData(hRequest,
 								(LPVOID)responseBuffer,
 								dwSize,
                                                         	&dwDownloaded)) {
-                                        	printf("Error %lu in WinHttpReadData.\n", GetLastError());
+                                        	DEBUG_PRINTF("Error %lu in WinHttpReadData.\n", GetLastError());
 
                                 	} else {
-                                        	printf("Server response: %s", responseBuffer);
+                                        	DEBUG_PRINTF("Server response: %s", responseBuffer);
                                 	}
                                 	// Free the memory allocated to the buffer
                                 	// free(responseBuffer);
@@ -113,7 +113,7 @@ LPBYTE SendToServer(LPCWSTR VERB, LPCWSTR PATH, BYTE *buffer, size_t bytes_writt
 		WinHttpCloseHandle(hConnect);
 		WinHttpCloseHandle(hSession);
 
-		printf("responseBuffer = %s.", responseBuffer);
+		DEBUG_PRINTF("responseBuffer = %s.", responseBuffer);
 		return responseBuffer;
 	}
 	// Clean up

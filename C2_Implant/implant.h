@@ -12,6 +12,9 @@
 
 #define PASSWORD L"pass"
 
+#define RANDOM_BYTES_SIZE 16
+#define HEX_STRING_SIZE (RANDOM_BYTES_SIZE * 2 + 1)
+
 // how often implant sleeps before checking in
 #define SLEEP_TIME 1000
 
