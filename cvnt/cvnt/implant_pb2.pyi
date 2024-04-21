@@ -5,47 +5,41 @@ from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Opti
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class RegisterImplant(_message.Message):
-    __slots__ = ("Password", "GUID", "Username", "Hostname")
+    __slots__ = ("Password", "ImplantID", "Username", "ComputerName")
     PASSWORD_FIELD_NUMBER: _ClassVar[int]
-    GUID_FIELD_NUMBER: _ClassVar[int]
+    IMPLANTID_FIELD_NUMBER: _ClassVar[int]
     USERNAME_FIELD_NUMBER: _ClassVar[int]
-    HOSTNAME_FIELD_NUMBER: _ClassVar[int]
+    COMPUTERNAME_FIELD_NUMBER: _ClassVar[int]
     Password: str
-    GUID: str
+    ImplantID: str
     Username: str
-    Hostname: str
-    def __init__(self, Password: _Optional[str] = ..., GUID: _Optional[str] = ..., Username: _Optional[str] = ..., Hostname: _Optional[str] = ...) -> None: ...
+    ComputerName: str
+    def __init__(self, Password: _Optional[str] = ..., ImplantID: _Optional[str] = ..., Username: _Optional[str] = ..., ComputerName: _Optional[str] = ...) -> None: ...
 
 class TaskRequest(_message.Message):
-    __slots__ = ("TaskGuid", "Opcode", "Args")
-    TASKGUID_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("TaskID", "Opcode", "Args")
+    TASKID_FIELD_NUMBER: _ClassVar[int]
     OPCODE_FIELD_NUMBER: _ClassVar[int]
     ARGS_FIELD_NUMBER: _ClassVar[int]
-    TaskGuid: str
+    TaskID: str
     Opcode: int
     Args: str
-    def __init__(self, TaskGuid: _Optional[str] = ..., Opcode: _Optional[int] = ..., Args: _Optional[str] = ...) -> None: ...
+    def __init__(self, TaskID: _Optional[str] = ..., Opcode: _Optional[int] = ..., Args: _Optional[str] = ...) -> None: ...
 
 class TaskResponse(_message.Message):
-    __slots__ = ("TaskGuid", "GUID", "Response")
-    TASKGUID_FIELD_NUMBER: _ClassVar[int]
-    GUID_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("TaskID", "ImplantID", "Response")
+    TASKID_FIELD_NUMBER: _ClassVar[int]
+    IMPLANTID_FIELD_NUMBER: _ClassVar[int]
     RESPONSE_FIELD_NUMBER: _ClassVar[int]
-    TaskGuid: str
-    GUID: str
+    TaskID: str
+    ImplantID: str
     Response: bytes
-    def __init__(self, TaskGuid: _Optional[str] = ..., GUID: _Optional[str] = ..., Response: _Optional[bytes] = ...) -> None: ...
+    def __init__(self, TaskID: _Optional[str] = ..., ImplantID: _Optional[str] = ..., Response: _Optional[bytes] = ...) -> None: ...
 
 class ImplantCheckin(_message.Message):
-    __slots__ = ("GUID", "Resp")
-    GUID_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("ImplantID", "Resp")
+    IMPLANTID_FIELD_NUMBER: _ClassVar[int]
     RESP_FIELD_NUMBER: _ClassVar[int]
-    GUID: str
+    ImplantID: str
     Resp: TaskResponse
-    def __init__(self, GUID: _Optional[str] = ..., Resp: _Optional[_Union[TaskResponse, _Mapping]] = ...) -> None: ...
-
-class LogoutImplant(_message.Message):
-    __slots__ = ("GUID",)
-    GUID_FIELD_NUMBER: _ClassVar[int]
-    GUID: str
-    def __init__(self, GUID: _Optional[str] = ...) -> None: ...
+    def __init__(self, ImplantID: _Optional[str] = ..., Resp: _Optional[_Union[TaskResponse, _Mapping]] = ...) -> None: ...
