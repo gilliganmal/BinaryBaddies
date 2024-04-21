@@ -1,1 +1,0 @@
-// HTTP Functions for Implant

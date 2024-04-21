@@ -1,7 +1,8 @@
 # Include the nanopb provided Makefile rules
 
 # include ../../extra/nanopb.mk
-export NANOPB_DIR := /home/ubuntu/BinaryBaddies/nanopb/
+NANOPB_DIR := /home/ubuntu/BinaryBaddies/nanopb/
+
 CC=x86_64-w64-mingw32-gcc
 
 # Compiler flags to enable all warnings & debug info
@@ -17,12 +18,11 @@ CSRC += implant.pb.c                # The compiled protocol definition
 CSRC += $(NANOPB_DIR)/pb_encode.c  # The nanopb encoder
 CSRC += $(NANOPB_DIR)/pb_decode.c  # The nanopb decoder
 CSRC += $(NANOPB_DIR)/pb_common.c  # The nanopb common parts
+CSRC += http_client.c		   # Implant's HTTP functions
 
 OBJ = "obj/exec.o"
-OBJ += "obj/http.o"
 
 # Build rule for the main program
 implant: $(CSRC)
 	$(CC)  $(OBJ) $(CSRC) $(CFLAGS) -o implant.exe  
-
 
