@@ -4,6 +4,14 @@ from typing import ClassVar as _ClassVar, Optional as _Optional
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class Command(_message.Message):
+    __slots__ = ("cmd", "args")
+    CMD_FIELD_NUMBER: _ClassVar[int]
+    ARGS_FIELD_NUMBER: _ClassVar[int]
+    cmd: str
+    args: str
+    def __init__(self, cmd: _Optional[str] = ..., args: _Optional[str] = ...) -> None: ...
+
 class ClientTaskRequest(_message.Message):
     __slots__ = ("ImplantID", "JobID", "Function", "Inputs")
     IMPLANTID_FIELD_NUMBER: _ClassVar[int]

@@ -43,3 +43,9 @@ class ImplantCheckin(_message.Message):
     GUID: str
     Resp: TaskResponse
     def __init__(self, GUID: _Optional[str] = ..., Resp: _Optional[_Union[TaskResponse, _Mapping]] = ...) -> None: ...
+
+class LogoutImplant(_message.Message):
+    __slots__ = ("GUID",)
+    GUID_FIELD_NUMBER: _ClassVar[int]
+    GUID: str
+    def __init__(self, GUID: _Optional[str] = ...) -> None: ...
