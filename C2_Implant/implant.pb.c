@@ -18,7 +18,4 @@ PB_BIND(TaskResponse, TaskResponse, AUTO)
 PB_BIND(ImplantCheckin, ImplantCheckin, AUTO)
 
 
-PB_BIND(LogoutImplant, LogoutImplant, AUTO)
-
-
 

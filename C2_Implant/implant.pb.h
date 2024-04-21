@@ -12,32 +12,27 @@
 /* Struct definitions */
 typedef struct _RegisterImplant {
     char *Password;
-    char *GUID;
+    char *ImplantID;
     char *Username;
-    char *Hostname;
+    char *ComputerName;
 } RegisterImplant;
 
 typedef struct _TaskRequest {
-    char *TaskGuid;
-    int32_t Opcode;
+    char *TaskID;
+    int32_t *Opcode;
     char *Args;
 } TaskRequest;
 
 typedef struct _TaskResponse {
-    char *TaskGuid;
-    char *GUID; /* implant ID */
+    char *TaskID;
+    char *ImplantID; /* implant ID */
     pb_bytes_array_t *Response;
 } TaskResponse;
 
 typedef struct _ImplantCheckin {
-    char *GUID;
-    bool has_Resp;
-    TaskResponse Resp;
+    char *ImplantID;
+    struct _TaskResponse *Resp;
 } ImplantCheckin;
-
-typedef struct _LogoutImplant {
-    pb_callback_t GUID;
-} LogoutImplant;
 
 
 #ifdef __cplusplus
@@ -46,85 +41,74 @@ extern "C" {
 
 /* Initializer values for message structs */
 #define RegisterImplant_init_default             {NULL, NULL, NULL, NULL}
-#define TaskRequest_init_default                 {NULL, 0, NULL}
+#define TaskRequest_init_default                 {NULL, NULL, NULL}
 #define TaskResponse_init_default                {NULL, NULL, NULL}
-#define ImplantCheckin_init_default              {NULL, false, TaskResponse_init_default}
-#define LogoutImplant_init_default               {{{NULL}, NULL}}
+#define ImplantCheckin_init_default              {NULL, NULL}
 #define RegisterImplant_init_zero                {NULL, NULL, NULL, NULL}
-#define TaskRequest_init_zero                    {NULL, 0, NULL}
+#define TaskRequest_init_zero                    {NULL, NULL, NULL}
 #define TaskResponse_init_zero                   {NULL, NULL, NULL}
-#define ImplantCheckin_init_zero                 {NULL, false, TaskResponse_init_zero}
-#define LogoutImplant_init_zero                  {{{NULL}, NULL}}
+#define ImplantCheckin_init_zero                 {NULL, NULL}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define RegisterImplant_Password_tag             1
-#define RegisterImplant_GUID_tag                 2
+#define RegisterImplant_ImplantID_tag            2
 #define RegisterImplant_Username_tag             3
-#define RegisterImplant_Hostname_tag             4
-#define TaskRequest_TaskGuid_tag                 1
+#define RegisterImplant_ComputerName_tag         4
+#define TaskRequest_TaskID_tag                   1
 #define TaskRequest_Opcode_tag                   2
 #define TaskRequest_Args_tag                     3
-#define TaskResponse_TaskGuid_tag                1
-#define TaskResponse_GUID_tag                    2
+#define TaskResponse_TaskID_tag                  1
+#define TaskResponse_ImplantID_tag               2
 #define TaskResponse_Response_tag                3
-#define ImplantCheckin_GUID_tag                  1
+#define ImplantCheckin_ImplantID_tag             1
 #define ImplantCheckin_Resp_tag                  2
-#define LogoutImplant_GUID_tag                   1
 
 /* Struct field encoding specification for nanopb */
 #define RegisterImplant_FIELDLIST(X, a) \
 X(a, POINTER,  SINGULAR, STRING,   Password,          1) \
-X(a, POINTER,  SINGULAR, STRING,   GUID,              2) \
+X(a, POINTER,  SINGULAR, STRING,   ImplantID,         2) \
 X(a, POINTER,  SINGULAR, STRING,   Username,          3) \
-X(a, POINTER,  SINGULAR, STRING,   Hostname,          4)
+X(a, POINTER,  SINGULAR, STRING,   ComputerName,      4)
 #define RegisterImplant_CALLBACK NULL
 #define RegisterImplant_DEFAULT NULL
 
 #define TaskRequest_FIELDLIST(X, a) \
-X(a, POINTER,  SINGULAR, STRING,   TaskGuid,          1) \
-X(a, STATIC,   SINGULAR, INT32,    Opcode,            2) \
+X(a, POINTER,  SINGULAR, STRING,   TaskID,            1) \
+X(a, POINTER,  SINGULAR, INT32,    Opcode,            2) \
 X(a, POINTER,  SINGULAR, STRING,   Args,              3)
 #define TaskRequest_CALLBACK NULL
 #define TaskRequest_DEFAULT NULL
 
 #define TaskResponse_FIELDLIST(X, a) \
-X(a, POINTER,  SINGULAR, STRING,   TaskGuid,          1) \
-X(a, POINTER,  SINGULAR, STRING,   GUID,              2) \
+X(a, POINTER,  SINGULAR, STRING,   TaskID,            1) \
+X(a, POINTER,  SINGULAR, STRING,   ImplantID,         2) \
 X(a, POINTER,  SINGULAR, BYTES,    Response,          3)
 #define TaskResponse_CALLBACK NULL
 #define TaskResponse_DEFAULT NULL
 
 #define ImplantCheckin_FIELDLIST(X, a) \
-X(a, POINTER,  SINGULAR, STRING,   GUID,              1) \
-X(a, STATIC,   OPTIONAL, MESSAGE,  Resp,              2)
+X(a, POINTER,  SINGULAR, STRING,   ImplantID,         1) \
+X(a, POINTER,  OPTIONAL, MESSAGE,  Resp,              2)
 #define ImplantCheckin_CALLBACK NULL
 #define ImplantCheckin_DEFAULT NULL
 #define ImplantCheckin_Resp_MSGTYPE TaskResponse
-
-#define LogoutImplant_FIELDLIST(X, a) \
-X(a, CALLBACK, SINGULAR, STRING,   GUID,              1)
-#define LogoutImplant_CALLBACK pb_default_field_callback
-#define LogoutImplant_DEFAULT NULL
 
 extern const pb_msgdesc_t RegisterImplant_msg;
 extern const pb_msgdesc_t TaskRequest_msg;
 extern const pb_msgdesc_t TaskResponse_msg;
 extern const pb_msgdesc_t ImplantCheckin_msg;
-extern const pb_msgdesc_t LogoutImplant_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
 #define RegisterImplant_fields &RegisterImplant_msg
 #define TaskRequest_fields &TaskRequest_msg
 #define TaskResponse_fields &TaskResponse_msg
 #define ImplantCheckin_fields &ImplantCheckin_msg
-#define LogoutImplant_fields &LogoutImplant_msg
 
 /* Maximum encoded size of messages (where known) */
 /* RegisterImplant_size depends on runtime parameters */
 /* TaskRequest_size depends on runtime parameters */
 /* TaskResponse_size depends on runtime parameters */
 /* ImplantCheckin_size depends on runtime parameters */
-/* LogoutImplant_size depends on runtime parameters */
 
 #ifdef __cplusplus
 } /* extern "C" */
