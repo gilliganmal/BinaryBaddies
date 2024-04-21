@@ -75,12 +75,12 @@ STATUS_TASK_FAILED = "implant failed ot complete task"
 def generate_task_id():
     return os.urandom(16).hex()
 
-def make_task(id, task_id, status, implant_id, task_opcode, task_args):
+def make_task(id, task_id, status, implant_guid, task_opcode, task_args):
     t = Task(
         id = id,
         task_id = generate_task_id(), 
         status = STATUS_CREATED,
-        implant_id = implant_id,
+        implant_guid = implant_guid,
         task_opcode = task_opcode,
         task_args  = task_args
     )

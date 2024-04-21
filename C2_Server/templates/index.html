@@ -77,7 +77,8 @@
 
     var markerArray = [];
     points.forEach(function(point) {
-      var marker = L.marker(point.coords).addTo(map).bindPopup(point.name);
+      var popupContent = `Latitude: ${point.coords[0]}<br>Longitude: ${point.coords[1]}<br>${point.name}`;
+      var marker = L.marker(point.coords).addTo(map).bindPopup(popupContent);
       markerArray.push(marker);
     });
 

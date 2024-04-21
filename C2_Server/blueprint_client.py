@@ -2,6 +2,8 @@ from flask import Blueprint, session, render_template, redirect, url_for
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, Length
+from  database import db
+from models import *
 import secrets
 from client_pb2 import *
 from urllib.parse import urljoin
@@ -11,12 +13,12 @@ import requests
 
 client = Blueprint('client', __name__, template_folder='templates')
 c2 = "https://rigmalwarole.com"
-task_list = "/task/list"
-task_create = "task/create"
-register = "/register"
-request = "/request"
-response = "/response"
-packet = "/packet"
+task_list = "/client//task/list"
+task_create = "/client/task/create"
+register = "/client/register"
+request = "/client/request"
+response = "/client/response"
+packet = "/client/packet"
 
 
 class Terminal(FlaskForm):
@@ -42,8 +44,8 @@ def index():
             msg.cmd = firstword
             msg.args = leftoverstring
             print('Slay Baddies your command was received successfully!')
-            #error_message = analyze_input(firstword, leftoverstring)
-            handle_t_request(1, msg.cmd, msg.args)
+            test = handle_t_request(1, msg.cmd, msg.args)
+            print(test)
         else:
             error_message = 'Invalid Command Loser :('  # Set the error message
     return render_template('index.html', form=form, cmd=whole, error_message=error_message)
@@ -57,7 +59,7 @@ def analyze_input(cmd, args):
     pass
 
 
-@client.route('/task/request', methods=["POST"])
+#@client.route('/client/request', methods=["POST"])
 def handle_t_request(implant_id, cmd, args):
     print(f'REQUEST FROM CLIENT')
     r = ClientTaskRequest()
@@ -66,15 +68,21 @@ def handle_t_request(implant_id, cmd, args):
     r.Function = cmd
     r.Inputs = args
     out = r.SerializeToString()
-
-    # Correct URL to the send_task route
-    full_url = urljoin(c2, '/task/request')
-    response = requests.post(full_url, data=out)
-    if response.status_code == 200:
-        print("Task successfully sent to the RPC service.")
-    else:
-        print(f"Failed to send task, server responded with status code: {response.status_code}")
-    return response.text
+    print("here")
+    new_task = make_task(
+            id=None,
+            task_id=generate_task_id(),
+            status="created",
+            implant_guid=r.ImplantID,
+            task_opcode=1,
+            task_args=r.Inputs
+        )
+    print("before")
+    db.session.add(new_task)
+    print("middle")
+    db.session.commit()
+    print("HEYYYY")
+    return "True"
 
 
 @client.route(response, methods=["POST"])
