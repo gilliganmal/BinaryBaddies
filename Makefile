@@ -5,7 +5,6 @@
 psql:
 	psql -h 127.0.0.1 -U baddie -d c2 
 
-
 pbc:
 	nanopb/generator/nanopb_generator implant.proto
 	mv implant.pb.h C2_Implant/
@@ -16,6 +15,3 @@ client_pbpy:
 
 implant_pbpy:
 	protoc  implant.proto --python_out=./cvnt/cvnt/  --pyi_out=./cvnt/cvnt/
-
-
-

@@ -2,28 +2,24 @@ syntax = "proto3";
 
 message RegisterImplant {
   string Password = 1;
-  string GUID = 2;
+  string ImplantID = 2;
   string Username = 3;
-  string Hostname = 4;
+  string ComputerName = 4;
 }
 
 message TaskRequest {
-  string TaskGuid = 1;
+  string TaskID = 1;
   int32 Opcode = 2;
   string Args = 3;
 }
 
 message TaskResponse {
-  string TaskGuid = 1;
-  string GUID = 2; //implant ID
+  string TaskID = 1;
+  string ImplantID = 2; //implant ID
   bytes Response = 3;
 }
 
 message ImplantCheckin {
-  string GUID = 1;
+  string ImplantID = 1;
   TaskResponse Resp = 2;
-}
-
-message LogoutImplant {
-  string GUID = 1;
 }
