@@ -46,11 +46,12 @@ LPBYTE SendToServer(LPCWSTR VERB, LPCWSTR PATH, BYTE *buffer, size_t bytes_writt
 	
 	DWORD dwSize = 0;
 	DWORD dwDownloaded = 0;
-	LPSTR pszOutBuffer;
+	//LPSTR pszOutBuffer;
 	BOOL  bResults = FALSE;
 	HINTERNET  hSession = NULL,
 		   hConnect = NULL,
 		   hRequest = NULL;
+	BYTE *responseBuffer;
 
 	// Use WinHttpOpen to obtain a session handle.
         hSession = WinHttpOpen(L"A Custom User Agent",
@@ -66,7 +67,7 @@ LPBYTE SendToServer(LPCWSTR VERB, LPCWSTR PATH, BYTE *buffer, size_t bytes_writt
 				5000,
 				0);
 	}
-
+	printf("HTTP Verb: %S\n", VERB);
 	// Create an HTTP request handle.
 	if (hConnect) {
 		hRequest = WinHttpOpenRequest(hConnect,
@@ -111,38 +112,39 @@ LPBYTE SendToServer(LPCWSTR VERB, LPCWSTR PATH, BYTE *buffer, size_t bytes_writt
 	if (bResults) {
 
         	// Receive the response
-        	if (WinHttpReceiveResponse(hRequest, NULL)) {
+        	if (WinHttpReceiveResponse(hRequest, NULL)) { 
 			printf("recieved.\n");
+		}
 
 			do {
-				      // Check for available data.
-      dwSize = 0;
-      if( !WinHttpQueryDataAvailable( hRequest, &dwSize ) )
-        printf( "Error %u in WinHttpQueryDataAvailable.\n",
-                GetLastError( ) );
+				/**
+				dwSize = 0;
+				if( !WinHttpQueryDataAvailable( hRequest, &dwSize ) ) {
+					printf( "Error %lu in WinHttpQueryDataAvailable.\n",
+							GetLastError( ) );
+				}
+				
+				// Allocate space for the buffer.
+				pszOutBuffer = (BYTE *)dwSize+1];
+				
+				if( !pszOutBuffer ) {
+					printf( "Out of memory\n" );
+					dwSize=0;
+				}
+				else {
+					// Read the data.
+					ZeroMemory( pszOutBuffer, dwSize+1 );
+					
+					if( !WinHttpReadData( hRequest, (LPVOID)pszOutBuffer, dwSize, &dwDownloaded ) ) {
+						printf( "Error %u in WinHttpReadData.\n", GetLastError( ) );
+					}
+					else {
+						printf( "%s", pszOutBuffer );
+						// Free the memory allocated to the buffer.
+						delete [] pszOutBuffer;
+					}
+					**/
 
-      // Allocate space for the buffer.
-      pszOutBuffer = new char[dwSize+1];
-      if( !pszOutBuffer )
-      {
-        printf( "Out of memory\n" );
-        dwSize=0;
-      }
-      else
-      {
-        // Read the data.
-        ZeroMemory( pszOutBuffer, dwSize+1 );
-
-        if( !WinHttpReadData( hRequest, (LPVOID)pszOutBuffer,
-                              dwSize, &dwDownloaded ) )
-          printf( "Error %u in WinHttpReadData.\n", GetLastError( ) );
-        else
-          printf( "%s", pszOutBuffer );
-
-        // Free the memory allocated to the buffer.
-        delete [] pszOutBuffer;
-      }
-      /**
 				printf("Checking for available data.\n");
                         	// Check for available data
                         	dwSize = 0;
@@ -171,7 +173,7 @@ LPBYTE SendToServer(LPCWSTR VERB, LPCWSTR PATH, BYTE *buffer, size_t bytes_writt
                                 	}
                                 	// Free the memory allocated to the buffer
                                 	// free(responseBuffer);
-                        	}**/
+                        	}
                 	} while (dwSize > 0);
 		}
 		// Clean up
