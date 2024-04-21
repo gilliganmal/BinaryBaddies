@@ -20,4 +20,8 @@
 
 #define USE_TLS FALSE
 
+
+#define REGISTRATION_SUCCESSFUL L"Implant successfully registered.\n"
+#define REGISTRATION_FAILED L"Implant failed to register.\n"
+
 // OPCODES WILL GO BELOW

