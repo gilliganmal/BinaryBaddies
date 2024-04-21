@@ -23,3 +23,7 @@ message ImplantCheckin {
   string GUID = 1;
   TaskResponse Resp = 2;
 }
+
+message LogoutImplant {
+  string GUID = 1;
+}

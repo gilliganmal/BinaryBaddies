@@ -35,6 +35,10 @@ typedef struct _ImplantCheckin {
     TaskResponse Resp;
 } ImplantCheckin;
 
+typedef struct _LogoutImplant {
+    pb_callback_t GUID;
+} LogoutImplant;
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -45,10 +49,12 @@ extern "C" {
 #define TaskRequest_init_default                 {NULL, 0, NULL}
 #define TaskResponse_init_default                {NULL, NULL, NULL}
 #define ImplantCheckin_init_default              {NULL, false, TaskResponse_init_default}
+#define LogoutImplant_init_default               {{{NULL}, NULL}}
 #define RegisterImplant_init_zero                {NULL, NULL, NULL, NULL}
 #define TaskRequest_init_zero                    {NULL, 0, NULL}
 #define TaskResponse_init_zero                   {NULL, NULL, NULL}
 #define ImplantCheckin_init_zero                 {NULL, false, TaskResponse_init_zero}
+#define LogoutImplant_init_zero                  {{{NULL}, NULL}}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define RegisterImplant_Password_tag             1
@@ -63,6 +69,7 @@ extern "C" {
 #define TaskResponse_Response_tag                3
 #define ImplantCheckin_GUID_tag                  1
 #define ImplantCheckin_Resp_tag                  2
+#define LogoutImplant_GUID_tag                   1
 
 /* Struct field encoding specification for nanopb */
 #define RegisterImplant_FIELDLIST(X, a) \
@@ -94,22 +101,30 @@ X(a, STATIC,   OPTIONAL, MESSAGE,  Resp,              2)
 #define ImplantCheckin_DEFAULT NULL
 #define ImplantCheckin_Resp_MSGTYPE TaskResponse
 
+#define LogoutImplant_FIELDLIST(X, a) \
+X(a, CALLBACK, SINGULAR, STRING,   GUID,              1)
+#define LogoutImplant_CALLBACK pb_default_field_callback
+#define LogoutImplant_DEFAULT NULL
+
 extern const pb_msgdesc_t RegisterImplant_msg;
 extern const pb_msgdesc_t TaskRequest_msg;
 extern const pb_msgdesc_t TaskResponse_msg;
 extern const pb_msgdesc_t ImplantCheckin_msg;
+extern const pb_msgdesc_t LogoutImplant_msg;
 
 /* Defines for backwards compatibility with code written before nanopb-0.4.0 */
 #define RegisterImplant_fields &RegisterImplant_msg
 #define TaskRequest_fields &TaskRequest_msg
 #define TaskResponse_fields &TaskResponse_msg
 #define ImplantCheckin_fields &ImplantCheckin_msg
+#define LogoutImplant_fields &LogoutImplant_msg
 
 /* Maximum encoded size of messages (where known) */
 /* RegisterImplant_size depends on runtime parameters */
 /* TaskRequest_size depends on runtime parameters */
 /* TaskResponse_size depends on runtime parameters */
 /* ImplantCheckin_size depends on runtime parameters */
+/* LogoutImplant_size depends on runtime parameters */
 
 #ifdef __cplusplus
 } /* extern "C" */
