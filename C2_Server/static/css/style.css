@@ -107,6 +107,13 @@ h6 {
   color: #fff;
 }
 
+h1.display-4 {
+  color: white  !important;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  opacity: 2;
+}
+
 #header h2 {
   color: #eee;
   margin-bottom: 40px;
