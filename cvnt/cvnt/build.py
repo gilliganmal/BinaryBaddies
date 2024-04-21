@@ -17,16 +17,17 @@ def build_app():
             SQLALCHEMY_DATABASE_URI="postgresql://baddie:pass@localhost:5432/c2"
     )
     
-    app.register_blueprint(basic)
-    app.register_blueprint(client)
-    app.register_blueprint(admin)
+    #app.register_blueprint(basic)
+    #app.register_blueprint(client)
+    #app.register_blueprint(admin)
     app.register_blueprint(rpc)
-    
+
     db.init_app(app)
-    
+
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+        db.session.commit()
+        print('SLDKJFLKSJDFLJSLDJFJSDLFJLS')
     return app
 
-
-def init_db():
-    db.drop_all()
-    db.create_all()

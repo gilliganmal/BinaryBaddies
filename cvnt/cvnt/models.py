@@ -1,13 +1,7 @@
+'''
 from database import db
 from dataclasses import dataclass
 from implant_pb2 import * 
-
-# import os # for random
-
-
-# from sqlalchemy.sql import func
-
-# from flask_wtf.csrf import *
 
 # Implants Table
 @dataclass
@@ -152,4 +146,4 @@ def make_client(id):
         password = password
     )
     return c
-
+'''
