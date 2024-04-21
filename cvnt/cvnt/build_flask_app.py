@@ -1,21 +1,24 @@
 # init_server.py
 
-from flask import Flask 
-from cvnt.database import db
-from cvnt.blueprint_basic import basic
-from cvnt.blueprint_admin import admin
-from cvnt.blueprint_rpc import rpc
-from cvnt.blueprint_client import client
-from flask import Flask, request
-from flask import Flask, render_template, redirect, url_for
+'''
+from flask import Flask, request, render_template, redirect, url_for
+from database import db
+
+from blueprint_basic import basic
+from blueprint_admin import admin
+from blueprint_rpc import rpc
+from blueprint_client import client
+
 from flask_bootstrap import Bootstrap
 
 import secrets
+
 from flask_wtf import FlaskForm, CSRFProtect
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, Length
+'''
 
-
+'''
 def build_app():
     app = Flask(__name__)
 
@@ -32,7 +35,7 @@ def build_app():
     # app.secret_key = foo
 
     # basic database connection URL = dialect://username:password@host:port/database
-    app.config.from_mapping(SQLALCHEMY_DATABASE_URI = 'postgresql://user:pass@localhost:5000/c2.db')
+    app.config.from_mapping(SQLALCHEMY_DATABASE_URI = 'postgresql://baddie:pass@localhost:5000/c2.db')
     app.config.from_mapping(SQLALCHEMY_ECHO = True)
 
     app.register_blueprint(basic) # CSRF Token sent to client here
@@ -42,8 +45,10 @@ def build_app():
 
     csrf.exempt(rpc)
 
-    db.init_app(app)
+    with app.app_context():
+        db.init_app(app)
 
+        app.run(host='0.0.0.0', debug=True)
 
     return app 
 
@@ -51,9 +56,29 @@ def init_db():
     db.drop_all()
     db.create_all()
 
+'''
 
-if __name__ == '__main__':  
-   app = build_app()
-   app.run(host='0.0.0.0', debug=True)
+from flask import Flask
+from database import db
+
+from blueprint_admin import admin
+from blueprint_basic import basic
+from blueprint_client import client
+from blueprint_rpc import rpc
 
 
+def build_app():
+    app = Flask(__name__)
+    app.config.from_mapping(
+        SQLALCHEMY_DATABASE_URI="postgresql://baddie:pass@localhost:5432/c2"
+        # "sqlite:///c2.db"
+    )
+    app.register_blueprint(admin)
+    app.register_blueprint(rpc)
+    db.init_app(app)
+    return app
+
+
+def init_db():
+    db.drop_all()
+    db.create_all()

@@ -1,12 +1,13 @@
-from cvnt.database import db
+from database import db
 from dataclasses import dataclass
-import os # for random
-from cvnt.implant_pb2 import * 
-from cvnt.database import db
-from cvnt.models import *
-from flask_wtf.csrf import *
+from implant_pb2 import * 
 
-from datetime import datetime
+# import os # for random
+
+
+# from sqlalchemy.sql import func
+
+# from flask_wtf.csrf import *
 
 # Implants Table
 @dataclass
@@ -20,38 +21,47 @@ class Implant(db.Model):
     # GUID: What is the computer's GUID?
     # computer_GUID = db.Column(db.String)
     # Integrity: What privileges do you have?
-    privileges = db.Column(db.String)
+    # privileges = db.Column(db.String)
     # Connecting IP address: what address did it connect from?
-    connecting_IP_addr = db.Column(db.String)
+    # connecting_IP_addr = db.Column(db.String)
     # Session Key: After you negotiated a session key, store it per agent
-    session_key = db.Column(db.String)
+    # session_key = db.Column(db.String)
     # Sleep: How often does the agent check in?
-    sleep_frq = db.Column(db.Integer)
+    # sleep_frq = db.Column(db.Integer)
     # Jitter: How random of a check in is it?
-    checkin_frq = db.Column(db.Integer)
+    # checkin_frq = db.Column(db.Integer)
     # First Seen: When did the agent first check in
-    first_seen = db.Column(db.String)
+    # first_seen = db.Column(db.String)
     # Last Seen: When was the the last time you saw the agent?
-    last_seen = db.Column(db.String)
+    # last_seen = db.Column(db.String)
     # Expected Check in: When should you expect to see the agent again?
     # expected_checkin = db.Column(db.String)
 
 
 # MAKE MODEL FUNCTIONS
-def make_implant(ri, ip):
+def make_implant(ri):
     i = Implant(
         implant_id = ri.GUID,
         computer_name = ri.Hostname,
-        username = ri.Username,
+        username = ri.Username)
         # computer_GUID = computer_GUID, 
-        privileges = "",
-        connecting_IP_addr = ip,
-        session_key = "",
-        sleep_frq = 1000,
-        checkin_frq = 1000,
-        first_seen = func.now(),
-        last_seen = func.now())
+        # privileges = "",
+        # connecting_IP_addr = ip,
+        # session_key = "",
+        # sleep_frq = 1000,
+        # checkin_frq = 1000,
+        # first_seen = func.now(),
+        # last_seen = func.now())
         # expected_checkin = )
+    # print(f'Implant made from {ip}.')
+    return i
+
+def register_implant(i):
+    print(f'About to db.session.add(implant)')
+    db.session.add(i)
+    print(f'About to db.session.commit()')
+    db.session.commit()
+    print(f'Done registering implant.')
     return i
 
 # Tasks Table: Keep track of jobs sent to implants that are in progress/finished

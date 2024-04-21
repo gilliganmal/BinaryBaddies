@@ -26,12 +26,11 @@ def handle_register():
     
     if register.Password != password:
         abort(404)
-    
-    r = make_implant(register, request.remote_addr)
-    
-    #db.session.add(r)
-    #db.commit()
-    
+
+    print(f'[+] Password is bueno.')
+
+    r = register_implant(make_implant(register))
+
     # TODO If implant with same GUID has already been added, don't add and send failure back.
     # TODO If implant dies / kills itself, once last checkin expires, have Server remove said task from database
     print("[+] Watch out sexy ;) a New Implant connected!")
