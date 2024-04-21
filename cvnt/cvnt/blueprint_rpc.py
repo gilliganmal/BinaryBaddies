@@ -31,6 +31,8 @@ def handle_register():
     db.session.add(r)
     db.commit()
     '''
+    # TODO If implant with same GUID has already been added, don't add and send failure back.
+    # TODO If implant dies / kills itself, once last checkin expires, have Server remove said task from database
     print("[+] Watch out sexy ;) a New Implant connected!")
     return REGISTRATION_SUCCESSFUL
 
