@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>File manager</title>
+
+    <!--<link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">-->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+    <!-- Your custom CSS file -->
+    <!--<link href="static/css/style.css" rel="stylesheet">-->
+    <style>
+        /* Additional custom styling */
+        .navbar-custom {
+            background-color: #343a40; /* Dark background color */
+        }
+        .navbar-custom .nav-link {
+            color: #ffffff; /* White text color */
+        }
+        .navbar-custom .nav-link:hover {
+            color: #f8f9fa; /* Lighter text color on hover */
+        }
+        /* Custom grid layout */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-gap: 20px;
+            list-style-type: none;
+            padding: 0;
+        }
+        .grid-item {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark navbar-custom"> <!-- Add navbar-custom class -->
+        <div class="container-fluid">
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="../client">Terminal and Map</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="../explorer">File explorer</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+<div align="center">
+    <h1>Local file system</h1>
+    <p><strong>CWD: </strong>{{ current_working_directory }}</p>
+</div>
+
+<ul class="grid-container">
+    <form action="/md">
+        <li class="grid-item">
+            <input type="submit" value="New folder"/>
+            <input name="folder" type="text" value="new_folder"/>
+        </li>
+    </form>
+    <li class="grid-item"><a href="/cd?path=..">..</a></li>
+    {% for item in file_list[0: -1] %}
+        <li class="grid-item">
+            {% if '.' not in item %}
+                <img src="../static/img/folder.webp" alt="Folder" style="width: 100px;"><br>
+                <strong><a href="/cd?path={{current_working_directory + '/' + item}}">{{item}}</a></strong><a href="/rm?dir={{item}}"> X</a>
+            {% elif '.txt' in item or '.py' in item or '.json' in item %}
+                <img src="../static/img/file.png" alt="File" style="width: 100px;"><br>
+                <strong><a href="/view?file={{current_working_directory + '/' + item}}">{{item}}</a></strong>
+            {% else %}
+                {{item}}
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
+</body>
+</html>

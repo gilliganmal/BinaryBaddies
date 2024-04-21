@@ -4,12 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Super Secret Endpoint Slay</title>
+
+  <!--<link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">-->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
   <!-- Bootstrap CSS -->
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
   <!-- Your custom CSS file -->
-  <link rel="stylesheet" href="../static/css/style.css">
+  <!--<link href="static/css/style.css" rel="stylesheet">-->
   <style>
     #map {
       height: 400px;
@@ -17,15 +21,31 @@
   </style>
 </head>
 <body>
+  <header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container-fluid">
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="../client">Terminal and Map</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="../explorer">File explorer</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
   <div class="px-4 pt-5 my-3 text-center border-bottom">
     <div class="pb-3">
-        <h1 class="display-4 fw-bold">Implants Online</h1>
+      <h1 class="display-4 fw-bold">Implants Online</h1>
     </div>
     <div class="col-lg-6 mx-auto">
       <p class="mb-4 pb-3">
-          Wow gurls youre really killing the game out here. look at all these losers falling victim to your
-          quick wit and overall charm. Social engineering and implanting on everyone. The world better watch
-          out for you!
+        Wow gurls youre really killing the game out here. look at all these losers falling victim to your
+        quick wit and overall charm. Social engineering and implanting on everyone. The world better watch
+        out for you!
       </p>
     </div>
   </div>
@@ -77,7 +97,8 @@
 
     var markerArray = [];
     points.forEach(function(point) {
-      var marker = L.marker(point.coords).addTo(map).bindPopup(point.name);
+      var popupContent = `Latitude: ${point.coords[0]}<br>Longitude: ${point.coords[1]}<br>${point.name}`;
+      var marker = L.marker(point.coords).addTo(map).bindPopup(popupContent);
       markerArray.push(marker);
     });
 
