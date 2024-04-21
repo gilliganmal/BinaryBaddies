@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "debug.h"
 
-// make an HTTP request and return a heap allocated buffer with the result
+// Make an HTTP request and return a heap allocated buffer with the result
 // the caller is responsble for freeing
 LPBYTE 
 HTTPRequest(

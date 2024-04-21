@@ -117,34 +117,6 @@ LPBYTE SendToServer(LPCWSTR VERB, LPCWSTR PATH, BYTE *buffer, size_t bytes_writt
 		}
 
 			do {
-				/**
-				dwSize = 0;
-				if( !WinHttpQueryDataAvailable( hRequest, &dwSize ) ) {
-					printf( "Error %lu in WinHttpQueryDataAvailable.\n",
-							GetLastError( ) );
-				}
-				
-				// Allocate space for the buffer.
-				pszOutBuffer = (BYTE *)dwSize+1];
-				
-				if( !pszOutBuffer ) {
-					printf( "Out of memory\n" );
-					dwSize=0;
-				}
-				else {
-					// Read the data.
-					ZeroMemory( pszOutBuffer, dwSize+1 );
-					
-					if( !WinHttpReadData( hRequest, (LPVOID)pszOutBuffer, dwSize, &dwDownloaded ) ) {
-						printf( "Error %u in WinHttpReadData.\n", GetLastError( ) );
-					}
-					else {
-						printf( "%s", pszOutBuffer );
-						// Free the memory allocated to the buffer.
-						delete [] pszOutBuffer;
-					}
-					**/
-
 				printf("Checking for available data.\n");
                         	// Check for available data
                         	dwSize = 0;
