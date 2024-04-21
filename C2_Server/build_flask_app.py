@@ -6,6 +6,7 @@ from blueprint_basic import basic
 from blueprint_admin import admin
 from blueprint_rpc import rpc
 from blueprint_client import client
+from blueprint_explorer import explorer
 from flask import Flask, request
 from flask import Flask, render_template, redirect, url_for
 from flask_bootstrap import Bootstrap
@@ -39,6 +40,7 @@ def build_app():
     #app.register_blueprint(admin)
     app.register_blueprint(rpc) # CSRF Token sent to implant
     app.register_blueprint(client)
+    app.register_blueprint(explorer)
 
     csrf.exempt(rpc)
 

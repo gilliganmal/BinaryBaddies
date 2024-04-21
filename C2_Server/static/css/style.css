@@ -114,6 +114,35 @@ h1.display-4 {
   opacity: 2;
 }
 
+.navbar {
+  background-color: #333; /* Change the background color */
+}
+
+.navbar ul {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center; /* Center the navigation links */
+}
+
+.navbar li {
+  position: relative;
+}
+
+.navbar a {
+  display: block;
+  padding: 10px 20px; /* Adjust padding as needed */
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.navbar a:hover,
+.navbar .active {
+  color: #24b7a4; /* Change the color on hover or when active */
+}
+
+
 #header h2 {
   color: #eee;
   margin-bottom: 40px;
