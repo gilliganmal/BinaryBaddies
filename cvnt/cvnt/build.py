@@ -12,6 +12,7 @@ from cvnt.blueprint_explorer import explorer
 from flask_bootstrap import Bootstrap
 from cvnt.tables import *
 import secrets
+from cvnt.blueprint_terminal import term
 
 from flask_wtf import FlaskForm, CSRFProtect
 from wtforms import StringField, SubmitField
@@ -40,12 +41,13 @@ def build_app():
     app.register_blueprint(client)
     app.register_blueprint(admin)
     app.register_blueprint(rpc)
+    app.register_blueprint(term)
     # app.register_blueprint(explorer)
     csrf.exempt(rpc)
 
     db.init_app(app)
     with app.app_context():
-        db.drop_all()
+        #db.drop_all()
         db.create_all()
         db.session.commit()
         print('[+] DATABASE INITIALIZED')
@@ -72,7 +74,7 @@ def build_app():
     )
 
     ic = Implant(
-        implant_id = "YESSIRR",
+        implant_id = "YES MMMAAAAMMM",
         computer_name = "mine",
         username = "username",
         ip_addr = "155.33.134.8",
