@@ -37,11 +37,11 @@ def index():
         if len(words) == 1:
             if words[0] in extras:
                 print('printing??????')
-                implants = get_list()
-                for impl in implants:
-                    curr = get_implant_by_id(impl)
-                    lat = curr.latitude
-                    long = curr.longitude
+                #implants = get_list()
+                #for impl in implants:
+                    #curr = get_implant_by_id(impl)
+                    #lat = curr.latitude
+                    #long = curr.longitude
             else:
                 response = 'Invalid Command Loser :('
                 cmd = words[0]

