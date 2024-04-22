@@ -68,3 +68,16 @@ def get_implant_by_id(implant_id):
 
 def analyze_TaskResponse(ic):
     pass
+
+def make_dummy_task(ip):
+    location = get_location(ip)
+    i = Implant(
+        implant_id = "Blah Blah",
+        computer_name = "Ya Ya",
+        username = "username",
+        ip_addr = ip,
+        checkin_frq = 1000,
+        latitude = location[0],
+        longitude = location[1])
+
+    r = register_implant(i)

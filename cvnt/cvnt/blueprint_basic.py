@@ -1,9 +1,9 @@
 # basic blueprint
 
-from flask import session, render_template, request, redirect, url_for, flash, Blueprint
-from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired
-from flask_wtf import FlaskForm
+from flask import session, render_template, request, redirect, url_for, flash, Blueprint # type: ignore
+from wtforms import StringField, SubmitField # type: ignore
+from wtforms.validators import DataRequired # type: ignore
+from flask_wtf import FlaskForm # type: ignore
 from cvnt.blueprint_client import client
 
 basic = Blueprint("basic", __name__)

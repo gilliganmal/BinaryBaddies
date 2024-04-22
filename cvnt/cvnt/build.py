@@ -17,6 +17,8 @@ from flask_wtf import FlaskForm, CSRFProtect
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, Length
 
+from cvnt.db_operations import make_dummy_task
+
 SECRET_KEY = 'tO$&!|0wkamvVia0?n$NqIRVWOG'
 
 def build_app():
@@ -47,23 +49,10 @@ def build_app():
         db.create_all()
         db.session.commit()
         print('DATABASE INITIALIZED')
-    Make_dummy_task()
+
+        make_dummy_task("123.8.4.5")
+        make_dummy_task("111.4.4.7")
+        make_dummy_task("445.1.4.9")
+        make_dummy_task("583.1.4.5")
 
     return app
-
-def Make_dummy_task():
-
-    register = RegisterImplant()
-    register.ImplantID = “Blah Blah”
-    register.ComputerName = “Ya Ya”
-    register.Username = “username”
-    register.Password = “password”
-
-    Ip = “123.0.4.5”
-        print(f'[+] New Implant: from {ip}’)
-        print(f'[+]    * ImplantID: {register.ImplantID}')
-        print(f'[+]    * ComputerName: {register.ComputerName}')
-        print(f'[+]    * Username: {register.Username}')
-        print(f'[+]    * Password: {register.Password}')
-
-    r = register_implant(make_implant(register, ip))
