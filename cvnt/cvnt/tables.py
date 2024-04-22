@@ -28,10 +28,11 @@ class Task(db.Model):
     task_args:str  = db.Column(db.String)
     task_output:str = db.Column(db.String)
 
+'''
 # Clients Table: Keep track of operators connected to the C2 via the client
 @dataclass
 class Client(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     client_id: str = db.Column(db.String)
-
+'''
 
