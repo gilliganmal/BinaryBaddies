@@ -207,7 +207,7 @@ BOOL DoCheckin(TaskResponse *tResp, TaskRequest *tReq) {
   ImplantCheckin chk = ImplantCheckin_init_zero;
   chk.GUID = (char *)ImplantID;
   chk.Resp = *tResp;
-  chk.has_Resp = true;
+
   size_t stBuffSize = 0;
   BYTE *checkinBuffer = EncodeImplantCheckin(&chk, &stBuffSize);
   if (checkinBuffer == NULL) {

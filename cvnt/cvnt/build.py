@@ -2,13 +2,13 @@
 
 from flask import Flask
 
-from database import db
+from cvnt.database import db
 
-from blueprint_admin import admin
-from blueprint_basic import basic
-from blueprint_client import client
-from blueprint_rpc import rpc
-
+from cvnt.blueprint_admin import admin
+from cvnt.blueprint_basic import basic
+from cvnt.blueprint_client import client
+from cvnt.blueprint_rpc import rpc
+from cvnt.blueprint_explorer import explorer
 from flask_bootstrap import Bootstrap
 
 import secrets
@@ -24,6 +24,7 @@ def build_app():
     
     app.secret_key = SECRET_KEY
 
+    print ('helo lakjlskdfjlakjfsdl')
     bootstrap = Bootstrap(app)
 
     csrf = CSRFProtect(app)
@@ -31,13 +32,13 @@ def build_app():
     app.config.from_mapping(
             SQLALCHEMY_DATABASE_URI="postgresql://baddie:pass@localhost:5432/c2"
     )
-    # app.config.from_mapping(SQLALCHEMY_ECHO = True)
+    app.config.from_mapping(SQLALCHEMY_ECHO = True)
 
     app.register_blueprint(basic)
     app.register_blueprint(client)
     app.register_blueprint(admin)
     app.register_blueprint(rpc)
-
+#    app.register_blueprint(explorer)
     csrf.exempt(rpc)
 
     db.init_app(app)

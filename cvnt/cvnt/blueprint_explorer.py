@@ -1,4 +1,4 @@
-from blueprint_client import client
+from cvnt.blueprint_client import client
 from flask import Flask, Blueprint
 from flask import render_template_string, render_template
 from flask import redirect
@@ -13,7 +13,7 @@ explorer = Blueprint('explorer', __name__, template_folder='templates', static_f
 @explorer.route('/explorer')
 def root():
     return render_template( 'explorer.html', current_working_directory=os.getcwd(),
-         file_list=subprocess.check_output('dir', shell=True).decode('utf-8').split('\n')) # use 'dir' command on Windows
+         file_list=subprocess.check_output('ls', shell=True).decode('utf-8').split('\n')) # use 'dir' command on Windows
     
 # handle 'cd' command
 @explorer.route('/cd')

