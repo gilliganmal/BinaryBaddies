@@ -19,6 +19,7 @@ def make_implant(ri: RegisterImplant, ip) -> RegisterImplant:
         ip_addr = ip,
         checkin_frq = 1000,
         first_seen = func.now(),
+        last_seen = func.now(),
         latitude = location[0],
         longitude = location[1])
     print(i)
@@ -32,6 +33,7 @@ def register_implant(i):
 def update_implant_last_seen(iID):
     # Query the Implant table by implant_id
     implant = get_implant_by_id(iID)
+    print(f"\n\n\n ---- THIS IS THE IMP:ANT ---- \n\n {implant}\n\n --- END OF IMPLANT ---\n")
     implant.last_seen = func.now()
     db.session.commit()
     return implant
@@ -61,9 +63,12 @@ def get_location(ip):
     long = res.longitude
     return [lat, long]
 
-def get_implant_by_id(implant_id):
+def get_implant_by_id(iID):
     # Query the Implant table by implant_id
-    implant = db.session.query(Implant).filter_by(implant_id=implant_id).first()
+    # print(f"{db.session.query(Implant)}\n\n\n\n\n")
+    # print(f"{db.session.query(Implant).filter_by(implant_id=iID)}\n\n\n\n\n")
+    # print(f"{db.session.query(Implant).filter_by(implant_id=iID).first()}\n\n\n\n")
+    implant = Implant.query.filter_by(implant_id=iID).first()
     return implant
 
 def get_task_by_ids(task_id, implant_id):
@@ -72,8 +77,8 @@ def get_task_by_ids(task_id, implant_id):
     return implant
 
 def analyze_TaskResponse(tr: TaskResponse):
-    if tr is None:
-        return
+    if tr.ByteSize() == 0:
+        return False
     
     print(f'[+] TaskReponse:')
     print(f'[+]    * TaskID: {tr.TaskID}')
@@ -82,14 +87,21 @@ def analyze_TaskResponse(tr: TaskResponse):
     
     # Query the Implant table by implant_id
     task = get_task_by_ids(tr.TaskID, tr.ImplantID)
-    
+
+    if not task.isinstance(Task):
+        print(f'WOMP WOMP')
+        return False
+
     if not tr.HasField("Response"):
         task.status = STATUS_TASK_FAILED
+        
     else:
         task.status = STATUS_TASK_COMPLETE
         task.task_output = tr.Response # WING HAS FOREWARNED - THIS WILL FUCK YOU UP. TAKE A DEEP BREATH. AND CAST HOWEVER YOU NEED TO. REGARDLES OF THE CASTING SINS YOU COMMIT
     
     db.session.commit()
+
+    return True
 
 
 # Send TaskRequest back or "" (if no tasks)

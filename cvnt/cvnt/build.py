@@ -34,7 +34,7 @@ def build_app():
     app.config.from_mapping(
             SQLALCHEMY_DATABASE_URI="postgresql://baddie:pass@localhost:5432/c2"
     )
-    app.config.from_mapping(SQLALCHEMY_ECHO = True)
+    # app.config.from_mapping(SQLALCHEMY_ECHO = True)
 
     app.register_blueprint(basic)
     app.register_blueprint(client)
