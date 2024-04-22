@@ -26,7 +26,7 @@ class Task(db.Model):
     status: str = db.Column(db.String)
     task_opcode:str  = db.Column(db.String)
     task_args:str  = db.Column(db.String)
-
+    task_output:str = db.Column(db.String)
 # Clients Table: Keep track of operators connected to the C2 via the client
 @dataclass
 class Client(db.Model):

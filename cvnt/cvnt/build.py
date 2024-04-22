@@ -50,9 +50,8 @@ def build_app():
         db.session.commit()
         print('DATABASE INITIALIZED')
 
-        make_dummy_task("123.8.4.5")
-        make_dummy_task("111.4.4.7")
-        make_dummy_task("445.1.4.9")
-        make_dummy_task("583.1.4.5")
+        #make_dummy_task("155.33.133.56")
+        #make_dummy_task("35.174.183.10")
+        #make_dummy_task("10.110.137.189")
 
     return app

