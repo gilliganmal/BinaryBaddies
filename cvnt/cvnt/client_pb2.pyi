@@ -5,12 +5,14 @@ from typing import ClassVar as _ClassVar, Optional as _Optional
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class Command(_message.Message):
-    __slots__ = ("cmd", "args")
+    __slots__ = ("ImplantID", "cmd", "args")
+    IMPLANTID_FIELD_NUMBER: _ClassVar[int]
     CMD_FIELD_NUMBER: _ClassVar[int]
     ARGS_FIELD_NUMBER: _ClassVar[int]
+    ImplantID: str
     cmd: str
     args: str
-    def __init__(self, cmd: _Optional[str] = ..., args: _Optional[str] = ...) -> None: ...
+    def __init__(self, ImplantID: _Optional[str] = ..., cmd: _Optional[str] = ..., args: _Optional[str] = ...) -> None: ...
 
 class ClientTaskRequest(_message.Message):
     __slots__ = ("ImplantID", "JobID", "Function", "Inputs")
@@ -18,11 +20,11 @@ class ClientTaskRequest(_message.Message):
     JOBID_FIELD_NUMBER: _ClassVar[int]
     FUNCTION_FIELD_NUMBER: _ClassVar[int]
     INPUTS_FIELD_NUMBER: _ClassVar[int]
-    ImplantID: int
-    JobID: int
+    ImplantID: str
+    JobID: str
     Function: str
     Inputs: str
-    def __init__(self, ImplantID: _Optional[int] = ..., JobID: _Optional[int] = ..., Function: _Optional[str] = ..., Inputs: _Optional[str] = ...) -> None: ...
+    def __init__(self, ImplantID: _Optional[str] = ..., JobID: _Optional[str] = ..., Function: _Optional[str] = ..., Inputs: _Optional[str] = ...) -> None: ...
 
 class ClientTaskResponse(_message.Message):
     __slots__ = ("ImplantID", "JobID", "Output")
