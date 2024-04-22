@@ -50,18 +50,44 @@ def build_app():
         db.session.commit()
         print('[+] DATABASE INITIALIZED')
 
-    '''
+
     im = Implant(
         implant_id = "Blah Blah",
         computer_name = "Ya Ya",
         username = "username",
-        ip_addr = "10.10.10.1",
+        ip_addr = "155.33.134.7",
         checkin_frq = 1000,
-        latitude = 133.3,
-        longitude = 22.0
+        latitude = 42.339699,
+        longitude = -71.091721
     )
+
+    ib = Implant(
+        implant_id = "YESSIRR",
+        computer_name = "mine",
+        username = "username",
+        ip_addr = "155.33.134.8",
+        checkin_frq = 1000,
+        latitude = 42.328350,
+        longitude = -71.098923
+    )
+
+    ic = Implant(
+        implant_id = "YESSIRR",
+        computer_name = "mine",
+        username = "username",
+        ip_addr = "155.33.134.8",
+        checkin_frq = 1000,
+        latitude = 40.721619,
+        longitude = -73.940079
+    )
+
+
     with app.app_context():
         db.session.add(im)
         db.session.commit()
-    '''
+        db.session.add(ib)
+        db.session.commit()
+        db.session.add(ic)
+        db.session.commit()
+
     return app

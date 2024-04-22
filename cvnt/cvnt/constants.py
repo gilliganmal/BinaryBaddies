@@ -2,31 +2,31 @@
 
 """This module defines project-level constants."""
 
-OPCODE_AESGCM = 1 # aesgcm
-OPCODE_B64 = 2 # b64
-OPCODE_BG = 3 # bg
-OPCODE_CAT = 4 # cat
-OPCODE_CD = 5 # cd
-OPCODE_CLEAR = 6 # clear
-OPCODE_DOWNLOAD = 7 # download
-OPCODE_ECHO = 8 # echo
-# exec
-# exit
-# help
-# httpcl
-# include
-# inject
-# ls
-# pkill
-# ps
-# pwd
-# readf
-# rloader
-# rm
-# schtasks
-# sha256sum
-# sleep
-# upload**/
+OPCODE_AESGCM = 1 
+OPCODE_B64 = 2 
+OPCODE_BG = 3 
+OPCODE_CAT = 4 
+OPCODE_CD = 5 
+OPCODE_CLEAR = 6 
+OPCODE_DOWNLOAD = 7 
+OPCODE_ECHO = 8 
+OPCODE_EXEC = 9
+OPCODE_EXIT = 10
+OPCODE_HELP = 11
+OPCODE_HTTPCL = 12
+OPCODE_INCLUDE = 13
+OPCODE_INJECT = 14
+OPCODE_LS = 15
+OPCODE_PKILL = 16
+OPCODE_PS = 17
+OPCODE_PWD = 18
+OPCODE_READF = 19 
+OPCODE_RLOADER = 20
+OPCODE_RM = 21
+OPCODE_SCHTASKS = 22
+OPCODE_SHA256SUM = 23
+OPCODE_SLEEP = 24
+OPCODE_UPLOAD = 25
 
 
 opcodes = ["aesgcm", "b64", "bg", "cat", "cd", "clear", "download", "echo", "exec", "exit", "help", "httpcl",
@@ -37,56 +37,56 @@ SUCCESSFUL = "SUCCESS"
 
 FAILURE = "FAILURE"
 
-extras = ["list"]
+server_commands = ["list"]
 
 def to_opcode(cmd):
     if cmd == "aesgcm":
-        return 1
+        return OPCODE_AESGCM
     elif cmd == "b64":
-        return 2
+        return OPCODE_B64
     elif cmd == "bg":
-        return 3
+        return OPCODE_BG
     elif cmd == "cat":
-        return 4
+        return OPCODE_CAT
     elif cmd == "cd":
-        return 5
+        return OPCODE_CD
     elif cmd == "clear":
-        return 6
+        return OPCODE_CLEAR
     elif cmd == "download":
-        return 7
+        return OPCODE_DOWNLOAD
     elif cmd == "echo":
-        return 8
+        return OPCODE_ECHO
     elif cmd == "exec":
-        return 9
+        return OPCODE_EXEC
     elif cmd == "exit":
-        return 10
+        return OPCODE_EXIT
     elif cmd == "help":
-        return 11
-    elif cmd == "helpcl":
-        return 12
+        return OPCODE_HELP
+    elif cmd == "httpcl":
+        return OPCODE_HTTPCL
     elif cmd == "include":
-        return 13
+        return OPCODE_INCLUDE
     elif cmd == "inject":
-        return 14
+        return OPCODE_INJECT
     elif cmd == "ls":
-        return 15
+        return OPCODE_LS
     elif cmd == "pkill":
-        return 16
+        return OPCODE_PKILL
     elif cmd == "ps":
-        return 17
+        return OPCODE_PS
     elif cmd == "pwd":
-        return 18
+        return OPCODE_PWD
     elif cmd == "readf":
-        return 19
+        return OPCODE_READF
     elif cmd == "rloader":
-        return 20
+        return OPCODE_RLOADER
     elif cmd == "rm":
-        return 21
+        return OPCODE_RM
     elif cmd == "schtasks":
-        return 22
+        return OPCODE_SCHTASKS
     elif cmd == "sha256sum":
-        return 23
+        return OPCODE_SHA256SUM
     elif cmd == "sleep":
-        return 24
+        return OPCODE_SLEEP
     elif cmd == "upload":
-        return 25
+        return OPCODE_UPLOAD

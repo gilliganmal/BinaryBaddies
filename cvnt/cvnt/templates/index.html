@@ -75,39 +75,30 @@
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NO4Q+wdjj2XXEUsJf2/4MVJr2xpk7IeKEOCyirjNfcm+.JWNCQ==" crossorigin=""></script>
 
   <script>
-    // Initialize the map
-    var map = L.map('map').setView([51.505, -0.09], 13);
-
-    // Add tile layer (OpenStreetMap)
+    var map = L.map('map');
+  
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
     }).addTo(map);
-
-    // Add three points to the map
-    var points = [
-      { coords: [40.721620, -73.940080], name: 'Implant 1' },
-      { coords: [42.339700, -71.091720], name: 'Implant 2' },
-      { coords: [42.328350, -71.098920], name: 'Implant 3' },
-      { coords: [36.132519, -115.164581], name: 'Implant 4'}
-    ];
-
+  
+    var implantCoordinates = {{ implant_coordinates | tojson | safe }};
+  
     var markerArray = [];
-    points.forEach(function(point) {
-      var popupContent = `Latitude: ${point.coords[0]}<br>Longitude: ${point.coords[1]}<br>${point.name}`;
-      var marker = L.marker(point.coords).addTo(map).bindPopup(popupContent);
+    implantCoordinates.forEach(function(coords) {
+      var popupContent = `Latitude: ${coords[0]}<br>Longitude: ${coords[1]}<br>Implant ID: ${coords[2]}`;
+      var marker = L.marker(coords).addTo(map).bindPopup(popupContent);
       markerArray.push(marker);
     });
-
-    // Create a bounds object to fit all markers
+  
     var bounds = new L.LatLngBounds();
     markerArray.forEach(function(marker) {
       bounds.extend(marker.getLatLng());
     });
-
-    // Fit the bounds to the map
+  
     map.fitBounds(bounds);
   </script>
-
+  
+  
   <style>
     /* Custom CSS for terminal-like appearance */
     .terminal-form {
