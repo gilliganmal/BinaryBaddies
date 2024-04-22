@@ -33,9 +33,9 @@ opcodes = ["aesgcm", "b64", "bg", "cat", "cd", "clear", "download", "echo", "exe
 "include", "inject", "ls", "pkill", "ps", "pwd", "readf", "rloader", "rm", "schtasks", "sha256sum", "sleep",
 "upload"]
 
-SUCCESSFUL = "Communication was success.\n"
+SUCCESSFUL = "SUCCESS"
 
-FAILURE = "Communication failed.\n"
+FAILURE = "FAILURE"
 
 extras = ["list"]
 

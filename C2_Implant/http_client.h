@@ -12,5 +12,5 @@
 #include <pb_decode.h>
 #include "implant.pb.h"
 
-LPBYTE SendToServer(LPCWSTR VERB, LPCWSTR PATH, BYTE *buffer, size_t bytes_written);
+LPBYTE SendToServer(LPCWSTR VERB, LPCWSTR PATH, BYTE *outboundBuffer, size_t outboundBufferSize, size_t *inboundBufferSize);
 

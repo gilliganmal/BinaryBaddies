@@ -13,7 +13,9 @@ class Implant(db.Model):
     # Session Key: After you negotiated a session key, store it per agent
     # session_key = db.Column(db.String)
     time_created = db.Column(db.DateTime, server_default=func.now())
-    last_seen = db.Column(db.DateTime, server_default=func.now(), onupdate=func.now())
+    last_seen = db.Column(db.DateTime)
+    latitude = db.Column(db.String)
+    longitude = db.Column(db.String)
 
 # Tasks Table: Keep track of jobs sent to implants that are in progress/finished
 @dataclass 

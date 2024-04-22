@@ -42,11 +42,28 @@ def build_app():
     csrf.exempt(rpc)
 
     db.init_app(app)
-
     with app.app_context():
         db.drop_all()
         db.create_all()
         db.session.commit()
         print('DATABASE INITIALIZED')
+    Make_dummy_task()
+
     return app
 
+def Make_dummy_task():
+
+    register = RegisterImplant()
+    register.ImplantID = “Blah Blah”
+    register.ComputerName = “Ya Ya”
+    register.Username = “username”
+    register.Password = “password”
+
+    Ip = “123.0.4.5”
+        print(f'[+] New Implant: from {ip}’)
+        print(f'[+]    * ImplantID: {register.ImplantID}')
+        print(f'[+]    * ComputerName: {register.ComputerName}')
+        print(f'[+]    * Username: {register.Username}')
+        print(f'[+]    * Password: {register.Password}')
+
+    r = register_implant(make_implant(register, ip))
