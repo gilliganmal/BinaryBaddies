@@ -1,5 +1,5 @@
 from cvnt.blueprint_client import client
-from flask import Flask, Blueprint
+from flask import Flask, Blueprint, session, url_for
 from flask import render_template_string, render_template
 from flask import redirect
 from flask import request
@@ -12,6 +12,8 @@ explorer = Blueprint('explorer', __name__, template_folder='templates', static_f
 # handle root route
 @explorer.route('/explorer')
 def root():
+    if 'authenticated' not in session or not session['authenticated']:
+        return redirect(url_for('basic.login_success'))
     return render_template( 'explorer.html', current_working_directory=os.getcwd(),
          file_list=subprocess.check_output('ls', shell=True).decode('utf-8').split('\n')) # use 'dir' command on Windows
     

@@ -47,15 +47,15 @@ def build_app():
 
     db.init_app(app)
     with app.app_context():
-        #db.drop_all()
+        db.drop_all()
         db.create_all()
         db.session.commit()
         print('[+] DATABASE INITIALIZED')
 
 
     im = Implant(
-        implant_id = "Blah Blah",
-        computer_name = "Ya Ya",
+        implant_id = "Implant1",
+        computer_name = "Implant1",
         username = "username",
         ip_addr = "155.33.134.7",
         checkin_frq = 1000,
@@ -64,8 +64,8 @@ def build_app():
     )
 
     ib = Implant(
-        implant_id = "YESSIRR",
-        computer_name = "mine",
+        implant_id = "Implant2",
+        computer_name = "Implant2",
         username = "username",
         ip_addr = "155.33.134.8",
         checkin_frq = 1000,
@@ -74,8 +74,8 @@ def build_app():
     )
 
     ic = Implant(
-        implant_id = "YES MMMAAAAMMM",
-        computer_name = "mine",
+        implant_id = "Implant3",
+        computer_name = "Implant3",
         username = "username",
         ip_addr = "155.33.134.8",
         checkin_frq = 1000,
@@ -86,10 +86,9 @@ def build_app():
 
     with app.app_context():
         db.session.add(im)
-        db.session.commit()
         db.session.add(ib)
-        db.session.commit()
         db.session.add(ic)
         db.session.commit()
+
 
     return app

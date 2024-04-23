@@ -1,29 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Super Secret Endpoint Slay</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Secret Endpoint Slay</title>
 
-  <!--<link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">-->
-  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-
-  <!-- Bootstrap CSS -->
-  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
-  <!-- Your custom CSS file -->
-  <script src="https://cdn.jsdelivr.net/npm/jquery"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jquery.terminal/js/jquery.terminal.min.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery.terminal/css/jquery.terminal.min.css"/>
-  <!--<link href="static/css/style.css" rel="stylesheet">-->
-  <style>
-    #map {
-      height: 80vh; /* Adjust the height as needed */
-    }
-  </style>
+    <!--<link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">-->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Leaflet CSS -->
+    <link href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        #map-container {
+            position: relative;
+        }
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+        .sidebar {
+            position: absolute;
+            top: 20px; /* Adjust as needed */
+            right: 20px; /* Adjust as needed */
+            background-color: #f8f9fa;
+            padding: 20px;
+            z-index: 1000;
+            display: none;
+        }
+        .marker-info {
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
+
   <header>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container-fluid">
@@ -43,6 +55,7 @@
       </div>
     </nav>
   </header>
+
   <div class="px-4 pt-5 my-3 text-center border-bottom">
     <div class="pb-3">
       <h1 class="display-4 fw-bold">Implants Online</h1>
@@ -56,60 +69,73 @@
     </div>
   </div>
 
-  <div class="container mt-5">
+<div id="map-container" class="container-fluid">
     <div class="row">
-      <div class="col-md-12"> <!-- Modified to span the full width -->
-        <div id="map"></div>
-      </div>
+        <div class="col">
+            <div id="map"></div>
+            <div class="sidebar" id="sidebar">
+                <!-- Marker info will be inserted here -->
+            </div>
+        </div>
     </div>
-  </div>
+</div>
 
-  <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NO4Q+wdjj2XXEUsJf2/4MVJr2xpk7IeKEOCyirjNfcm+.JWNCQ==" crossorigin=""></script>
+<!-- Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 
-  <script>
-    var map = L.map('map');
-  
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+<script>
+  var map = L.map('map');
+  var sidebar = $('#sidebar');
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-    }).addTo(map);
-  
-    var implantCoordinates = {{ implant_coordinates | tojson | safe }};
-  
-    var markerArray = [];
-    implantCoordinates.forEach(function(coords) {
-      var popupContent = `Latitude: ${coords[0]}<br>Longitude: ${coords[1]}<br>Implant ID: ${coords[2]}`;
-      var marker = L.marker(coords).addTo(map).bindPopup(popupContent);
-      markerArray.push(marker);
-    });
-  
-    var bounds = new L.LatLngBounds();
-    markerArray.forEach(function(marker) {
-      bounds.extend(marker.getLatLng());
-    });
-  
-    map.fitBounds(bounds);
-  </script>
-  
-  <script>
-    // JavaScript function to handle form submission on Enter key press
-    function submitFormOnEnter(event) {
-      if (event.keyCode === 13) {  // Check if the pressed key is Enter
-        event.preventDefault();  // Prevent the default form submission
-        document.getElementById('myForm').submit();  // Submit the form
-      }
-    }
+  }).addTo(map);
 
-    // Update the response container with the received response
-    function updateResponse(response) {
-      var responseContainer = document.getElementById('response-container');
-      responseContainer.innerHTML = '<strong>Response:</strong> <span style="color: black;">' + response;
-    }
+  var implantCoordinates = {{ implant_coordinates | tojson }};
+  var implantTasks = {{implant_tasks | tojson}}
+  var markers = [];
 
-    // Attach keydown event listener to the form input field(s)
-    document.addEventListener('DOMContentLoaded', function() {
-      document.querySelector('.terminal-input').addEventListener('keydown', submitFormOnEnter);
-    });
-  </script>
+  implantCoordinates.forEach(function(coord) {
+      var markerIcon = L.icon({
+          iconUrl: '../static/img/implant.png', // Customize this URL to your marker icon
+          iconSize: [25, 45], // Default icon size
+          iconAnchor: [12, 41], // Default icon anchor
+          popupAnchor: [1, -34], // Default popup anchor
+      });
+
+      var marker = L.marker([coord[0], coord[1]], {icon: markerIcon});
+      marker.on('click', function() {
+          sidebar.html('<h3>Implant ID: ' + coord[2] + '</h3>' +
+                       '<p>Latitude: ' + coord[0] + '</p>' +
+                       '<p>Longitude: ' + coord[1] + '</p>');
+
+          // Display tasks associated with the current implant
+          var tasksHTML = '<h4>Tasks:</h4>';
+          implantTasks.forEach(function(implantTask) {
+              if (implantTask.implant_id === coord[2]) {
+                  tasksHTML += '<div class="task-info">';
+                  tasksHTML += '<p>Task ID: ' + implantTask.task_id + '</p>';
+                  tasksHTML += '<p>Status: ' + implantTask.status + '</p>';
+                  tasksHTML += '<p>Opcode: ' + implantTask.task_opcode + '</p>';
+                  tasksHTML += '<p>Args: ' + implantTask.task_args + '</p>';
+                  tasksHTML += '<p>Output: ' + implantTask.task_output + '</p>';
+                  tasksHTML += '</div>';
+              }
+          });
+          sidebar.append(tasksHTML);
+
+          sidebar.show();
+      });
+      markers.push(marker);
+  });
+
+  var group = L.featureGroup(markers).addTo(map);
+  map.fitBounds(group.getBounds());
+</script>
+
 </body>
 </html>

@@ -64,10 +64,6 @@ def get_location(ip):
     return [lat, long]
 
 def get_implant_by_id(iID):
-    # Query the Implant table by implant_id
-    # print(f"{db.session.query(Implant)}\n\n\n\n\n")
-    # print(f"{db.session.query(Implant).filter_by(implant_id=iID)}\n\n\n\n\n")
-    # print(f"{db.session.query(Implant).filter_by(implant_id=iID).first()}\n\n\n\n")
     implant = Implant.query.filter_by(implant_id=iID).first()
     return implant
 
@@ -121,3 +117,4 @@ def make_dummy_task(ip):
         longitude = location[1])
 
     r = register_implant(i)
+
