@@ -31,10 +31,10 @@ class TaskResponse(_message.Message):
     TASKID_FIELD_NUMBER: _ClassVar[int]
     IMPLANTID_FIELD_NUMBER: _ClassVar[int]
     RESPONSE_FIELD_NUMBER: _ClassVar[int]
-    TaskID: str
+    TaskID: int
     ImplantID: str
     Response: bytes
-    def __init__(self, TaskID: _Optional[str] = ..., ImplantID: _Optional[str] = ..., Response: _Optional[bytes] = ...) -> None: ...
+    def __init__(self, TaskID: _Optional[int] = ..., ImplantID: _Optional[str] = ..., Response: _Optional[bytes] = ...) -> None: ...
 
 class ImplantCheckin(_message.Message):
     __slots__ = ("ImplantID", "Resp")
