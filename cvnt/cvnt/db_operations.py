@@ -109,7 +109,11 @@ def get_next_task(iID):
    
    print(f"NEW TASK FOUND: {task}")
    # taskID, opcode, args
-   tr = TaskRequest(task.task_id, task.task_opcode, task.task_args)
+   tr = TaskRequest()
+   tr.TaskID = task.task_id
+   tr.Opcode = task.task_opcode
+   tr.Args = task.task_args
+
    print(tr)
    return task
 

