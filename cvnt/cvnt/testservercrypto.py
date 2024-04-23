@@ -2,13 +2,14 @@ import nacl.public
 import nacl.secret
 import nacl.utils
 import base64
-from nacl.public import PrivateKey, SealedBox
-
+from nacl.public import PrivateKey, SealedBox, PublicKey
 
 # Generate public private key pair
-server_private_key = PrivateKey.generate()
-server_public_key = server_private_key.public_key
-print(server_public_key.encode(encoder=nacl.encoding.HexEncoder).decode('utf-8'))
+
+#server_public_key = PublicKey.generate()
+server_public_key = b'1188c5f64947c22988582a52a1b4acf6be96c79bb9891972b17989e0e7b1002e'
+#print(server_public_key.encode(encoder=nacl.encoding.HexEncoder).decode('utf-8'))
+
 
 def generate_or_load_private_key(filename):
     try:
