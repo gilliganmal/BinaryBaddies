@@ -21,6 +21,7 @@ CSRC += $(NANOPB_DIR)/pb_common.c  # The nanopb common parts
 CSRC += http_client.c		   # Implant's HTTP functions
 
 OBJ = "obj/exec.o"
+OBJ += "obj/http.o"
 
 # Build rule for the main program
 implant: $(CSRC)
