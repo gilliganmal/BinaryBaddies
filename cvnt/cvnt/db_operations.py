@@ -101,17 +101,16 @@ def analyze_TaskResponse(tr: TaskResponse):
 
 # Send TaskRequest back or "" (if no tasks)
 def get_next_task(iID):
-   print(f"GET TASK TABLE{db.session.query(Task)}")
-   print(db.session.query(Task).filter_by(implant_id=iID))
-   print(db.session.query(Task).filter_by(implant_id=iID).filter_by(status=STATUS_CREATED))
-   print(db.session.query(Task).filter_by(implant_id=iID).filter_by(status=STATUS_CREATED).order_by(Task.task_id.desc()))
-   print(db.session.query(Task).filter_by(implant_id=iID).filter_by(status=STATUS_CREATED).order_by(Task.task_id.desc()))
-   task = db.session.query(Task).filter_by(implant_id=iID).filter_by(status=STATUS_CREATED).order_by(Task.task_id.desc())
-   print(task)
-   # taskID, opcode, args
-   tr = TaskRequest(task.task_id, task.task_opcode, task.args)
+   task = db.session.query(Task).filter_by(implant_id=iID).filter_by(status=STATUS_CREATED).order_by(Task.task_id.desc()).first()
 
-   print(task)
+   if task is None:
+       print("No Task Available")
+       return ""
+   
+   print(f"NEW TASK FOUND: {task}")
+   # taskID, opcode, args
+   tr = TaskRequest(task.task_id, task.task_opcode, task.task_args)
+   print(tr)
    return task
 
 def make_dummy_task(ip):

