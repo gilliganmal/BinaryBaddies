@@ -113,9 +113,10 @@ def get_next_task(iID):
    tr.TaskID = task.task_id
    tr.Opcode = task.task_opcode
    tr.Args = task.task_args
-
+   task.status = STATUS_TASK_RECIEVED
+   db.session.commit()
    print(tr)
-   return task
+   return tr.SerializeToString()
 
 def make_dummy_task(ip):
     location = get_location(ip)
