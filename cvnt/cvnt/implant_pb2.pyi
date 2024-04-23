@@ -21,10 +21,10 @@ class TaskRequest(_message.Message):
     TASKID_FIELD_NUMBER: _ClassVar[int]
     OPCODE_FIELD_NUMBER: _ClassVar[int]
     ARGS_FIELD_NUMBER: _ClassVar[int]
-    TaskID: str
+    TaskID: int
     Opcode: int
     Args: str
-    def __init__(self, TaskID: _Optional[str] = ..., Opcode: _Optional[int] = ..., Args: _Optional[str] = ...) -> None: ...
+    def __init__(self, TaskID: _Optional[int] = ..., Opcode: _Optional[int] = ..., Args: _Optional[str] = ...) -> None: ...
 
 class TaskResponse(_message.Message):
     __slots__ = ("TaskID", "ImplantID", "Response")
