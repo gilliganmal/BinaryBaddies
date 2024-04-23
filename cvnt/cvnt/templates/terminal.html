@@ -34,9 +34,13 @@
       width: 100%;
     }
     .terminal-prompt {
-      color: #0f0;
+      color: #0f0; /* Bright green color */
+    }
+    .terminal-output {
+      color: #00ff00; /* Bright green color */
     }
   </style>
+  
 </head>
 <body>
   <header>
@@ -74,12 +78,12 @@
     <div class="row">
       <div class="col-md-6">
         <div class="terminal-container">
-          <pre><code class="terminal-output"></code></pre>
-          <form id="myForm" action="{{ url_for('terminal.index') }}" method="post" class="terminal-form">
-            <span class="terminal-prompt">></span> <input type="text" name="cmd" class="terminal-input" autofocus placeholder="" required>
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          </form>
-        </div>
+            <pre><code class="terminal-output"></code></pre>
+            <form id="myForm" action="{{ url_for('terminal.index') }}" method="post" class="terminal-form">
+              <span class="terminal-prompt">></span> <input type="text" name="cmd" class="terminal-input" autofocus placeholder="" required>
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            </form>
+          </div>          
       </div>
       <div class="col-md-3">
         <select class="form-select" aria-label="Select Implant">
@@ -87,6 +91,10 @@
             <option value="{{ implant.id }}">{{ implant }}</option>
           {% endfor %}
         </select>
+      </div>
+      <div class="col-md-3">
+      <h3>Response:</h3>
+        <p class="pt-5"><strong>{{ response }}</strong></p>
       </div>
     </div>
   </div>
@@ -99,17 +107,18 @@
         document.getElementById('myForm').submit();  // Submit the form
       }
     }
-
+  
     // Update the response container with the received response
     function updateResponse(response) {
       var responseContainer = document.querySelector('.terminal-output');
-      responseContainer.innerHTML += response + '\n';
+      responseContainer.textContent += response + '\n'; // Use textContent to update text
     }
-
+  
     // Attach keydown event listener to the form input field(s)
     document.addEventListener('DOMContentLoaded', function() {
       document.querySelector('.terminal-input').addEventListener('keydown', submitFormOnEnter);
     });
   </script>
+  
 </body>
 </html>
