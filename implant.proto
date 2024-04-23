@@ -8,7 +8,7 @@ message RegisterImplant {
 }
 
 message TaskRequest {
-  string TaskID = 1;
+  int32 TaskID = 1;
   int32 Opcode = 2;
   string Args = 3;
 }

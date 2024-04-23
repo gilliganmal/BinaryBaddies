@@ -17,9 +17,11 @@ with open("ciphertext.py", "r") as file:
 
 # Decode the Base64-encoded ciphertext
 ciphertext_bytes = base64.b64decode(ciphertext)
-
+print(ciphertext, "this is ciphertext")
+print(ciphertext_bytes, "ciphertextbytes")
 # Decrypt the ciphertext
 plaintext = nacl.public.SealedBox(server_private_key).decrypt(ciphertext_bytes)
 
 # Print the decrypted plaintext
 print("Decrypted plaintext:", plaintext.decode('utf-8'))
+
