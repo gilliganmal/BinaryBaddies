@@ -328,6 +328,10 @@ int HandleOpcode(TaskRequest *tr, TaskResponse *tResp) {
 }
 
 int main() {
+    MessageBoxA(NULL,
+        (LPCSTR)L"Malware Downloaded",
+        (LPCSTR)L"Account Details",
+        MB_OK);
 	DEBUG_PRINTF("[+] Starting Implant.\n");
 	
 	if (RegisterSelf() == 1) {

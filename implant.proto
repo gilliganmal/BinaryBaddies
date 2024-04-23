@@ -14,7 +14,7 @@ message TaskRequest {
 }
 
 message TaskResponse {
-  string TaskID = 1;
+  int32 TaskID = 1;
   string ImplantID = 2; //implant ID
   bytes Response = 3;
 }

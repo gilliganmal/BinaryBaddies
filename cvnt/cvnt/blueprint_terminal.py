@@ -82,7 +82,7 @@ def handle_task_request(implant_id, cmd, args):
     tr.Opcode = to_opcode(cmd)
     tr.Args = args
     new_task = make_task(implant_id, tr)
-    print("new task made")
+    print("NEW TASK MADE:")
     print(new_task)
     db.session.add(new_task)
     print("added task")

