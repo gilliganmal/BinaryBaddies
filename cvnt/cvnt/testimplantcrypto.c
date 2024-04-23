@@ -17,10 +17,8 @@ int main() {
     0xc9, 0x87, 0x49, 0xe8, 0x31, 0x50, 0x64, 0x39
 };
 
-   
-
     // send this message
-    unsigned char plaintext[] = "Hello, world!";
+    unsigned char plaintext[] = "Hello, Baddies!";
     unsigned long long plaintext_len = sizeof(plaintext);
 
     // Allocate memory for the ciphertext + overhead 
