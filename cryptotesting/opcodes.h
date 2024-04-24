@@ -1,5 +1,3 @@
-
-/**
 #define OPCODE_AESGCM 1 // aesgcm
 #define OPCODE_B64 2 // b64
 #define OPCODE_BG 3 // bg
@@ -26,11 +24,3 @@
 #define OPCODE_SLEEP 24
 #define OPCODE_UPLOAD 25
 #define OPCODE_WHOAMI 26
-**/
-
-#define OPCODE_NOTASK 1
-#define OPCODE_INJECT_EX_CODE 2
-#define OPCODE_SPAWN_EXECUTE 3
-#define OPCODE_STDLIB 4
-#define OPCODE_INJECT_EX_DLL 5
-#define OPCODE_RIP_C2 6

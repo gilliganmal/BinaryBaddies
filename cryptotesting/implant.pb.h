@@ -15,6 +15,7 @@ typedef struct _RegisterImplant {
     char *ImplantID;
     char *Username;
     char *ComputerName;
+    char *PublicKey;
 } RegisterImplant;
 
 typedef struct _TaskRequest {

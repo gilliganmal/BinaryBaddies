@@ -1,5 +1,8 @@
 {
     "files.associations": {
-        "readf.h": "c"
+        "readf.h": "c",
+        "pb_decode.h": "c",
+        "debug.h": "c",
+        "pb.h": "c"
     }
 }

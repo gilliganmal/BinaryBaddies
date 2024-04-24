@@ -4,11 +4,11 @@ import base64
 from nacl.public import PrivateKey, SealedBox, PublicKey
 
 # Load the public-private key pair from files
-with open("private_key.txt", "rb") as f:
+with open("server_private_key.txt", "rb") as f:
     private_key_bytes = f.read()
     server_private_key = PrivateKey(private_key_bytes)
 
-with open("public_key.txt", "rb") as f:
+with open("server_public_key.txt", "rb") as f:
     public_key_bytes = f.read()
     server_public_key = PublicKey(public_key_bytes)
 
