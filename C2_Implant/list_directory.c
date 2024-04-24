@@ -10,7 +10,7 @@ char* listdirs(char* Dir)
     CHAR szDir[MAX_PATH];
     WIN32_FIND_DATA ffd;
     LARGE_INTEGER filesize;
-    SYSTEMTIME createtime, accesstime;
+    // SYSTEMTIME createtime, accesstime;
     HANDLE hFind = INVALID_HANDLE_VALUE;
 
     char* tmpBuffer = (char*)malloc(2000);
@@ -50,22 +50,25 @@ char* listdirs(char* Dir)
     }
 
     // make a nicely formatted display of it all
-    sprintf(oBuffer, "Directory: %s\n\n", szDir);   
-    sprintf(oBuffer, "%sType\tCreated\t\t  Last Access\t     Length\t Name\n", oBuffer);
-    sprintf(oBuffer, "%s----\t-------\t\t  -----------\t     ------\t ----\n", oBuffer);
+    //sprintf(oBuffer, "Directory: %s\n\n", szDir);   
+    //sprintf(oBuffer, "%sType\tCreated\t\t  Last Access\t     Length\t Name\n", oBuffer);
+    //sprintf(oBuffer, "%s----\t-------\t\t  -----------\t     ------\t ----\n", oBuffer);
     do
     {
+	    /*
         // get the creation & last access time in something we can use
         FileTimeToSystemTime(&ffd.ftCreationTime, &createtime);
         FileTimeToSystemTime(&ffd.ftLastAccessTime, &accesstime);
-
+	*/
         if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
         {
             // its a directory so display info as a directory
-            sprintf(tmpBuffer, "DIR\t%.2d/%.2d/%.4d %.2d:%.2d  %.2d/%.2d/%.4d %.2d:%.2d      \t %s\n", createtime.wDay, createtime.wMonth, createtime.wYear,
+            /*
+		sprintf(tmpBuffer, "DIR\t%.2d/%.2d/%.4d %.2d:%.2d  %.2d/%.2d/%.4d %.2d:%.2d      \t %s\n", createtime.wDay, createtime.wMonth, createtime.wYear,
                                                                                                     createtime.wHour, createtime.wMinute, accesstime.wDay,
                                                                                                     accesstime.wMonth, accesstime.wYear, accesstime.wHour,
-                                                                                                    accesstime.wMinute, ffd.cFileName);
+                                                                                                    accesstime.wMinute, ffd.cFileName);*/
+		sprintf(tmpBuffer, "DIR %s\n", ffd.cFileName);
         }
         else
         {
@@ -76,15 +79,21 @@ char* listdirs(char* Dir)
             // this is just purely about formatting, making sure it looks nice
             if (filesize.QuadPart > 99)
             {
+		    /*
                 sprintf(tmpBuffer, "FILE\t%.2d/%.2d/%.4d %.2d:%.2d  %.2d/%.2d/%.4d %.2d:%.2d   %lld\t %s\n", createtime.wDay, createtime.wMonth, createtime.wYear,
                                                                                                      createtime.wHour, createtime.wMinute, accesstime.wDay,
                                                                                                      accesstime.wMonth, accesstime.wYear, accesstime.wHour,
                                                                                                      accesstime.wMinute, filesize.QuadPart, ffd.cFileName);
+												     */
+		    sprintf(tmpBuffer, "FILE %s\n", ffd.cFileName);
             } else {
-                sprintf(tmpBuffer, "FILE\t%.2d/%.2d/%.4d %.2d:%.2d  %.2d/%.2d/%.4d %.2d:%.2d   %lld    \t %s\n", createtime.wDay, createtime.wMonth, createtime.wYear,
+                /*
+		    sprintf(tmpBuffer, "FILE\t%.2d/%.2d/%.4d %.2d:%.2d  %.2d/%.2d/%.4d %.2d:%.2d   %lld    \t %s\n", createtime.wDay, createtime.wMonth, createtime.wYear,
                                                                                                          createtime.wHour, createtime.wMinute, accesstime.wDay,
                                                                                                          accesstime.wMonth, accesstime.wYear, accesstime.wHour,
                                                                                                          accesstime.wMinute, filesize.QuadPart, ffd.cFileName);
+													 */
+		    sprintf(tmpBuffer, "FILE %s\n", ffd.cFileName);
             }
         }
 

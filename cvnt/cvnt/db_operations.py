@@ -93,7 +93,9 @@ def analyze_TaskResponse(tr: TaskResponse):
         
     else:
         task.status = STATUS_TASK_COMPLETE
-        task.task_output = tr.Response # WING HAS FOREWARNED - THIS WILL FUCK YOU UP. TAKE A DEEP BREATH. AND CAST HOWEVER YOU NEED TO. REGARDLES OF THE CASTING SINS YOU COMMIT
+        print(type(tr.Response))
+        task.task_output = tr.Response.decode('utf-8')
+        # task.task_output = tr.Response # WING HAS FOREWARNED - THIS WILL FUCK YOU UP. TAKE A DEEP BREATH. AND CAST HOWEVER YOU NEED TO. REGARDLES OF THE CASTING SINS YOU COMMIT
     
     db.session.commit()
 

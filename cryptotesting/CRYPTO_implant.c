@@ -51,7 +51,6 @@ BYTE *EncodeRegisterImplant(RegisterImplant *ri, size_t *bufferSize) {
 		return NULL;
 	}
 
-        // DEBUG_PRINTF("[+] Successfully encoded: %llu\n", stream.bytes_written);
 	return registerBuffer;
 }
 

@@ -93,8 +93,12 @@
         </select>
       </div>
       <div class="col-md-3">
-      <h3>Response:</h3>
-        <p class="pt-5"><strong>{{ response }}</strong></p>
+        <h3>Response:</h3>
+        <div class="pt-5">
+          {% for item in response %}
+            <p><strong>{{ item }}</strong></p>
+          {% endfor %}
+        </div>        
       </div>
     </div>
   </div>

