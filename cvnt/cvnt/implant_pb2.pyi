@@ -5,16 +5,18 @@ from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Opti
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class RegisterImplant(_message.Message):
-    __slots__ = ("Password", "ImplantID", "Username", "ComputerName")
-    PASSWORD_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("ImplantID", "ComputerName", "PublicKey", "Username", "Password")
     IMPLANTID_FIELD_NUMBER: _ClassVar[int]
-    USERNAME_FIELD_NUMBER: _ClassVar[int]
     COMPUTERNAME_FIELD_NUMBER: _ClassVar[int]
-    Password: str
+    PUBLICKEY_FIELD_NUMBER: _ClassVar[int]
+    USERNAME_FIELD_NUMBER: _ClassVar[int]
+    PASSWORD_FIELD_NUMBER: _ClassVar[int]
     ImplantID: str
-    Username: str
     ComputerName: str
-    def __init__(self, Password: _Optional[str] = ..., ImplantID: _Optional[str] = ..., Username: _Optional[str] = ..., ComputerName: _Optional[str] = ...) -> None: ...
+    PublicKey: str
+    Username: str
+    Password: str
+    def __init__(self, ImplantID: _Optional[str] = ..., ComputerName: _Optional[str] = ..., PublicKey: _Optional[str] = ..., Username: _Optional[str] = ..., Password: _Optional[str] = ...) -> None: ...
 
 class TaskRequest(_message.Message):
     __slots__ = ("TaskID", "Opcode", "Args")

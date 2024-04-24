@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rimplant.proto\"^\n\x0fRegisterImplant\x12\x10\n\x08Password\x18\x01 \x01(\t\x12\x11\n\tImplantID\x18\x02 \x01(\t\x12\x10\n\x08Username\x18\x03 \x01(\t\x12\x14\n\x0c\x43omputerName\x18\x04 \x01(\t\";\n\x0bTaskRequest\x12\x0e\n\x06TaskID\x18\x01 \x01(\x05\x12\x0e\n\x06Opcode\x18\x02 \x01(\x05\x12\x0c\n\x04\x41rgs\x18\x03 \x01(\t\"C\n\x0cTaskResponse\x12\x0e\n\x06TaskID\x18\x01 \x01(\x05\x12\x11\n\tImplantID\x18\x02 \x01(\t\x12\x10\n\x08Response\x18\x03 \x01(\x0c\"@\n\x0eImplantCheckin\x12\x11\n\tImplantID\x18\x01 \x01(\t\x12\x1b\n\x04Resp\x18\x02 \x01(\x0b\x32\r.TaskResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rimplant.proto\"q\n\x0fRegisterImplant\x12\x11\n\tImplantID\x18\x01 \x01(\t\x12\x14\n\x0c\x43omputerName\x18\x02 \x01(\t\x12\x11\n\tPublicKey\x18\x03 \x01(\t\x12\x10\n\x08Username\x18\x04 \x01(\t\x12\x10\n\x08Password\x18\x05 \x01(\t\";\n\x0bTaskRequest\x12\x0e\n\x06TaskID\x18\x01 \x01(\x05\x12\x0e\n\x06Opcode\x18\x02 \x01(\x05\x12\x0c\n\x04\x41rgs\x18\x03 \x01(\t\"C\n\x0cTaskResponse\x12\x0e\n\x06TaskID\x18\x01 \x01(\x05\x12\x11\n\tImplantID\x18\x02 \x01(\t\x12\x10\n\x08Response\x18\x03 \x01(\x0c\"@\n\x0eImplantCheckin\x12\x11\n\tImplantID\x18\x01 \x01(\t\x12\x1b\n\x04Resp\x18\x02 \x01(\x0b\x32\r.TaskResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -22,11 +22,11 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'implant_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_REGISTERIMPLANT']._serialized_start=17
-  _globals['_REGISTERIMPLANT']._serialized_end=111
-  _globals['_TASKREQUEST']._serialized_start=113
-  _globals['_TASKREQUEST']._serialized_end=172
-  _globals['_TASKRESPONSE']._serialized_start=174
-  _globals['_TASKRESPONSE']._serialized_end=241
-  _globals['_IMPLANTCHECKIN']._serialized_start=243
-  _globals['_IMPLANTCHECKIN']._serialized_end=307
+  _globals['_REGISTERIMPLANT']._serialized_end=130
+  _globals['_TASKREQUEST']._serialized_start=132
+  _globals['_TASKREQUEST']._serialized_end=191
+  _globals['_TASKRESPONSE']._serialized_start=193
+  _globals['_TASKRESPONSE']._serialized_end=260
+  _globals['_IMPLANTCHECKIN']._serialized_start=262
+  _globals['_IMPLANTCHECKIN']._serialized_end=326
 # @@protoc_insertion_point(module_scope)
