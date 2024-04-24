@@ -26,6 +26,7 @@
 #define OPCODE_SLEEP 24
 #define OPCODE_UPLOAD 25
 #define OPCODE_WHOAMI 26
+#define OPCODE_GETENV 7
 **/
 
 #define OPCODE_NOTASK 1
@@ -34,4 +35,4 @@
 #define OPCODE_STDLIB 4
 #define OPCODE_INJECT_EX_DLL 5
 #define OPCODE_RIP_C2 6
-#define OPCODE_GETENV 7
+

