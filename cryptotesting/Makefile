@@ -24,7 +24,7 @@ CSRC += implant.pb.c             # The compiled protocol definition
 CSRC += $(NANOPB_DIR)/pb_encode.c  # The nanopb encoder
 CSRC += $(NANOPB_DIR)/pb_decode.c  # The nanopb decoder
 CSRC += $(NANOPB_DIR)/pb_common.c  # The nanopb common parts
-CSRC += /home/ubuntu/BinaryBaddies/C2_Implant/http_client.c # Implant's HTTP functions
+# CSRC += /home/ubuntu/BinaryBaddies/C2_Implant/http_client.c # Implant's HTTP functions
 
 OBJ = "exec.o"
 OBJ += "http.o"

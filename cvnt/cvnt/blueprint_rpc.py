@@ -45,6 +45,7 @@ def handle_register():
         # Parse the decrypted message using protobuf
         register = RegisterImplant()
         register.ParseFromString(decrypted_message)
+        # register.PublicKey = base64.b64decode(register.PublicKey)
 
         print(f'[+] New Implant: from {ip}')
         print(f'[+]    * ImplantID: {register.ImplantID}')

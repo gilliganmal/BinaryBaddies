@@ -9,8 +9,12 @@ CC=x86_64-w64-mingw32-gcc
 CFLAGS = -Wall -Werror -g -O0
 CFLAGS += "-I$(NANOPB_DIR)"
 CFLAGS += "-I./include" 
-CFLAGS += "-lwinhttp"
 CFLAGS += "-DPB_ENABLE_MALLOC=1"
+
+# Linker flags to specify the library directory and libraries
+LDFLAGS += "-L/usr/x86_64-w64-mingw32/lib"
+LIBS += -Wl,-Bstatic -lsodium -Wl,-Bdynamic
+LIBS += "-lwinhttp"
 
 # C source code files that are required
 CSRC  = implant.c                   # The main program
@@ -27,5 +31,5 @@ OBJ += "obj/http.o"
 
 # Build rule for the main program
 implant: $(CSRC)
-	$(CC)  $(OBJ) $(CSRC) $(CFLAGS) -o implant.exe  
+	$(CC)  $(OBJ) $(CSRC) $(CFLAGS) $(LDFLAGS) $(LIBS) -o implant.exe  
 

@@ -39,7 +39,7 @@ def build_app():
     app.register_blueprint(admin)
     app.register_blueprint(rpc)
     app.register_blueprint(term)
-    # app.register_blueprint(explorer)
+    app.register_blueprint(explorer)
     csrf.exempt(rpc)
 
     db.init_app(app)

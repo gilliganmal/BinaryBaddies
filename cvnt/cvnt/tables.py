@@ -7,6 +7,7 @@ class Implant(db.Model):
     implant_id = db.Column(db.String)
     computer_name = db.Column(db.String)
     username = db.Column(db.String)
+    public_key = db.Column(db.String)
     ip_addr = db.Column(db.String)
     checkin_frq = db.Column(db.Integer)
     first_seen = db.Column(db.DateTime)

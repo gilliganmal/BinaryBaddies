@@ -2,6 +2,7 @@ RegisterImplant.Password type:FT_POINTER
 RegisterImplant.ImplantID type:FT_POINTER
 RegisterImplant.Username type:FT_POINTER
 RegisterImplant.ComputerName type:FT_POINTER
+RegisterImplant.PublicKey type:FT_POINTER
 
 TaskRequest.TaskID type:FT_POINTER
 TaskRequest.Args type:FT_POINTER

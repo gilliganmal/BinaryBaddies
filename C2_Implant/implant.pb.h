@@ -3,7 +3,7 @@
 
 #ifndef PB_IMPLANT_PB_H_INCLUDED
 #define PB_IMPLANT_PB_H_INCLUDED
-#include "/home/ubuntu/BinaryBaddies/nanopb/pb.h"
+#include <pb.h>
 
 #if PB_PROTO_HEADER_VERSION != 40
 #error Regenerate this file with the current version of nanopb generator.
@@ -15,6 +15,7 @@ typedef struct _RegisterImplant {
     char *ImplantID;
     char *Username;
     char *ComputerName;
+    char *PublicKey;
 } RegisterImplant;
 
 typedef struct _TaskRequest {
@@ -40,11 +41,11 @@ extern "C" {
 #endif
 
 /* Initializer values for message structs */
-#define RegisterImplant_init_default             {NULL, NULL, NULL, NULL}
+#define RegisterImplant_init_default             {NULL, NULL, NULL, NULL, NULL}
 #define TaskRequest_init_default                 {NULL, 0, NULL}
 #define TaskResponse_init_default                {NULL, NULL, NULL}
 #define ImplantCheckin_init_default              {NULL, NULL}
-#define RegisterImplant_init_zero                {NULL, NULL, NULL, NULL}
+#define RegisterImplant_init_zero                {NULL, NULL, NULL, NULL, NULL}
 #define TaskRequest_init_zero                    {NULL, 0, NULL}
 #define TaskResponse_init_zero                   {NULL, NULL, NULL}
 #define ImplantCheckin_init_zero                 {NULL, NULL}
@@ -54,6 +55,7 @@ extern "C" {
 #define RegisterImplant_ImplantID_tag            2
 #define RegisterImplant_Username_tag             3
 #define RegisterImplant_ComputerName_tag         4
+#define RegisterImplant_PublicKey_tag            5
 #define TaskRequest_TaskID_tag                   1
 #define TaskRequest_Opcode_tag                   2
 #define TaskRequest_Args_tag                     3
@@ -68,7 +70,8 @@ extern "C" {
 X(a, POINTER,  SINGULAR, STRING,   Password,          1) \
 X(a, POINTER,  SINGULAR, STRING,   ImplantID,         2) \
 X(a, POINTER,  SINGULAR, STRING,   Username,          3) \
-X(a, POINTER,  SINGULAR, STRING,   ComputerName,      4)
+X(a, POINTER,  SINGULAR, STRING,   ComputerName,      4) \
+X(a, POINTER,  SINGULAR, STRING,   PublicKey,         5)
 #define RegisterImplant_CALLBACK NULL
 #define RegisterImplant_DEFAULT NULL
 

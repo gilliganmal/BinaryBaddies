@@ -2,7 +2,7 @@ from time import sleep
 from cvnt.implant_pb2 import TaskRequest, TaskResponse
 from flask import Blueprint, session, render_template, redirect, url_for, jsonify
 from flask_wtf import FlaskForm 
-from wtforms import StringField, SubmitField 
+from wtforms import HiddenField, StringField, SubmitField 
 from wtforms.validators import DataRequired, Length 
 from cvnt.client_pb2 import *
 from urllib.parse import urljoin
@@ -24,6 +24,7 @@ import random
 
 class Terminal(FlaskForm):
     cmd = StringField('=> ', validators=[DataRequired(), Length(1, 400)])
+    selected_implant = HiddenField('Selected Implant')
 
 @term.route('/terminal', methods=['GET', 'POST'])
 def index():
@@ -46,31 +47,26 @@ def analyze_input(form, button_state):
         if words[0] in server_commands:
             print('printing??????')
             response = get_list()
-        else:
-            response = 'Invalid Command Loser :('
-            cmd = words[0]
-    elif words[1] in opcodes:
-        main_op = OPCODE_STDLIB
-        rest_string = str(to_opcode(words[1]))
-        if len(words) == 2:
+        elif words[0] in opcodes:
+            main_op = OPCODE_STDLIB
+            rest_string = str(to_opcode(words[0]))
             new_task = handle_task_request(button_state, main_op, rest_string)
             sleep(5)
             response = new_task.task_output
             response = response.split('\n')
         else:
-            first_two_words = words[:2]
-            cmd = str(to_opcode(first_two_words[1]))
-            rest_of_words = words[2:]
-            rest_string = cmd + rest_string.join(rest_of_words)
+            response = ['Invalid Command Loser :(']
+    else:
+        if words[0] in opcodes:
+            main_op = OPCODE_STDLIB
+            cmd = str(to_opcode(words[0]))
+            rest_string = cmd.join(words)
             new_task = handle_task_request(button_state, main_op, rest_string)
-            while new_task.task_output is None:
-                sleep(5)
+            sleep(5)
             response = new_task.task_output
             response = response.split('\n')
-            
-    else:
-        response = 'Invalid Command Loser :(' 
-        cmd = ' '.join(words)
+        else:
+            response = ['Invalid Command Loser :(']
     return response
 
 def handle_local_request(cmd, args):
