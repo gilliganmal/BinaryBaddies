@@ -81,6 +81,7 @@
             <pre><code class="terminal-output"></code></pre>
             <form id="myForm" action="{{ url_for('terminal.index') }}" method="post" class="terminal-form">
               <span class="terminal-prompt">></span> <input type="text" name="cmd" class="terminal-input" autofocus placeholder="" required>
+              <input class="form-select" type="hidden" name="implant_id" id="implant_id">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             </form>
           </div>          
@@ -120,8 +121,15 @@
   
     // Attach keydown event listener to the form input field(s)
     document.addEventListener('DOMContentLoaded', function() {
-      document.querySelector('.terminal-input').addEventListener('keydown', submitFormOnEnter);
+    // Attach keydown event listener to the form input field(s)
+    document.querySelector('.terminal-input').addEventListener('keydown', submitFormOnEnter);
+
+    // Update the implant_id input field when dropdown selection changes
+    document.querySelector('.form-select').addEventListener('change', function() {
+        var selectedImplantId = this.value;
+        document.getElementById('implant_id').value = selectedImplantId;
     });
+});
   </script>
   
 </body>

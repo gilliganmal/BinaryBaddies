@@ -6,7 +6,7 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, Length 
 from cvnt.client_pb2 import *
 from urllib.parse import urljoin
-from cvnt.client_pb2 import Command, ClientTaskRequest, ClientTaskResponse, Packet
+from cvnt.client_pb2 import  Packet
 from cvnt.constants import *
 from cvnt.database import db
 from cvnt.db_operations import get_task_by_ids, make_task, get_list, get_implant_by_id
@@ -34,11 +34,12 @@ def index():
     implants = get_list()
     whole = None
     if form.validate_on_submit():
-        response = analyze_input(form)
+        implant_id = form.implant_id.data  # Access the selected implant ID
+        response = analyze_input(form, implant_id)
     return render_template('terminal.html', form=form, cmd=whole, implants=implants, response=response)
 
 # parses the command inputted into the terminal and handles server request
-def analyze_input(form):
+def analyze_input(form, button_state):
     whole = form.cmd.data
     words = whole.split()
     if len(words) == 1:
@@ -52,18 +53,16 @@ def analyze_input(form):
         main_op = OPCODE_STDLIB
         rest_string = str(to_opcode(words[1]))
         if len(words) == 2:
-            implant_id = words[0]
-            new_task = handle_task_request(implant_id, main_op, rest_string)
+            new_task = handle_task_request(button_state, main_op, rest_string)
             sleep(5)
             response = new_task.task_output
             response = response.split('\n')
         else:
             first_two_words = words[:2]
-            implant_id = first_two_words[0]
             cmd = str(to_opcode(first_two_words[1]))
             rest_of_words = words[2:]
             rest_string = cmd + rest_string.join(rest_of_words)
-            new_task = handle_task_request(implant_id, main_op, rest_string)
+            new_task = handle_task_request(button_state, main_op, rest_string)
             while new_task.task_output is None:
                 sleep(5)
             response = new_task.task_output
