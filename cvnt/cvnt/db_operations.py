@@ -16,7 +16,7 @@ def make_implant(ri: RegisterImplant, ip) -> RegisterImplant:
         implant_id = ri.ImplantID,
         computer_name = ri.ComputerName,
         username = ri.Username,
-        #public_key = ri.PublicKey
+        #public_key = ri.PublicKey,
         ip_addr = ip,
         checkin_frq = 1000,
         first_seen = func.now(),
@@ -88,7 +88,7 @@ def analyze_TaskResponse(tr: TaskResponse):
 
     print(f"TASK FOUND: {task}")
 
-    if not tr.HasField("Response"):
+    if tr.Response == STATUS_TASK_FAILED:
         task.status = STATUS_TASK_FAILED
         
     else:

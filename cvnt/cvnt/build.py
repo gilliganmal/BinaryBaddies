@@ -1,5 +1,3 @@
-
-
 from flask import Flask
 
 from cvnt.database import db

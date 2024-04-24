@@ -20,7 +20,6 @@ char* listdirs(char* Dir)
 
     // start getting the files
     hFind = FindFirstFile(szDir, &ffd);    
-
     // if we have a bad handle try to work out what went wrong
     if (INVALID_HANDLE_VALUE == hFind) 
     {
@@ -54,7 +53,6 @@ char* listdirs(char* Dir)
     sprintf(oBuffer, "Directory: %s\n\n", szDir);   
     sprintf(oBuffer, "%sType\tCreated\t\t  Last Access\t     Length\t Name\n", oBuffer);
     sprintf(oBuffer, "%s----\t-------\t\t  -----------\t     ------\t ----\n", oBuffer);
-
     do
     {
         // get the creation & last access time in something we can use
@@ -106,6 +104,7 @@ char* listdirs(char* Dir)
 
         sprintf(oBuffer, "%s%s", oBuffer, tmpBuffer);
         memset(tmpBuffer, '\0', strlen(tmpBuffer));
+    
     }
     while (FindNextFile(hFind, &ffd) != 0);
     
