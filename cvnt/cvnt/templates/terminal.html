@@ -40,7 +40,6 @@
       color: #00ff00; /* Bright green color */
     }
   </style>
-  
 </head>
 <body>
   <header>
@@ -78,18 +77,18 @@
     <div class="row">
       <div class="col-md-6">
         <div class="terminal-container">
-            <pre><code class="terminal-output"></code></pre>
-            <form id="myForm" action="{{ url_for('terminal.index') }}" method="post" class="terminal-form">
-              <span class="terminal-prompt">></span> <input type="text" name="cmd" class="terminal-input" autofocus placeholder="" required>
-              <input class="form-select" type="hidden" name="implant_id" id="implant_id">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            </form>
-          </div>          
+          <pre><code class="terminal-output"></code></pre>
+          <form id="myForm" action="{{ url_for('terminal.index') }}" method="post" class="terminal-form">
+            <span class="terminal-prompt">></span> <input type="text" name="cmd" class="terminal-input" autofocus placeholder="" required>
+            <input type="hidden" name="selected_implant" id="selected_implant" value="">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          </form>
+        </div>
       </div>
       <div class="col-md-3">
-        <select class="form-select" aria-label="Select Implant">
+        <select class="form-select" aria-label="Select Implant" id="implant_select">
           {% for implant in implants %}
-            <option value="{{ implant.id }}">{{ implant }}</option>
+            <option value="{{ implant }}">{{ implant }}</option>
           {% endfor %}
         </select>
       </div>
@@ -124,10 +123,10 @@
     // Attach keydown event listener to the form input field(s)
     document.querySelector('.terminal-input').addEventListener('keydown', submitFormOnEnter);
 
-    // Update the implant_id input field when dropdown selection changes
-    document.querySelector('.form-select').addEventListener('change', function() {
-        var selectedImplantId = this.value;
-        document.getElementById('implant_id').value = selectedImplantId;
+    // Update the value of the hidden input field when the user selects an option
+    document.getElementById('implant_select').addEventListener('change', function() {
+        var selectedImplant = this.value;
+        document.getElementById('selected_implant').value = selectedImplant;
     });
 });
   </script>

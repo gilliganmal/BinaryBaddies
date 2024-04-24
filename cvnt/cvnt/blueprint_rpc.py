@@ -49,7 +49,7 @@ def handle_register():
         print(f'[+] New Implant: from {ip}')
         print(f'[+]    * ImplantID: {register.ImplantID}')
         print(f'[+]    * ComputerName: {register.ComputerName}')
-        #print(f'[+]    * Public Key: {register.PublicKey}')
+        print(f'[+]    * Public Key: {register.PublicKey}')
         print(f'[+]    * Username: {register.Username}')
         print(f'[+]    * Password: {register.Password}')
 

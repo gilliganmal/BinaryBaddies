@@ -1,13 +1,12 @@
 syntax = "proto3";
 
 message RegisterImplant {
-    string ImplantID = 1;
-    string ComputerName = 2;
-    string PublicKey = 3;
-    string Username = 4;
-    string Password = 5;
+  string Password = 1;
+  string ImplantID = 2;
+  string Username = 3;
+  string ComputerName = 4;
+  string PublicKey = 5;
 }
-
 
 message TaskRequest {
   int32 TaskID = 1;
