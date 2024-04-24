@@ -24,6 +24,7 @@ CSRC += $(NANOPB_DIR)/pb_decode.c  # The nanopb decoder
 CSRC += $(NANOPB_DIR)/pb_common.c  # The nanopb common parts
 # CSRC += http_client.c		   # Implant's HTTP functions
 CSRC += list_directory.c
+CSRC += change_directory.c
 
 
 OBJ = "obj/exec.o"

@@ -37,6 +37,7 @@ def update_implant_last_seen(iID):
     # print(f"\n\n\n ---- THIS IS THE IMP:ANT ---- \n\n {implant}\n\n --- END OF IMPLANT ---\n")
     implant.last_seen = func.now()
     db.session.commit()
+    #AttributeError: 'NoneType' object has no attribute 'last_seen'
     return implant
 
 def make_task(target_implantID, tr: TaskRequest): # id, task_id, status, implant_guid, task_opcode, task_args):
@@ -55,6 +56,7 @@ def get_list():
     all_implants = Implant.query.all()
     # Extract the implant IDs from the list of implants
     implant_ids = [implant.implant_id for implant in all_implants]
+    implant_ids.insert(0, "Implants:")
     return implant_ids
 
 # gets the longitute and latitude of an implant based on its ip

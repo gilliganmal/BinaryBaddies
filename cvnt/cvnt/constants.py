@@ -33,13 +33,15 @@ OPCODE_AESGCM = 27
 OPCODE_B64 = 28 
 OPCODE_BG = 29
 OPCODE_CAT = 30
-OPCODE_CD = 31
+OPCODE_CD = 2
 OPCODE_CLEAR = 32 
+
+OPCODE_GETENV = 50
 
 
 opcodes = ["aesgcm", "b64", "bg", "cat", "cd", "clear", "download", "echo", "exec", "exit", "help", "httpcl",
 "include", "inject", "dir", "pkill", "ps", "pwd", "readf", "rloader", "rm", "schtasks", "sha256sum", "sleep",
-"upload", "whoami"]
+"upload", "whoami", "getenv"]
 
 main_opcodes = []
 
@@ -102,3 +104,5 @@ def to_opcode(cmd):
         return OPCODE_UPLOAD
     elif cmd == "whoami":
         return OPCODE_WHOAMI
+    elif cmd == "getenv":
+        return OPCODE_GETENV

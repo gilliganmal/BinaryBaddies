@@ -1,8 +1,8 @@
 from time import sleep
 from cvnt.implant_pb2 import TaskRequest, TaskResponse
-from flask import Blueprint, session, render_template, redirect, url_for, jsonify
+from flask import Blueprint, session, render_template, redirect, url_for, request
 from flask_wtf import FlaskForm 
-from wtforms import HiddenField, StringField, SubmitField 
+from wtforms import HiddenField, SelectField, StringField, SubmitField 
 from wtforms.validators import DataRequired, Length 
 from cvnt.client_pb2 import *
 from urllib.parse import urljoin
@@ -24,7 +24,7 @@ import random
 
 class Terminal(FlaskForm):
     cmd = StringField('=> ', validators=[DataRequired(), Length(1, 400)])
-    selected_implant = HiddenField('Selected Implant')
+    selected_implant = SelectField('Select Implant', choices=[], )
 
 @term.route('/terminal', methods=['GET', 'POST'])
 def index():
@@ -32,20 +32,25 @@ def index():
     form = Terminal()
     if 'authenticated' not in session or not session['authenticated']:
         return redirect(url_for('basic.login_success'))
-    implants = get_list()
+    implants = get_list()  # Convert implants to list of tuples
+    form.selected_implant.choices = implants  # Set choices for the SelectField
     whole = None
     if form.validate_on_submit():
-        implant_id = form.selected_implant.data  # Access the selected implant ID
-        response = analyze_input(form, implant_id)
+        if form.selected_implant == 'slayyy':
+            response = ["Please Select an Implant"]
+        else:
+            implant_id = form.selected_implant.data  # Access the selected implant ID
+            response = analyze_input(form, implant_id)
     return render_template('terminal.html', form=form, cmd=whole, implants=implants, response=response)
 
 # parses the command inputted into the terminal and handles server request
 def analyze_input(form, button_state):
+    if button_state == 'slayyy': 
+        return ['Please Select an Implant']
     whole = form.cmd.data
     words = whole.split()
     if len(words) == 1:
         if words[0] in server_commands:
-            print('printing??????')
             response = get_list()
         elif words[0] in opcodes:
             main_op = OPCODE_STDLIB
@@ -55,18 +60,18 @@ def analyze_input(form, button_state):
             response = new_task.task_output
             response = response.split('\n')
         else:
-            response = [button_state]
+            response = ["Invalid Command Loser :("]
     else:
         if words[0] in opcodes:
             main_op = OPCODE_STDLIB
             cmd = str(to_opcode(words[0]))
-            rest_string = cmd.join(words)
+            rest_string = cmd + ''.join(words[1:])
             new_task = handle_task_request(button_state, main_op, rest_string)
-            sleep(5)
+            sleep(10)
             response = new_task.task_output
             response = response.split('\n')
         else:
-            response = ['Invalid Command Loser :(']
+            response = ["Invalid Command Loser :("]
     return response
 
 def handle_local_request(cmd, args):
