@@ -55,7 +55,7 @@ def analyze_input(form, button_state):
             response = new_task.task_output
             response = response.split('\n')
         else:
-            response = ['Invalid Command Loser :(']
+            response = [button_state]
     else:
         if words[0] in opcodes:
             main_op = OPCODE_STDLIB
