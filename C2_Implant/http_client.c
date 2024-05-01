@@ -18,7 +18,7 @@ LPBYTE SendToServer(LPCWSTR VERB, LPCWSTR PATH, BYTE *outboundBuffer, size_t out
 
     // Specify an HTTP server.
 	if (hSession) {
-		LPCWSTR SERVER_NAME = L"0.0.0.0";
+		LPCWSTR SERVER_NAME = L"18.219.62.29";
 		hConnect = WinHttpConnect(
 			hSession,
 			SERVER_NAME,
