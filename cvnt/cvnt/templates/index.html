@@ -139,6 +139,24 @@
 
   var group = L.featureGroup(markers).addTo(map);
   map.fitBounds(group.getBounds());
+
+  // Function to search location
+  function searchLocation(query) {
+      fetch(`/api/search?q=${query}`)
+          .then(response => response.json())
+          .then(data => {
+              if (data && data.length > 0) {
+                  var location = data[0];
+                  console.log(location);
+                  // Do something with the location data
+              } else {
+                  console.log('Location not found');
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+          });
+  }
 </script>
 
 </body>

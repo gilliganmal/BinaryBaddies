@@ -16,7 +16,7 @@ packet = "/client/packet"
 def index():
     if 'authenticated' not in session or not session['authenticated']:
         return redirect(url_for('basic.login_success'))
-    
+    '''
     # Fetch latitude and longitude values from your Flask app
     implants = get_list()
     implant_coordinates = []
@@ -57,3 +57,4 @@ def get_tasks_by_implant_id(implant_id):
         # Handle exceptions (e.g., database errors)
         print(f"Error occurred while fetching tasks for implant {implant_id}: {e}")
         return []
+'''
