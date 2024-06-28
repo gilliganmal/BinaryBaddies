@@ -4,25 +4,12 @@
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>File manager</title>
-
-    <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
-    <!-- Your custom CSS file -->
-    <!--<link href="static/css/style.css" rel="stylesheet">-->
     <style>
-        /* Additional custom styling */
-        .navbar-custom {
-            background-color: #343a40; /* Dark background color */
-        }
-        .navbar-custom .nav-link {
-            color: #ffffff; /* White text color */
-        }
-        .navbar-custom .nav-link:hover {
-            color: #f8f9fa; /* Lighter text color on hover */
-        }
-        /* Custom grid layout */
+        .navbar-custom { background-color: #343a40; }
+        .navbar-custom .nav-link { color: #ffffff; }
+        .navbar-custom .nav-link:hover { color: #f8f9fa; }
         .grid-container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -39,52 +26,45 @@
 </head>
 <body>
 <header>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark navbar-custom"> <!-- Add navbar-custom class -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark navbar-custom">
         <div class="container-fluid">
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="../client">Terminal and Map</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="../explorer">File explorer</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link active" href="../client">Map</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="../terminal">Terminal</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="../explorer">File explorer</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 </header>
+<div id="debug_info" style="margin-top: 20px; border: 1px solid #ccc; padding: 10px; background-color: #f8f8f8;">
+    <h3>Debug Info</h3>
+    <pre id="debug_output"></pre>
+</div>
 <div align="center">
     <h1>Implant file system</h1>
+    <p>FILES: <span id="file_count">{{ file_list | length }}</span></p>
+    <p><strong>CURRENT IMPLANT: </strong><span id="current_implant">{{ selectedImplant }}</span></p>
     <p><strong>CWD: </strong>{{ current_working_directory }}</p>
 </div>
-
 <div class="container">
     <div class="row">
-        <div class="col-md-6">
-            <!-- Dropdown menu -->
-            <select class="form-control" id="selected_implant">
-                <option value="Implant1">Implant 1</option>
-                <option value="Implant2">Implant 2</option>
-                <option value="Implant3">Implant 3</option>
+        <div class="col-md-5">
+            <select class="form-select" aria-label="Select Implant" id="implant_select">
+                {% for implant in implants %}
+                    <option value="{{ implant }}">{{ implant }}</option>
+                {% endfor %}
             </select>
         </div>
-        <div class="col-md-6">
-            <!-- Button with JavaScript to reload the page -->
+        <div class="col-md-2"></div>
+        <div class="col-md-5">
             <button type="button" class="btn btn-primary" onclick="changeImplant()">Change Implant</button>
         </div>
     </div>
 </div>
-
-<ul class="grid-container">
-    <form action="/md" method="post">
-        <li class="grid-item">
-            <input type="submit" value="New folder"/>
-            <input name="folder" type="text" value="new_folder"/>
-        </li>
-    </form>
-    <li class="grid-item"><a href="/cd?path=..">..</a></li>
-    {% for item in file_list[0: -1] %}
+<ul class="grid-container" id="file_list">
+    {% for item in file_list %}
         <li class="grid-item">
             {% if '<DIR>' in item %}
                 <img src="../static/img/folder.webp" alt="Folder" style="width: 100px;"><br>
@@ -99,15 +79,56 @@
     {% endfor %}
 </ul>
 
-<div id="implant_id"></div>
-
 <script>
-    // Function to change the implant_id and submit the form
     function changeImplant() {
-        var selectedImplant = document.getElementById('selected_implant').value;
-        // Update the implant_id text
-        document.getElementById('implant_id').innerText = selectedImplant;
-    };
+        var selectedImplant = document.getElementById('implant_select').value;
+        document.getElementById('current_implant').innerText = selectedImplant;
+
+        fetch('/change_implant', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ implant_id: selectedImplant })
+        })
+        .then(response => {
+            console.log('Response status:', response.status);  // Log the response status
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response data:', data);  // Log the response data
+            var file_list = data.file_list;
+            var file_list_container = document.getElementById('file_list');
+            file_list_container.innerHTML = '';
+            document.getElementById('file_count').innerText = file_list.length;
+
+            // Update debug output
+            document.getElementById('debug_output').innerText = JSON.stringify(file_list, null, 2);
+
+            file_list.forEach(item => {
+                var li = document.createElement('li');
+                li.className = 'grid-item';
+
+                if (item.is_dir) {
+                    li.innerHTML = `
+                        <img src="../static/img/folder.webp" alt="Folder" style="width: 100px;"><br>
+                        <strong><a href="/cd?path=${item.name}">${item.name}</a></strong><a href="/rm?dir=${item.name}"> X</a>
+                    `;
+                } else if (item.is_file) {
+                    li.innerHTML = `
+                        <img src="../static/img/file.png" alt="File" style="width: 100px;"><br>
+                        <strong><a href="/view?file=${item.name}">${item.name}</a></strong>
+                    `;
+                } else {
+                    li.textContent = item.name;
+                }
+
+                file_list_container.appendChild(li);
+            });
+        })
+        .catch(error => console.error('Error:', error));  // Log any errors
+    }
 </script>
+
 </body>
 </html>

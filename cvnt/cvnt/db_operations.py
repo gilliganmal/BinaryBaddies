@@ -56,7 +56,7 @@ def get_list():
     all_implants = Implant.query.all()
     # Extract the implant IDs from the list of implants
     implant_ids = [implant.implant_id for implant in all_implants]
-    implant_ids.insert(0, "Implants:")
+    implant_ids.insert(0, "Please Select an Implant:")
     return implant_ids
 
 # gets the longitute and latitude of an implant based on its ip
