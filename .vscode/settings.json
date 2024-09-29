@@ -3,6 +3,8 @@
         "readf.h": "c",
         "pb_decode.h": "c",
         "debug.h": "c",
-        "pb.h": "c"
-    }
+        "pb.h": "c",
+        "implant.pb.h": "c"
+    },
+    "makefile.configureOnOpen": true
 }

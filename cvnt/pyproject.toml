@@ -2,7 +2,7 @@
 name = "cvnt"
 version = "0.1.0"
 description = ""
-authors = ["Your Name <you@example.com>"]
+authors = ["Ella Isgar", "Mallory Gilligan", "Aishu Vinod"]
 readme = "README.md"
 
 [tool.poetry.dependencies]

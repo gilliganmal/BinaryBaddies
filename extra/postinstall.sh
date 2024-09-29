@@ -1,7 +1,7 @@
-sudo groupadd docker
-sudo usermod -aG docker $USER 
-newgrp docker
-docker run hello-world
+# sudo groupadd docker
+# sudo usermod -aG docker $USER 
+# newgrp docker
+# docker run hello-world
 
 curl -sSL https://install.python-poetry.org | python3 -
 export $PATH=$PATH:$HOME/.local/bin

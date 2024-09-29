@@ -20,7 +20,7 @@ def login_success():
         email = form.email.data
         if email == "username.password@gmail.com":
             session['authenticated'] = True
-            return redirect(url_for('client.index'))
+            return redirect('client')
         else:
             flash('Thank you! You have successfully signed up for email alerts. See you soon ...')
             return render_template('landing.html', form=form)  
